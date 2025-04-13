@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChange,
+  SimpleChanges,
 } from '@angular/core';
 import { DropdownStateService } from 'src/app/core/services';
 
@@ -46,19 +47,65 @@ export class MultiSelectDropdownComponent implements OnInit {
   ) {}
 
   // Update ngOnInit to handle initial selections
+// In multi-select-dropdown.component.ts
 ngOnInit() {
   this.dropdownStateService.setActiveDropdown(null);
   this.filteredOptions = [...this.options];
-  console.log("key",this.key)
+  
   // Set initial selections if provided
   if (this.initialSelections && this.initialSelections.length) {
-    this.selectedOptions = [...this.initialSelections];
+    // Filter out any initial selections that don't exist in current options
+    this.selectedOptions = this.initialSelections.filter(initialOption => 
+      this.options.some(option => option.name === initialOption.name)
+    );
+    
+    // Add any initial selections that aren't in current options
+    const missingOptions = this.initialSelections.filter(initialOption => 
+      !this.options.some(option => option.name === initialOption.name)
+    );
+    
+    if (missingOptions.length) {
+      this.options = [...this.options, ...missingOptions];
+      this.selectedOptions = [...this.selectedOptions, ...missingOptions];
+    }
+    
     this.emitSelectionChanged();
   }
   
   if (!this.options || this.options.length === 0) {
     this.emitSelectionChanged();
   }
+}
+
+// In multi-select-dropdown.component.ts
+ngOnChanges(changes: SimpleChanges) {
+  if (changes['initialSelections'] && changes['initialSelections'].currentValue) {
+    this.updateSelectedOptions(changes['initialSelections'].currentValue);
+  }
+}
+
+private updateSelectedOptions(newSelections: OptionsFormat[]) {
+  // Clear current selections
+  this.selectedOptions = [];
+  
+  // Add new selections
+  newSelections.forEach(selection => {
+    // Find the matching option in available options
+    const matchingOption = this.options.find(option => 
+      option.name === selection.name || option.value === selection.value
+    );
+    
+    if (matchingOption) {
+      this.selectedOptions.push(matchingOption);
+    } else {
+      // If option doesn't exist, add it as a custom option
+      this.selectedOptions.push(selection);
+      this.options = [...this.options, selection];
+    }
+  });
+  
+  this.filteredOptions = [...this.options];
+  this.emitSelectionChanged();
 }
   isRecording: boolean = false;
   recognition: any;

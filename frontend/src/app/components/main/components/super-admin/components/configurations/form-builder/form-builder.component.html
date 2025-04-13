@@ -6,6 +6,7 @@
         [key]="item.key"
         [options]="item.options"
         [dropdownId]="item.dropdownId"
+        [initialSelections]="item.initialSelections || []"
         (selectionChanged)="onSelectionChanged($event)"
       ></app-multi-select-dropdown>
     </div>

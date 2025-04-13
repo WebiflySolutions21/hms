@@ -34,7 +34,7 @@ superAdminRoutes = SUPER_ADMIN_ROUTES;
  
    navigateUser(data) {
      this.router.navigate([`/main/super-admin/${data?.path}`])
- 
+      
      console.log(data);
    }
  

@@ -1,0 +1,264 @@
+<div class="hospital-config-details-component">
+  <div class="hospital-config-details-wrapper">
+    <div class="container-fluid py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="title">Forms Configuration for {{ hospitalName }}</div>
+        <span class="badge bg-primary">Hospital ID: {{ hospitalId }}</span>
+      </div>
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading form configurations...</p>
+      </div>
+
+      <div *ngIf="!isLoading" class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th width="80px">Sr.No</th>
+                  <th>Form Name</th>
+                  <th width="120px">Status</th>
+                  <th width="150px">Last Updated</th>
+                  <th width="200px">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let form of filteredForms"
+                  [class.table-primary]="form.isActive"
+                >
+                  <td>{{ form.srNo }}</td>
+                  <td>
+                    <a
+                      href="javascript:void(0)"
+                      (click)="showFormDetails(form)"
+                      class="text-decoration-none"
+                    >
+                      <strong>{{ form.title }}</strong>
+                      <small class="d-block text-muted">{{
+                        form.description || "No description"
+                      }}</small>
+                    </a>
+                  </td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="form.isActive ? 'bg-success' : 'bg-secondary'"
+                    >
+                      {{ form.isActive ? "Active" : "Inactive" }}
+                    </span>
+                  </td>
+                  <td>{{ form.lastUpdated }}</td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="showFormDetails(form)"
+                      >
+                        <i class="bi bi-eye"></i> Details
+                      </button>
+                      <div class="form-check form-switch">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="toggle-{{ form.id }}"
+                          [(ngModel)]="form.isActive"
+                          (change)="toggleFormVisibility(form)"
+                        />
+                        <label
+                          class="form-check-label"
+                          for="toggle-{{ form.id }}"
+                        ></label>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="filteredForms.length === 0" class="alert alert-info mt-3">
+            No forms found with visibility configuration. All forms are
+            currently inactive for this hospital.
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Details Modal -->
+      <div
+        *ngIf="selectedForm"
+        class="modal fade show d-block"
+        tabindex="-1"
+        role="dialog"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                {{ selectedForm.title }}
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                (click)="closeFormDetails()"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <h6>
+                    <i class="bi bi-info-circle me-2"></i>Basic Information
+                  </h6>
+                  <p>
+                    <strong>Description:</strong>
+                    {{ selectedForm.description || "Not provided" }}
+                  </p>
+                  <p><strong>Version:</strong> {{ selectedForm.version }}</p>
+                  <p>
+                    <strong>Created:</strong>
+                    {{ selectedForm.createdAt | date : "medium" }}
+                  </p>
+                  <p>
+                    <strong>Last Updated:</strong>
+                    {{ selectedForm.updatedAt | date : "medium" }}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <h6><i class="bi bi-eye me-2"></i>Visibility Status</h6>
+                  <div
+                    class="alert"
+                    [ngClass]="
+                      isFormConfiguredForHospital(selectedForm)
+                        ? 'alert-success'
+                        : 'alert-warning'
+                    "
+                  >
+                    This form is currently
+                    <strong>{{
+                      isFormConfiguredForHospital(selectedForm)
+                        ? "VISIBLE"
+                        : "NOT VISIBLE"
+                    }}</strong>
+                    for {{ hospitalName }}.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h6>
+                  <i class="bi bi-shield-lock me-2"></i>Access Configuration
+                </h6>
+                <div
+                  *ngIf="selectedForm.formVisibility?.length; else noVisibility"
+                >
+                  <div
+                    *ngFor="let visibility of selectedForm.formVisibility"
+                    class="mb-3 p-3 border rounded"
+                  >
+                    <div *ngIf="visibility.hospitaList?.length" class="mb-2">
+                      <h6 class="d-inline-block me-2">🏥 Hospitals:</h6>
+                      <span
+                        *ngFor="let hospital of visibility.hospitaList"
+                        class="badge bg-primary me-1"
+                      >
+                        {{ hospital.name }} (ID: {{ hospital.id }})
+                      </span>
+                    </div>
+                    <div *ngIf="visibility.loginTypes?.length" class="mb-2">
+                      <h6 class="d-inline-block me-2">👥 Login Types:</h6>
+                      <span
+                        *ngFor="let loginType of visibility.loginTypes"
+                        class="badge bg-secondary me-1"
+                      >
+                        {{ loginType.name }} (ID: {{ loginType.id }})
+                      </span>
+                    </div>
+                    <div>
+                      <span
+                        class="badge"
+                        [ngClass]="
+                          visibility.isPrintable ? 'bg-success' : 'bg-danger'
+                        "
+                      >
+                        {{
+                          visibility.isPrintable ? "Printable" : "Not Printable"
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noVisibility>
+                  <div class="alert alert-warning">
+                    No visibility configuration found for this form.
+                  </div>
+                </ng-template>
+              </div>
+
+              <div class="mb-3">
+                <h6>
+                  <i class="bi bi-layout-text-sidebar me-2"></i>Form Sections
+                </h6>
+                <div
+                  *ngFor="let section of selectedForm.sections"
+                  class="mb-4 border-bottom pb-3"
+                >
+                  <h5>{{ section.title }}</h5>
+                  <p class="text-muted">
+                    {{ section.fields.length }} fields |
+                    {{ section.columns }} column layout
+                  </p>
+
+                  <div class="row g-3">
+                    <div *ngFor="let field of section.fields" class="col-md-6">
+                      <div class="card h-100">
+                        <div class="card-body">
+                          <h6 class="card-title">{{ field.label }}</h6>
+                          <p class="card-text text-muted small mb-1">
+                            Type:
+                            <span class="badge bg-info">{{ field.type }}</span>
+                            <span
+                              *ngIf="field.required"
+                              class="badge bg-danger ms-1"
+                              >Required</span
+                            >
+                          </p>
+                          <p *ngIf="field.placeholder" class="card-text small">
+                            <strong>Placeholder:</strong>
+                            {{ field.placeholder }}
+                          </p>
+                          <div *ngIf="field.options?.length">
+                            <p class="small mb-1"><strong>Options:</strong></p>
+                            <ul class="list-unstyled small">
+                              <li *ngFor="let opt of field.options">
+                                {{ opt.label }} ({{ opt.value }})
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeFormDetails()"
+              >
+                <i class="bi bi-x-circle me-1"></i> Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="selectedForm" class="modal-backdrop fade show"></div>
+    </div>
+  </div>
+</div>
