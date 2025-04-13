@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   SUPER_ADMIN_TABLE_COLUMNS,
   SUPER_ADMIN_TABLE_DATA,
@@ -19,6 +20,7 @@ export class SuperAdminDashboardComponent implements OnInit {
   title: any;
   message: any;
 
+  constructor(private router:Router){}
   ngOnInit() {
     this.filteredTableData = this.tableData;
   }
@@ -35,6 +37,10 @@ export class SuperAdminDashboardComponent implements OnInit {
         this.title = `Revoke ${event.row.name}`;
         this.message = `Are you sure you want to revoke this ${event.row.name}?`;
         this.openConfirm(event?.action, event.row);
+        break;
+      case 'configView':
+        console.log(event.row)
+        this.router.navigate(["/main/super-admin/hospital-config-details"],{queryParams:{id:event.row.id,name:event.row.name}})
         break;
     }
   }

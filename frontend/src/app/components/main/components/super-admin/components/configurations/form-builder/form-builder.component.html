@@ -1,5 +1,16 @@
 <div class="container-fluid py-4">
-
+  <div class="patient-diagnosis-section mb-4">
+    <div class="examination" *ngFor="let item of dropdowns">
+      <app-multi-select-dropdown
+        [label]="item.heading"
+        [key]="item.key"
+        [options]="item.options"
+        [dropdownId]="item.dropdownId"
+        [initialSelections]="item.initialSelections || []"
+        (selectionChanged)="onSelectionChanged($event)"
+      ></app-multi-select-dropdown>
+    </div>
+  </div>
   <div class="mb-4">
     <button class="btn btn-info" (click)="openImportModal()">
       <i class="bi bi-upload me-1"></i>Import Form

@@ -7,6 +7,8 @@ import {
   Input,
   OnInit,
   Output,
+  SimpleChange,
+  SimpleChanges,
 } from '@angular/core';
 import { DropdownStateService } from 'src/app/core/services';
 
@@ -14,6 +16,7 @@ interface OptionsFormat {
   name: string;
   value: string;
   dropdownId: any;
+  key:string
 }
 
 @Component({
@@ -24,6 +27,7 @@ interface OptionsFormat {
 export class MultiSelectDropdownComponent implements OnInit {
   @Input() options: OptionsFormat[] = [];
   @Input() label: string = '';
+  @Input() key:string=''
   @Input() initialSelections: OptionsFormat[] = [];
   @Input() dropdownId: string = ''; // Unique ID for each dropdown
   @Input() showCheckBox: boolean = false; // Show checkbox for each option
@@ -43,19 +47,65 @@ export class MultiSelectDropdownComponent implements OnInit {
   ) {}
 
   // Update ngOnInit to handle initial selections
+// In multi-select-dropdown.component.ts
 ngOnInit() {
   this.dropdownStateService.setActiveDropdown(null);
   this.filteredOptions = [...this.options];
   
   // Set initial selections if provided
   if (this.initialSelections && this.initialSelections.length) {
-    this.selectedOptions = [...this.initialSelections];
+    // Filter out any initial selections that don't exist in current options
+    this.selectedOptions = this.initialSelections.filter(initialOption => 
+      this.options.some(option => option.name === initialOption.name)
+    );
+    
+    // Add any initial selections that aren't in current options
+    const missingOptions = this.initialSelections.filter(initialOption => 
+      !this.options.some(option => option.name === initialOption.name)
+    );
+    
+    if (missingOptions.length) {
+      this.options = [...this.options, ...missingOptions];
+      this.selectedOptions = [...this.selectedOptions, ...missingOptions];
+    }
+    
     this.emitSelectionChanged();
   }
   
   if (!this.options || this.options.length === 0) {
     this.emitSelectionChanged();
   }
+}
+
+// In multi-select-dropdown.component.ts
+ngOnChanges(changes: SimpleChanges) {
+  if (changes['initialSelections'] && changes['initialSelections'].currentValue) {
+    this.updateSelectedOptions(changes['initialSelections'].currentValue);
+  }
+}
+
+private updateSelectedOptions(newSelections: OptionsFormat[]) {
+  // Clear current selections
+  this.selectedOptions = [];
+  
+  // Add new selections
+  newSelections.forEach(selection => {
+    // Find the matching option in available options
+    const matchingOption = this.options.find(option => 
+      option.name === selection.name || option.value === selection.value
+    );
+    
+    if (matchingOption) {
+      this.selectedOptions.push(matchingOption);
+    } else {
+      // If option doesn't exist, add it as a custom option
+      this.selectedOptions.push(selection);
+      this.options = [...this.options, selection];
+    }
+  });
+  
+  this.filteredOptions = [...this.options];
+  this.emitSelectionChanged();
 }
   isRecording: boolean = false;
   recognition: any;
@@ -187,14 +237,15 @@ ngOnInit() {
   emitSelectionChanged() {
     // Create the new entry
     const newEntry = {
-      label: this.label,
+      key: this.key,
       options: [...this.selectedOptions], // Clone to avoid reference issues
       isPrintEnabled: this.isPrintEnabled, // Include toggle switch value
     };
     console.log('newEntry', newEntry);
     // Find existing index
+    console.log("allData",this.allData)
     const existingIndex = this.allData?.findIndex(
-      (item) => item.label === this.label
+      (item) => item.key === this.key
     );
 
     // Update or add
@@ -230,6 +281,7 @@ ngOnInit() {
         name: this.searchTerm,
         value: 'custom',
         dropdownId: this.dropdownId,
+        key:this.key
       };
       this.options = [...this.options, newOption]; // Create a new array reference to trigger change detection
       this.selectedOptions.push(newOption);

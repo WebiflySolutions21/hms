@@ -1,0 +1,99 @@
+/* hospital-config-details.component.scss */
+@import "mixins";
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(13, 110, 253, 0.1);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+  }
+  
+  .modal-backdrop {
+    opacity: 0.5;
+  }
+  
+  .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+    
+    &:checked {
+      background-color: #198754;
+      border-color: #198754;
+    }
+  }
+  
+  .badge {
+    @include font(12,1vw,14,hbold,#fff);
+    padding: 0.35em 0.65em;
+  }
+  
+  .card {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .table-responsive {
+      border: 0;
+      
+      table {
+        display: block;
+        
+        thead {
+          display: none;
+        }
+        
+        tbody {
+          display: block;
+          
+          tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            
+            td {
+              display: block;
+              text-align: right;
+              padding-left: 50%;
+              position: relative;
+              border-bottom: 1px solid #dee2e6;
+              
+              &::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: calc(50% - 1rem);
+                padding-right: 1rem;
+                text-align: left;
+                font-weight: bold;
+              }
+              
+              &:last-child {
+                border-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  p{
+    font-family: helvetica-bold;
+  }
+
+  .title{
+    @include font(16,1vw,18,hbold,#000);
+  }
+
+  th,td{
+    font-family: helvetica-bold;
+  }
