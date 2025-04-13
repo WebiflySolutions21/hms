@@ -35,7 +35,7 @@
 #       - name: 🛠️ Setup PHP and Install Dependencies Locally
 #         uses: shivammathur/setup-php@v2
 #         with:
-#           php-version: '8.3'
+#           php-version: '8.4'
 #           tools: composer
 
 #       - name: 📦 Install PHP Dependencies
@@ -53,11 +53,11 @@
 #       - name: 🔍 Set Deployment Path
 #         run: |
 #           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-#             echo "FRONTEND_DEPLOY_PATH=domains/dokumentguru.com/public_html/new_app" >> $GITHUB_ENV
-#             echo "BACKEND_DEPLOY_PATH=domains/dokumentguru.com/public_html/new_app/backend" >> $GITHUB_ENV
+#             echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms" >> $GITHUB_ENV
+#             echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/backend" >> $GITHUB_ENV
 #           elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then
-#             echo "FRONTEND_DEPLOY_PATH=domains/dokumentguru.com/public_html/new_app/new_app_test" >> $GITHUB_ENV
-#             echo "BACKEND_DEPLOY_PATH=domains/dokumentguru.com/public_html/new_app/new_app_test/backend" >> $GITHUB_ENV
+#             echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test" >> $GITHUB_ENV
+#             echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test/backend" >> $GITHUB_ENV
 #           else
 #             echo "❌ Unsupported branch, skipping deployment!" && exit 1
 #           fi
