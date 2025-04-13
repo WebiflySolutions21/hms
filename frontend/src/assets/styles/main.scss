@@ -1,25 +1,25 @@
-@import "fonts";
-@import "mixins";
-@import "structure";
+@import "./helpers/fonts";
+@import "./helpers/mixins";
+@import "./layout/structure";
 @media print {
-    body * {
-      visibility: hidden;
-    }
-  
-    .print-container, .print-container * {
-      visibility: visible;
-    }
-  
-    .print-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-    }
-  
-    /* Hide print button */
-    .print-container .btn {
-      display: none;
-    }
+  body * {
+    visibility: hidden;
   }
-  
+
+  .print-container,
+  .print-container * {
+    visibility: visible;
+  }
+
+  .print-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /* Hide print button */
+  .print-container .btn {
+    display: none;
+  }
+}
