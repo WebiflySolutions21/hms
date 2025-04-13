@@ -7,6 +7,7 @@ import {
   Input,
   OnInit,
   Output,
+  SimpleChange,
 } from '@angular/core';
 import { DropdownStateService } from 'src/app/core/services';
 
@@ -14,6 +15,7 @@ interface OptionsFormat {
   name: string;
   value: string;
   dropdownId: any;
+  key:string
 }
 
 @Component({
@@ -24,6 +26,7 @@ interface OptionsFormat {
 export class MultiSelectDropdownComponent implements OnInit {
   @Input() options: OptionsFormat[] = [];
   @Input() label: string = '';
+  @Input() key:string=''
   @Input() initialSelections: OptionsFormat[] = [];
   @Input() dropdownId: string = ''; // Unique ID for each dropdown
   @Input() showCheckBox: boolean = false; // Show checkbox for each option
@@ -46,7 +49,7 @@ export class MultiSelectDropdownComponent implements OnInit {
 ngOnInit() {
   this.dropdownStateService.setActiveDropdown(null);
   this.filteredOptions = [...this.options];
-  
+  console.log("key",this.key)
   // Set initial selections if provided
   if (this.initialSelections && this.initialSelections.length) {
     this.selectedOptions = [...this.initialSelections];
@@ -187,14 +190,15 @@ ngOnInit() {
   emitSelectionChanged() {
     // Create the new entry
     const newEntry = {
-      label: this.label,
+      key: this.key,
       options: [...this.selectedOptions], // Clone to avoid reference issues
       isPrintEnabled: this.isPrintEnabled, // Include toggle switch value
     };
     console.log('newEntry', newEntry);
     // Find existing index
+    console.log("allData",this.allData)
     const existingIndex = this.allData?.findIndex(
-      (item) => item.label === this.label
+      (item) => item.key === this.key
     );
 
     // Update or add
@@ -230,6 +234,7 @@ ngOnInit() {
         name: this.searchTerm,
         value: 'custom',
         dropdownId: this.dropdownId,
+        key:this.key
       };
       this.options = [...this.options, newOption]; // Create a new array reference to trigger change detection
       this.selectedOptions.push(newOption);

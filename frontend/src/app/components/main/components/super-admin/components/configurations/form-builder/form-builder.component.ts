@@ -40,7 +40,6 @@ interface DropdownOption {
   templateUrl: './form-builder.component.html',
   styleUrls: ['./form-builder.component.scss'],
 })
-
 export class FormBuilderComponent {
   logInCategoryTypes: any;
   @ViewChild('registerModal') registerModalRef!: ElementRef;
@@ -48,6 +47,39 @@ export class FormBuilderComponent {
   enableRegister = false;
   registerButtonText = 'View Register';
   showRegisterPrompt = false;
+  hospitalList = [
+    { id: 1, name: 'ABC Hospital', value: 'abcHospital' },
+    { id: 2, name: 'XYZ Hospital', value: 'xyzHospital' },
+    { id: 3, name: 'PQR Hospital', value: 'pqrHospital' },
+    { id: 4, name: 'LMN Hospital', value: 'lmnHospital' },
+    { id: 5, name: 'OPQ Hospital', value: 'opqHospital' },
+    { id: 6, name: 'RST Hospital', value: 'rstHospital' },
+    { id: 7, name: 'UVW Hospital', value: 'uvwHospital' },
+    { id: 8, name: 'XYZ Hospital', value: 'xyzHospital' },
+  ];
+  loginTypes = [
+    {id:1,name:'Doctor',value:'doctor'},
+    {id:2,name:'Staff',value:'staff'},
+    {id:3,name:'Receptionist',value:'receptionist'},  
+    {id:4,name:'Medical',value:'medical'},
+    {id:5,name:'Lab',value:'lab'},
+    {id:6,name:'Admin',value:'admin'},
+  ];
+  dropdowns = [
+    {
+      heading: 'Hospital List',
+      key: 'hospitaList',
+      options: this.hospitalList,
+      dropdownId: 1,
+    },
+    {
+      heading: 'Login Types',
+      key: 'loginTypes',
+      options: this.loginTypes,
+      dropdownId: 2,
+    },
+  ];
+
   formConfig: FormConfig = {
     id: '1',
     title: 'New Form',
@@ -56,7 +88,6 @@ export class FormBuilderComponent {
     updatedAt: new Date(),
     version: 1,
     sections: [],
-
   };
   @ViewChild('importModal') importModalRef!: ElementRef;
   availableFieldTypes = [
@@ -73,6 +104,7 @@ export class FormBuilderComponent {
   isEditMode = false;
   availableForms: FormConfig[] = [];
   modal: any;
+  selectedCheckboxes = [];
   // Add these properties to your component
   isExistingForm = false;
   originalFormId: string | null = null;
@@ -111,14 +143,50 @@ export class FormBuilderComponent {
     this.modal.show();
   }
   // Update your importForm method
-  importForm(form: FormConfig) {
+  importForm(form: any) {
     this.formConfig = JSON.parse(JSON.stringify(form));
     this.originalFormId = form.id;
     this.isExistingForm = this.formService.formExists(form.id);
     this.isEditMode = true;
-    
+    console.log(form)
     this.modal.hide();
   }
+
+  onSelectionChanged(selectedOptions) {
+    if (selectedOptions.length) {
+      selectedOptions.forEach((option) => {
+        // Check if the label already exists in selectedCheckboxes
+        console.log("selectedCheckboxes",this.selectedCheckboxes)
+        console.log("selectedOptions",selectedOptions)
+        let existingLabelIndex = this.selectedCheckboxes.findIndex(
+          (item) => Object.keys(item)[0] === option.key
+        );
+        // Prepare a dynamic list of options without duplicates
+        const dynamicOptions = option.options.map((opt) => ({
+          id: opt.id,
+          name: opt.name,
+        }));
+
+        if (existingLabelIndex !== -1) {
+          // Replace existing data with the new data
+          this.selectedCheckboxes[existingLabelIndex] = {
+            [option.key]: dynamicOptions,
+            isPrintable: option.isPrintEnabled,
+          };
+        } else {
+          // Create a new label object with the dynamic options
+          let newOption = {
+            [option.key]: dynamicOptions,
+            isPrintable: option.isPrintEnabled,
+          };
+          this.selectedCheckboxes.push(newOption);
+        }
+      });
+
+      console.log(this.selectedCheckboxes);
+    }
+  }
+
   // Add these new methods
   updateForm() {
     if (!this.originalFormId) return;
@@ -170,9 +238,12 @@ export class FormBuilderComponent {
     this.formConfig.id = this.formService.generateId();
     this.formConfig.createdAt = new Date();
     this.formConfig.version = 1;
+    
     let payload = {
       ...this.formConfig,
-    }
+      formVisibility:this.selectedCheckboxes
+    };
+    console.log(payload)
     this.formService.saveForm(payload);
 
     // Always show register prompt for new forms
@@ -224,15 +295,12 @@ export class FormBuilderComponent {
     this.modal.hide();
   }
 
-
-  
   importForUpdate(form: FormConfig) {
     this.formConfig = JSON.parse(JSON.stringify(form));
     this.isExistingForm = true;
     this.originalFormId = form.id;
     this.isEditMode = true;
-    
-    
+
     this.modal.hide();
   }
 
