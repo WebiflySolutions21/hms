@@ -1,0 +1,26 @@
+@import "mixins";
+.admin-dashboard-component {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  .admin-dashboard-wrapper {
+    width: 100%;
+    height:100%;
+
+    .table-data {
+      width: 100%;
+    }
+  }
+}
+
+.table-title {
+  text-align: center;
+  margin: 20px 0;
+  color: #202020;
+  @include font(16, 4vw, 19, hbold, #202020);
+}
+.heading{
+  width: 100%;
+  @include font(25,1vw,32,hbold,#000);
+  text-align: center;
+}

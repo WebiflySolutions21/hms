@@ -1,0 +1,14 @@
+<div class="admin-component">
+    <div class="header">
+        <app-header
+          [headingRoutes]="adminRoutes"
+          [hospitalName]="hospitalName"
+          (titleClick)="navigateUser($event)"
+        ></app-header>
+      </div>
+      <div class="router">
+        <router-outlet></router-outlet>
+
+      </div>
+ 
+</div>
