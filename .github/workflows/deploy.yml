@@ -1,80 +1,80 @@
-# name: Deploy to Hosting
+name: Deploy to Hosting
 
-# on:
-#   push:
-#     branches:
-#       - test
-#   pull_request:
-#     types:
-#       - merged
-#       - closed
-#     branches:
-#       - master
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    types:
+      - merged
+      - closed
+    branches:
+      - master
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: 🚀 Checkout Repository
-#         uses: actions/checkout@v4
+    steps:
+      - name: 🚀 Checkout Repository
+        uses: actions/checkout@v4
 
-#       - name: ⚡ Setup Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 18
-#           cache: 'npm'
-#           cache-dependency-path: frontend/package-lock.json
+      - name: ⚡ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-#       - name: 📦 Install Dependencies & Build Frontend
-#         run: |
-#           cd frontend
-#           npm ci
-#           npm run build
+      - name: 📦 Install Dependencies & Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
 
-#       - name: 🛠️ Setup PHP and Install Dependencies Locally
-#         uses: shivammathur/setup-php@v2
-#         with:
-#           php-version: '8.4'
-#           tools: composer
+      - name: 🛠️ Setup PHP and Install Dependencies Locally
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
 
-#       - name: 📦 Install PHP Dependencies
-#         run: |
-#           cd backend
-#           composer install --no-dev --optimize-autoloader
+      - name: 📦 Install PHP Dependencies
+        run: |
+          cd backend
+          composer install --no-dev --optimize-autoloader
 
-#       - name: 🔑 Setup SSH Key
-#         run: |
-#           mkdir -p ~/.ssh
-#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#           chmod 600 ~/.ssh/id_rsa
-#           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: 🔑 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-#       - name: 🔍 Set Deployment Path
-#         run: |
-#           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-#             echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms" >> $GITHUB_ENV
-#             echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/backend" >> $GITHUB_ENV
-#           elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then
-#             echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test" >> $GITHUB_ENV
-#             echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test/backend" >> $GITHUB_ENV
-#           else
-#             echo "❌ Unsupported branch, skipping deployment!" && exit 1
-#           fi
+      - name: 🔍 Set Deployment Path
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms" >> $GITHUB_ENV
+            echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/backend" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then
+            echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test" >> $GITHUB_ENV
+            echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test/backend" >> $GITHUB_ENV
+          else
+            echo "❌ Unsupported branch, skipping deployment!" && exit 1
+          fi
 
-#       - name: 🔍 Check if Deployment Folders Exist on Server
-#         run: |
-#           ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $FRONTEND_DEPLOY_PATH ]]" || { echo '❌ Frontend target directory does not exist!'; exit 1; }
-#           ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $BACKEND_DEPLOY_PATH ]]" || { echo '❌ Backend target directory does not exist!'; exit 1; }
+      - name: 🔍 Check if Deployment Folders Exist on Server
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $FRONTEND_DEPLOY_PATH ]]" || { echo '❌ Frontend target directory does not exist!'; exit 1; }
+          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $BACKEND_DEPLOY_PATH ]]" || { echo '❌ Backend target directory does not exist!'; exit 1; }
 
-#       - name: 📂 Deploy Frontend to Server using SSH
-#         run: |
-#           rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" frontend/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
+      - name: 📂 Deploy Frontend to Server using SSH
+        run: |
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" frontend/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
-#       - name: 📂 Deploy Backend to Server using SSH
-#         run: |
-#           rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" backend/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
+      - name: 📂 Deploy Backend to Server using SSH
+        run: |
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" backend/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
-#       - name: 🔄 Run Migrations and Seed Database
-#         run: |
-#           ssh -t -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
+      - name: 🔄 Run Migrations and Seed Database
+        run: |
+          ssh -t -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
