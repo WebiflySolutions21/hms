@@ -1,0 +1,97 @@
+.doctor-config-component {
+    .card {
+      border-radius: 0.5rem;
+      overflow: hidden;
+      
+      .card-header {
+        padding: 1rem 1.5rem;
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+      }
+    }
+    
+    .table {
+      th {
+        white-space: nowrap;
+      }
+      
+      td {
+        vertical-align: middle;
+      }
+      
+      .badge {
+        font-size: 0.8em;
+        padding: 0.35em 0.65em;
+      }
+    }
+    
+    .form-switch {
+      .form-check-input {
+        width: 2.5em;
+        height: 1.5em;
+      }
+    }
+    
+    .accordion {
+      .accordion-button:not(.collapsed) {
+        background-color: rgba(13, 110, 253, 0.1);
+      }
+    }
+    
+    .btn-close {
+      opacity: 1;
+      background-size: 0.7em;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .doctor-config-component {
+      .table-responsive {
+        border: 0;
+        
+        table {
+          display: block;
+          
+          thead {
+            display: none;
+          }
+          
+          tbody {
+            display: block;
+            
+            tr {
+              display: block;
+              margin-bottom: 1rem;
+              border: 1px solid #dee2e6;
+              border-radius: 0.25rem;
+              padding: 0.5rem;
+              
+              td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem;
+                border-bottom: 1px solid #dee2e6;
+                
+                &::before {
+                  content: attr(data-label);
+                  font-weight: bold;
+                  margin-right: 1rem;
+                }
+                
+                &:last-child {
+                  border-bottom: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }

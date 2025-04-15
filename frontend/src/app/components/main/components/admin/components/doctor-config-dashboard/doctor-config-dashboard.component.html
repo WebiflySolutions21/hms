@@ -1,0 +1,39 @@
+<div class="doctor-config-dashboard-component">
+    <div class="doctor-config-dashboard-wrapper">
+        <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Sr.No</th>
+                <th>Config Name</th>
+                <th>Toggle</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let config of configList; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ config.name }}</td>
+                <td>
+                  <label class="switch">
+                    <input type="checkbox" [checked]="config.isEnabled" [(ngModel)]="config.isEnabled" (change)="onToggleChange(config)">
+                    <span class="slider round"></span>
+                  </label>
+                </td>
+                <td>
+                  <span [ngClass]="config.isEnabled ? 'status-active' : 'status-inactive'">
+                    {{ config.isEnabled ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="btns">
+                    <button *ngFor="let action of config.actions"
+                            [class]="action.class ? action.class : 'btn btn-primary'"
+                            (click)="handleAction(action)">
+                      {{ action.label }}
+                    </button>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+</div>

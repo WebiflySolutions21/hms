@@ -23,6 +23,10 @@ const routes: Routes = [
         path:'deleted-data',
         loadChildren: () => import('./components/deleted-data/deleted-data.module').then(m => m.DeletedDataModule) 
       },
+      {
+        path:'doctor-config-dashboard',
+        loadChildren: () => import('./components/doctor-config-dashboard/doctor-config-dashboard.module').then(m => m.DoctorConfigDashboardModule) 
+      },
     ]
   }
 ];

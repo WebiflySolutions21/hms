@@ -1,0 +1,123 @@
+@import "mixins";
+
+.doctor-config-dashboard-component{
+    width: 100%;
+    height: 100%;
+    .doctor-config-dashboard-wrapper{
+        width: 100%;
+        height: 100%;
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        
+            th,
+            td {
+              padding: 0.8em 1em;
+              text-align: center;
+              border-bottom: 1px solid #e0e0e0;
+              @include font(12, 1vw, 14, hbold, #2c3e50);
+            }
+        
+            th {
+              background-color: #0084ff;
+              color: white;
+              text-transform: uppercase;
+            }
+        
+            tr:nth-child(even) {
+              background-color: #f8f9fa;
+            }
+        
+            tr:hover {
+              background-color: #e3f2fd;
+            }
+        
+            .btns {
+            //   display: flex;
+            //   justify-content: center;
+              gap: 0.5rem;
+        
+              .btn {
+                padding: 0.4rem 0.8rem;
+                border-radius: 0.5rem;
+                font-weight: bold;
+                cursor: pointer;
+              }
+        
+              .btn-primary {
+                background-color: #007bff;
+                color: #fff;
+        
+                &:hover {
+                  background-color: #0056b3;
+                }
+              }
+        
+              .btn-danger {
+                background-color: #dc3545;
+                color: #fff;
+        
+                &:hover {
+                  background-color: #a71d2a;
+                }
+              }
+            }
+        
+            .status-active {
+              color: green;
+              font-weight: bold;
+            }
+        
+            .status-inactive {
+              color: red;
+              font-weight: bold;
+            }
+        
+            .switch {
+              position: relative;
+              display: inline-block;
+              width: 46px;
+              height: 24px;
+        
+              input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+              }
+        
+              .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: 0.4s;
+                border-radius: 34px;
+        
+                &::before {
+                  position: absolute;
+                  content: "";
+                  height: 18px;
+                  width: 18px;
+                  left: 3px;
+                  bottom: 3px;
+                  background-color: white;
+                  transition: 0.4s;
+                  border-radius: 50%;
+                }
+              }
+        
+              input:checked + .slider {
+                background-color: #4caf50;
+              }
+        
+              input:checked + .slider::before {
+                transform: translateX(22px);
+              }
+            }
+          }
+    }
+}
