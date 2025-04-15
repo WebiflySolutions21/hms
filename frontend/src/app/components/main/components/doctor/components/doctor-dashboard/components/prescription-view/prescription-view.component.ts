@@ -61,25 +61,12 @@ export class PrescriptionViewComponent {
       });
     }, 100);
   }
-  examinationOptions = [
-    { name: 'Headache', value: 'active' },
-    { name: 'Back Pain', value: 'inactive' },
-    { name: 'Having very much pain in my muscle', value: 'inactive' },
-  ];
-  dropdowns = [
-    { label: 'Examination', options: this.examinationOptions, dropdownId: 1 },
-    { label: 'Past History', options: '', dropdownId: 2 },
-    { label: 'Personal History', options: '', dropdownId: 3 },
-    { label: 'Family/Drug History', options: '', dropdownId: 4 },
-    { label: 'Surgical History', options: '', dropdownId: 5 },
-    { label: 'Medical History', options: '', dropdownId: 6 },
-    { label: 'Examinations', options: '', dropdownId: 7 },
-    { label: 'Investigation Lab', options: '', dropdownId: 8 },
-    { label: 'Investigation Imaging', options: '', dropdownId: 9 },
-    { label: 'Symptoms', options: '', dropdownId: 10 },
-    { label: 'Instructions', options: '', dropdownId: 11 },
-    { label: 'Diagnosis', options: '', dropdownId: 12 },
-  ];
+  dropdowns = [];
+
+  ngOnInit(){
+    let data = JSON.parse(localStorage.getItem("view"))
+    this.dropdowns = data
+  }
 
   ngAfterViewInit() {
     if (this.admitPatientModalRef) {
@@ -201,24 +188,24 @@ export class PrescriptionViewComponent {
       selectedOptions.forEach((option) => {
         // Check if the label already exists in selectedCheckboxes
         let existingLabelIndex = this.selectedCheckboxes.findIndex(
-          (item) => Object.keys(item)[0] === option.label
+          (item) => Object.keys(item)[0] === option.key
         );
         // Prepare a dynamic list of options without duplicates
         const dynamicOptions = option.options.map((opt) => ({
-          id: opt.dropdownId,
+          id: opt.id,
           name: opt.name,
         }));
 
         if (existingLabelIndex !== -1) {
           // Replace existing data with the new data
           this.selectedCheckboxes[existingLabelIndex] = {
-            [option.label]: dynamicOptions,
+            [option.key]: dynamicOptions,
             isPrintable: option.isPrintEnabled,
           };
         } else {
           // Create a new label object with the dynamic options
           let newOption = {
-            [option.label]: dynamicOptions,
+            [option.key]: dynamicOptions,
             isPrintable: option.isPrintEnabled,
           };
           this.selectedCheckboxes.push(newOption);

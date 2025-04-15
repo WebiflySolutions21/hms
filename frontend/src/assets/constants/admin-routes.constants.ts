@@ -1,8 +1,13 @@
 export const ADMIN_ROUTES = [
   {
+    id:5,
+    title:"Dashboard",
+    path:'/admin-dashboard'
+  },
+  {
     id: 1,
-    title: 'Configurations',
-    path: '/configurations',
+    title: 'Doctor Config',
+    path: '/doctor-config-dashboard',
   },
   {
     id: 2,
