@@ -49,12 +49,10 @@ jobs:
 
       - name: Validate Required Secrets
         run: |
-          for secret in SSH_PRIVATE_KEY SSH_USERNAME SSH_HOST SSH_PORT; do
-            if [[ -z "${{ secrets[secret] }}" ]]; then
-              echo "::error::Missing secret: $secret"
-              exit 1
-            fi
-          done
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "::error::Missing secret: SSH_PRIVATE_KEY"; exit 1; fi
+          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then echo "::error::Missing secret: SSH_USERNAME"; exit 1; fi
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then echo "::error::Missing secret: SSH_HOST"; exit 1; fi
+          if [ -z "${{ secrets.SSH_PORT }}" ]; then echo "::error::Missing secret: SSH_PORT"; exit 1; fi
 
       - name: Configure SSH
         run: |
