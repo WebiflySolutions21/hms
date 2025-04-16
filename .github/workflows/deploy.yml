@@ -1,80 +1,134 @@
-name: Deploy to Hosting
+name: Smart Deploy to Hosting
 
 on:
   push:
-    branches:
-      - test
+    branches: [ test ]
   pull_request:
-    types:
-      - merged
-      - closed
-    branches:
-      - master
+    types: [ closed ]
+    branches: [ master ]
+
+env:
+  FRONTEND_DIR: frontend
+  BACKEND_DIR: backend
 
 jobs:
-  deploy:
+  detect-changes:
+    name: Detect Changes
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged)
     runs-on: ubuntu-latest
-
+    outputs:
+      frontend-changed: ${{ steps.check-changes.outputs.frontend }}
+      backend-changed: ${{ steps.check-changes.outputs.backend }}
     steps:
-      - name: 🚀 Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changes
+        id: check-changes
+        run: |
+          base_ref="${{ github.base_ref || 'test' }}"
+          frontend=$(git diff --name-only origin/$base_ref...HEAD | grep -q "^$FRONTEND_DIR/" && echo true || echo false)
+          backend=$(git diff --name-only origin/$base_ref...HEAD | grep -q "^$BACKEND_DIR/" && echo true || echo false)
+
+          echo "frontend=$frontend" >> $GITHUB_OUTPUT
+          echo "backend=$backend" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Smart Deploy
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend-changed == 'true' || needs.detect-changes.outputs.backend-changed == 'true'
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_DEPLOY_PATH: ${{ github.ref == 'refs/heads/master' && 'domains/webiflysolutions.com/public_html/new_hms' || 'domains/webiflysolutions.com/public_html/new_hms/new_hms_test' }}
+      BACKEND_DEPLOY_PATH: ${{ github.ref == 'refs/heads/master' && 'domains/webiflysolutions.com/public_html/new_hms/backend' || 'domains/webiflysolutions.com/public_html/new_hms/new_hms_test/backend' }}
+    steps:
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚡ Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: 📦 Install Dependencies & Build Frontend
+      - name: Validate Required Secrets
         run: |
-          cd frontend
-          npm ci
-          npm run build:prod
+          for secret in SSH_PRIVATE_KEY SSH_USERNAME SSH_HOST SSH_PORT; do
+            if [[ -z "${{ secrets[secret] }}" ]]; then
+              echo "::error::Missing secret: $secret"
+              exit 1
+            fi
+          done
 
-      - name: 🛠️ Setup PHP and Install Dependencies Locally
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          tools: composer
-
-      - name: 📦 Install PHP Dependencies
-        run: |
-          cd backend
-          composer install --no-dev --optimize-autoloader
-
-      - name: 🔑 Setup SSH Key
+      - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: 🔍 Set Deployment Path
+      # Frontend Setup
+      - name: Setup Node.js
+        if: needs.detect-changes.outputs.frontend-changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
+
+      - name: Build Frontend
+        if: needs.detect-changes.outputs.frontend-changed == 'true'
+        working-directory: ${{ env.FRONTEND_DIR }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms" >> $GITHUB_ENV
-            echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/backend" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then
-            echo "FRONTEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test" >> $GITHUB_ENV
-            echo "BACKEND_DEPLOY_PATH=domains/webiflysolutions.com/public_html/new_hms/new_hms_test/backend" >> $GITHUB_ENV
-          else
-            echo "❌ Unsupported branch, skipping deployment!" && exit 1
+          npm ci --no-audit
+          npm run build:prod
+
+      # Backend Setup
+      - name: Setup PHP
+        if: needs.detect-changes.outputs.backend-changed == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
+
+      - name: Cache Composer Dependencies
+        if: needs.detect-changes.outputs.backend-changed == 'true'
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.BACKEND_DIR }}/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles(format('{0}/composer.lock', env.BACKEND_DIR)) }}
+
+      - name: Install PHP Dependencies
+        if: needs.detect-changes.outputs.backend-changed == 'true'
+        working-directory: ${{ env.BACKEND_DIR }}
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Validate Remote Deployment Paths
+        run: |
+          if [[ "${{ needs.detect-changes.outputs.frontend-changed }}" == 'true' ]]; then
+            ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[ -d $FRONTEND_DEPLOY_PATH ]" || { echo "::error::Frontend path missing"; exit 1; }
           fi
 
-      - name: 🔍 Check if Deployment Folders Exist on Server
-        run: |
-          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $FRONTEND_DEPLOY_PATH ]]" || { echo '❌ Frontend target directory does not exist!'; exit 1; }
-          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $BACKEND_DEPLOY_PATH ]]" || { echo '❌ Backend target directory does not exist!'; exit 1; }
+          if [[ "${{ needs.detect-changes.outputs.backend-changed }}" == 'true' ]]; then
+            ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[ -d $BACKEND_DEPLOY_PATH ]" || { echo "::error::Backend path missing"; exit 1; }
+          fi
 
-      - name: 📂 Deploy Frontend to Server using SSH
+      - name: Deploy Frontend
+        if: needs.detect-changes.outputs.frontend-changed == 'true'
         run: |
-          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" frontend/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ${{ env.FRONTEND_DIR }}/dist/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
-      - name: 📂 Deploy Backend to Server using SSH
+      - name: Deploy Backend
+        if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" backend/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            --exclude='.env' --exclude='storage/*' --exclude='tests/' \
+            ${{ env.BACKEND_DIR }}/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
-      - name: 🔄 Run Migrations and Seed Database
+      - name: Run Migrations
+        if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          ssh -t -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
+
+      - name: ✅ Done
+        run: echo "::notice::🎉 Deployment done successfully"
