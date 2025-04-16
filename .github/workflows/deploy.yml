@@ -2,10 +2,13 @@ name: Smart Deploy to Hosting
 
 on:
   push:
-    branches: [ test ]
+    branches:
+      - test
   pull_request:
-    types: [ closed ]
-    branches: [ master ]
+    types:
+      - closed
+    branches:
+      - master
 
 env:
   FRONTEND_DIR: frontend
@@ -14,8 +17,8 @@ env:
 jobs:
   detect-changes:
     name: Detect Changes
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged)
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     outputs:
       frontend-changed: ${{ steps.check-changes.outputs.frontend }}
       backend-changed: ${{ steps.check-changes.outputs.backend }}
@@ -28,7 +31,7 @@ jobs:
       - name: Detect Changes
         id: check-changes
         run: |
-          base_ref="${{ github.base_ref || 'test' }}"
+          base_ref="${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || 'test' }}"
           frontend=$(git diff --name-only origin/$base_ref...HEAD | grep -q "^$FRONTEND_DIR/" && echo true || echo false)
           backend=$(git diff --name-only origin/$base_ref...HEAD | grep -q "^$BACKEND_DIR/" && echo true || echo false)
 
@@ -36,7 +39,7 @@ jobs:
           echo "backend=$backend" >> $GITHUB_OUTPUT
 
   deploy:
-    name: Smart Deploy
+    name: Deploy If Needed
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend-changed == 'true' || needs.detect-changes.outputs.backend-changed == 'true'
     runs-on: ubuntu-latest
@@ -49,10 +52,18 @@ jobs:
 
       - name: Validate Required Secrets
         run: |
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "::error::Missing secret: SSH_PRIVATE_KEY"; exit 1; fi
-          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then echo "::error::Missing secret: SSH_USERNAME"; exit 1; fi
-          if [ -z "${{ secrets.SSH_HOST }}" ]; then echo "::error::Missing secret: SSH_HOST"; exit 1; fi
-          if [ -z "${{ secrets.SSH_PORT }}" ]; then echo "::error::Missing secret: SSH_PORT"; exit 1; fi
+          REQUIRED_SECRETS=("SSH_PRIVATE_KEY" "SSH_USERNAME" "SSH_HOST" "SSH_PORT")
+          for secret in "${REQUIRED_SECRETS[@]}"; do
+            if [[ -z "${!secret}" ]]; then
+              echo "::error::Missing secret: $secret"
+              exit 1
+            fi
+          done
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
 
       - name: Configure SSH
         run: |
@@ -61,7 +72,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # Frontend Setup
       - name: Setup Node.js
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         uses: actions/setup-node@v4
@@ -74,23 +84,15 @@ jobs:
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         working-directory: ${{ env.FRONTEND_DIR }}
         run: |
-          npm ci --no-audit
+          npm ci
           npm run build:prod
 
-      # Backend Setup
       - name: Setup PHP
         if: needs.detect-changes.outputs.backend-changed == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           tools: composer
-
-      - name: Cache Composer Dependencies
-        if: needs.detect-changes.outputs.backend-changed == 'true'
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.BACKEND_DIR }}/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles(format('{0}/composer.lock', env.BACKEND_DIR)) }}
 
       - name: Install PHP Dependencies
         if: needs.detect-changes.outputs.backend-changed == 'true'
@@ -102,7 +104,6 @@ jobs:
           if [[ "${{ needs.detect-changes.outputs.frontend-changed }}" == 'true' ]]; then
             ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[ -d $FRONTEND_DEPLOY_PATH ]" || { echo "::error::Frontend path missing"; exit 1; }
           fi
-
           if [[ "${{ needs.detect-changes.outputs.backend-changed }}" == 'true' ]]; then
             ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[ -d $BACKEND_DEPLOY_PATH ]" || { echo "::error::Backend path missing"; exit 1; }
           fi
@@ -110,17 +111,14 @@ jobs:
       - name: Deploy Frontend
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         run: |
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ${{ env.FRONTEND_DIR }}/dist/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }}" ${{ env.FRONTEND_DIR }}/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
       - name: Deploy Backend
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" \
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }}" \
             --exclude='.env' --exclude='storage/*' --exclude='tests/' \
-            ${{ env.BACKEND_DIR }}/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
+            ${{ env.BACKEND_DIR }}/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
       - name: Run Migrations
         if: needs.detect-changes.outputs.backend-changed == 'true'
