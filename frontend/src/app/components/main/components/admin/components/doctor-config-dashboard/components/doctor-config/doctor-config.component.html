@@ -1,0 +1,233 @@
+<div class="doctor-config-component">
+  <div class="doctor-config-wrapper">
+   
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h3 class="mb-0">Doctor View Configuration</h3>
+        <button
+        type="button"
+        class="btn btn-light"
+        data-bs-toggle="modal"
+        data-bs-target="#exampleModal"
+      >
+        <i class="bi bi-plus-circle"></i> Add New View
+      </button>
+  
+      </div>
+
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th width="50px">#</th>
+                <th>Form Title</th>
+                <th>Options</th>
+                <th>Print Toggle</th>
+                <th>Mic</th>
+                <th width="150px">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let form of data; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <strong>{{ form.heading }}</strong>
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1" style="max-width: 300px;">
+                    <!-- Always show first 2 options -->
+                    <ng-container *ngFor="let option of form.options | slice:0:2">
+                      <span class="badge bg-info">
+                        {{ option.name }}
+                      </span>
+                    </ng-container>
+                    
+                    <!-- Show "+ more" button if there are additional options -->
+                    <ng-container *ngIf="form.options?.length > 2 && !form.showAllOptions">
+                      <span class="badge bg-secondary cursor-pointer"
+                            (click)="toggleOptions(form)">
+                        +{{ form.options.length - 2 }} more
+                      </span>
+                    </ng-container>
+                    
+                    <!-- Show remaining options when expanded -->
+                    <ng-container *ngIf="form.showAllOptions">
+                      <ng-container *ngFor="let option of form.options | slice:2">
+                        <span class="badge bg-info">
+                          {{ option.name }}
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    
+                    <!-- Show "show less" when expanded -->
+                    <ng-container *ngIf="form.showAllOptions">
+                      <span class="badge bg-secondary cursor-pointer"
+                            (click)="toggleOptions(form)">
+                        - show less
+                      </span>
+                    </ng-container>
+                    
+                    <!-- Show when no options -->
+                    <ng-container *ngIf="!form.options?.length">
+                      <span class="text-muted">No options</span>
+                    </ng-container>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="form.showPrintToggle ? 'bg-success' : 'bg-secondary'">
+                    {{ form.showPrintToggle ? "Active" : "Inactive" }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="form.showMic ? 'bg-success' : 'bg-secondary'">
+                    {{ form.showMic ? "Active" : "Inactive" }}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editForm(form)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteForm(form)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="data?.length === 0" class="alert alert-info mt-3">
+          No form configurations found. Click "Add New View" to create one.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form (ngSubmit)="saveChanges()">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            Add Form Fields
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="heading" class="form-label">Heading</label>
+            <input
+              type="text"
+              class="form-control"
+              id="heading"
+              [(ngModel)]="formData.heading"
+              name="heading"
+              (input)="generateKey()"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="key" class="form-label">Key</label>
+            <input
+              type="text"
+              class="form-control"
+              id="key"
+              [(ngModel)]="formData.key"
+              name="key"
+              readonly
+            />
+          </div>
+          <div class="form-check form-switch mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              [(ngModel)]="formData.showPrintToggle"
+              name="showPrintToggle"
+              id="showPrintToggle"
+            />
+            <label class="form-check-label" for="showPrintToggle">
+              Show Print Toggle
+            </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              [(ngModel)]="formData.showMic"
+              name="showMic"
+              id="showMic"
+            />
+            <label class="form-check-label" for="showMic"> Show Mic </label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Options</label>
+            <div
+              *ngFor="let option of formData.options; let i = index"
+              class="input-group mb-2"
+            >
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Name"
+                [(ngModel)]="option.name"
+                name="optionName{{ i }}"
+              />
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Value"
+                [(ngModel)]="option.value"
+                name="optionValue{{ i }}"
+              />
+              <button
+                type="button"
+                class="btn btn-danger"
+                (click)="removeOption(i)"
+              >
+                X
+              </button>
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="addOption()"
+            >
+              Add Option
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
