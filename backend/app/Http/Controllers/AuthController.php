@@ -30,8 +30,8 @@ class AuthController extends Controller
     {
         $IsInvalidRequest = $this->validateRequest([
             'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required',
+            'username' => 'required|unique:users|min:3|max:20',
+            'password' => 'required|min:6',
         ]);
         if ($IsInvalidRequest) {
             return $IsInvalidRequest;

@@ -14,9 +14,8 @@ class AuthHelper extends BaseHelper
     {
         $payload = [
             'sub' => $user->id,
-            'email' => $user->email,
             'name' => $user->name,
-            'role' => 'admin',
+            'role' => 'user',
             'iat' => time(),
             'exp' => time() + env('JWT_EXPIRATION_TIME', 86400),
         ];
@@ -43,7 +42,7 @@ class AuthHelper extends BaseHelper
     {
         $user = User::create([
             'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
+            'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
         ]);
         return $this->generateToken($user);
