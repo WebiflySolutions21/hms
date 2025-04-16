@@ -18,7 +18,6 @@ jobs:
   detect-changes:
     name: Detect Changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     outputs:
       frontend-changed: ${{ steps.check-changes.outputs.frontend }}
       backend-changed: ${{ steps.check-changes.outputs.backend }}
@@ -26,28 +25,53 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Get full history for proper diff
+          fetch-depth: 0  # Required for git diff to work properly
 
       - name: Detect Changes
         id: check-changes
         run: |
+          # Debug information
+          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+          
           # For push events, compare with previous commit
           if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "::group::Push event changes"
             echo "Comparing HEAD~1 with HEAD for push event"
-            frontend_changes=$(git diff --name-only HEAD~1 HEAD | grep -c "^$FRONTEND_DIR/")
-            backend_changes=$(git diff --name-only HEAD~1 HEAD | grep -c "^$BACKEND_DIR/")
+            git log -2 --oneline  # Show last 2 commits
+            echo "Frontend changes:"
+            git diff --name-only HEAD~1 HEAD -- "$FRONTEND_DIR/" || true
+            echo "Backend changes:"
+            git diff --name-only HEAD~1 HEAD -- "$BACKEND_DIR/" || true
+          
+            frontend_changes=$(git diff --name-only HEAD~1 HEAD -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only HEAD~1 HEAD -- "$BACKEND_DIR/" | wc -l)
+            echo "::endgroup::"
           else
             # For PR events, compare with base ref
-            echo "Comparing ${{ github.event.pull_request.base.ref }} with HEAD for PR event"
-            frontend_changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | grep -c "^$FRONTEND_DIR/")
-            backend_changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | grep -c "^$BACKEND_DIR/")
+            echo "::group::PR event changes"
+            base_ref="${{ github.event.pull_request.base.ref }}"
+            echo "Comparing origin/$base_ref with HEAD for PR event"
+            echo "Base ref: $base_ref"
+            git fetch origin "$base_ref"
+            git log -1 --oneline origin/"$base_ref"
+            git log -1 --oneline HEAD
+            echo "Frontend changes:"
+            git diff --name-only origin/"$base_ref"...HEAD -- "$FRONTEND_DIR/" || true
+            echo "Backend changes:"
+            git diff --name-only origin/"$base_ref"...HEAD -- "$BACKEND_DIR/" || true
+          
+            frontend_changes=$(git diff --name-only origin/"$base_ref"...HEAD -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only origin/"$base_ref"...HEAD -- "$BACKEND_DIR/" | wc -l)
+            echo "::endgroup::"
           fi
-
+          
           echo "Frontend changes detected: $frontend_changes"
           echo "Backend changes detected: $backend_changes"
-
-          echo "frontend=$( [ $frontend_changes -gt 0 ] && echo true || echo false )" >> $GITHUB_OUTPUT
-          echo "backend=$( [ $backend_changes -gt 0 ] && echo true || echo false )" >> $GITHUB_OUTPUT
+          
+          echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
 
   deploy:
     name: Deploy If Needed
