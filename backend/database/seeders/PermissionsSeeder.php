@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers\Seeders;
+namespace Database\Seeders;
 
 use App\Models\Permission;
 
