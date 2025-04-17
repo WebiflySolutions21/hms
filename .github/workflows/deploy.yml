@@ -136,8 +136,8 @@ jobs:
         run: |
           rsync -avz --delete-excluded --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
             --exclude='.env*' \
-            --exclude='new_hms_test/' \
-          --exclude='backend/' \
+            --exclude='new_hms_test/*' \
+          --exclude='backend/*' \
             ${{ env.FRONTEND_DIR }}/dist/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
