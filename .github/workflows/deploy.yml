@@ -28,50 +28,55 @@ jobs:
           fetch-depth: 0
 
       - name: Detect Changes
-        id: check-changes
-        run: |
-          # Debug information
-          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
-          echo "GITHUB_REF: ${{ github.ref }}"
-          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
-          
-          # For push events to test branch, compare with remote test branch
-          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
-            echo "::group::Push to test branch changes"
-            echo "Fetching origin/test for comparison"
-            git fetch origin test
-          
-            echo "Comparing origin/test with HEAD for push event"
-            git log --oneline origin/test..HEAD
-            echo "Frontend changes:"
-            git diff --name-only origin/test HEAD -- "$FRONTEND_DIR/" || true
-            echo "Backend changes:"
-            git diff --name-only origin/test HEAD -- "$BACKEND_DIR/" || true
-          
-            frontend_changes=$(git diff --name-only origin/test HEAD -- "$FRONTEND_DIR/" | wc -l)
-            backend_changes=$(git diff --name-only origin/test HEAD -- "$BACKEND_DIR/" | wc -l)
-            echo "::endgroup::"
-          
-          # For push to master or PR closed events
-          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
-               [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
-            echo "::group::Master branch update changes"
-            merge_commit="${{ github.event.after || github.sha }}"
-            parents=$(git show --no-patch --format="%P" $merge_commit)
-            master_parent=$(echo $parents | cut -d' ' -f1)
-          
-            echo "Comparing $master_parent with $merge_commit"
-            git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" || true
-            git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" || true
-          
-            frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
-            backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
-            echo "::endgroup::"
-          fi
-          
-          echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
-          echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
-
+          id: check-changes
+          run: |
+            # Debug information
+            echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
+            echo "GITHUB_REF: ${{ github.ref }}"
+            echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+            
+            # For push events to test branch
+            if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
+              echo "::group::Push to test branch changes"
+            
+              # Get the SHA of the previous push to test branch
+              previous_sha=$(git rev-parse origin/test)
+              current_sha="${{ github.sha }}"
+            
+              echo "Comparing $previous_sha (origin/test) with $current_sha (current push)"
+              git log --oneline $previous_sha..$current_sha
+            
+              echo "Frontend changes:"
+              git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" || true
+              echo "Backend changes:"
+              git diff --name-only $previous_sha $current_sha -- "$BACKEND_DIR/" || true
+            
+              frontend_changes=$(git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" | wc -l)
+              backend_changes=$(git diff --name_only $previous_sha $current_sha -- "$BACKEND_DIR/" | wc -l)
+            
+              echo "Frontend changes detected: $frontend_changes"
+              echo "Backend changes detected: $backend_changes"
+              echo "::endgroup::"
+            
+            # For push to master or PR closed events
+            elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
+                 [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+              echo "::group::Master branch update changes"
+              merge_commit="${{ github.event.after || github.sha }}"
+              parents=$(git show --no-patch --format="%P" $merge_commit)
+              master_parent=$(echo $parents | cut -d' ' -f1)
+            
+              echo "Comparing $master_parent with $merge_commit"
+              git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" || true
+              git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" || true
+            
+              frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
+              backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
+              echo "::endgroup::"
+            fi
+            
+            echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+            echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
   deploy:
     name: Deploy If Needed
     needs: detect-changes
