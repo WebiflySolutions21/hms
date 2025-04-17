@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { DoctorConfigDashboardRoutingModule } from './doctor-config-dashboard-routing.module';
 import { DoctorConfigDashboardComponent } from './doctor-config-dashboard.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -11,7 +12,9 @@ import { DoctorConfigDashboardComponent } from './doctor-config-dashboard.compon
   ],
   imports: [
     CommonModule,
-    DoctorConfigDashboardRoutingModule
+    DoctorConfigDashboardRoutingModule,
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class DoctorConfigDashboardModule { }

@@ -7,6 +7,9 @@ import {DataService} from "./data.service"
 import {DropdownStateService} from "./dropdown-state.service"
 import {RegistrationService} from "./registration.service"
 import {PatientService} from "./patient.service"
+import {EventEmitterService} from "./event-emitter.service"
+
+export * from "./event-emitter.service"
 export * from './agent.service';
 export * from "./authentication.service"
 export * from "./user.service"
@@ -27,5 +30,6 @@ export const services=[
     DataService,
     DropdownStateService,
     RegistrationService,
-    PatientService
+    PatientService,
+    EventEmitterService
 ]

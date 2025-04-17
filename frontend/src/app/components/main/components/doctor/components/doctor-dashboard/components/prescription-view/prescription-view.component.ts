@@ -10,6 +10,7 @@ import {
   PATIENT_DETAILS,
 } from '@assets/constants/doctor.constants';
 import { Modal } from 'bootstrap';
+import { EventEmitterService } from 'src/app/core/services';
 @Component({
   selector: 'app-prescription-view',
   templateUrl: './prescription-view.component.html',
@@ -38,6 +39,9 @@ export class PrescriptionViewComponent {
     { id: 5, name: 'Dr. Rao' },
   ];
   selectedPatientId = 1
+  @ViewChild('templateModal', { static: false })
+  templateModalRef!: ElementRef;
+  private templateModal!: Modal;
   @ViewChild('admitPatientModal', { static: false })
   admitPatientModalRef!: ElementRef;
   private admitPatientModal!: Modal;
@@ -49,10 +53,10 @@ export class PrescriptionViewComponent {
   private referUpPatientModal!: Modal;
   filteredDoctors = [...this.doctors];
   payload;
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(private cdr: ChangeDetectorRef, private router: Router,private eventEmitterService:EventEmitterService) {}
   @ViewChild('prescriptionSection', { static: false })
   prescriptionSection!: ElementRef;
-
+  titleData:any
   scrollToPrescription() {
     setTimeout(() => {
       this.prescriptionSection.nativeElement.scrollIntoView({
@@ -62,10 +66,23 @@ export class PrescriptionViewComponent {
     }, 100);
   }
   dropdowns = [];
-
   ngOnInit(){
     let data = JSON.parse(localStorage.getItem("view"))
+    let templateData = JSON.parse(localStorage.getItem("view_template"))
     this.dropdowns = data
+
+    this.eventEmitterService.on("open-template-modal",(data)=>{
+      this.titleData = templateData
+      this.openModal('template')
+    })
+
+  }
+
+  useTemplate(data:any){
+    this.prescriptionData = data.data
+    if(this.templateModal){
+      this.templateModal.hide()
+    }
   }
 
   ngAfterViewInit() {
@@ -85,15 +102,20 @@ export class PrescriptionViewComponent {
         this.referUpPatientModalRef.nativeElement
       );
     }
+    if(this.templateModalRef){
+      this.templateModal = new Modal(this.templateModalRef.nativeElement)
+    }
   }
 
-  openModal(type: 'admit' | 'followup' | 'refer') {
+  openModal(type: 'admit' | 'followup' | 'refer' | 'template') {
     if (type === 'admit' && this.admitPatientModal) {
       this.admitPatientModal.show();
     } else if (type === 'followup' && this.followUpPatientModal) {
       this.followUpPatientModal.show();
     } else if (type === 'refer' && this.referUpPatientModal) {
       this.referUpPatientModal.show();
+    }else if(type ==='template' && this.templateModal){
+      this.templateModal.show()
     }
   }
 
@@ -108,6 +130,9 @@ export class PrescriptionViewComponent {
     }
     if (this.referUpPatientModal) {
       this.referUpPatientModal.hide();
+    }
+    if(this.templateModal){
+      this.templateModal.hide()
     }
   }
 
