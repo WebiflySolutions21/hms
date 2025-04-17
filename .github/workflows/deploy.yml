@@ -12,7 +12,7 @@ on:
 env:
   FRONTEND_DIR: frontend
   BACKEND_DIR: backend
-  SSH_PORT: 22  # Default port if not specified in secrets
+  SSH_PORT: 22
 
 jobs:
   detect-changes:
@@ -25,7 +25,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for git diff to work properly
+          fetch-depth: 0
 
       - name: Detect Changes
         id: check-changes
@@ -35,40 +35,26 @@ jobs:
           echo "GITHUB_REF: ${{ github.ref }}"
           echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
           
-          # For push events, compare with previous commit
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "::group::Push event changes"
+          # For push events to test branch, compare with previous commit
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
+            echo "::group::Push to test branch changes"
             echo "Comparing HEAD~1 with HEAD for push event"
-            git log -2 --oneline  # Show last 2 commits
-            echo "Frontend changes:"
-            git diff --name-only HEAD~1 HEAD -- "$FRONTEND_DIR/" || true
-            echo "Backend changes:"
-            git diff --name-only HEAD~1 HEAD -- "$BACKEND_DIR/" || true
-          
+            git log -2 --oneline
             frontend_changes=$(git diff --name-only HEAD~1 HEAD -- "$FRONTEND_DIR/" | wc -l)
             backend_changes=$(git diff --name-only HEAD~1 HEAD -- "$BACKEND_DIR/" | wc -l)
             echo "::endgroup::"
-          else
-            # For PR events, compare with base ref
-            echo "::group::PR event changes"
-            base_ref="${{ github.event.pull_request.base.ref }}"
-            echo "Comparing origin/$base_ref with HEAD for PR event"
-            echo "Base ref: $base_ref"
-            git fetch origin "$base_ref"
-            git log -1 --oneline origin/"$base_ref"
-            git log -1 --oneline HEAD
-            echo "Frontend changes:"
-            git diff --name-only origin/"$base_ref"...HEAD -- "$FRONTEND_DIR/" || true
-            echo "Backend changes:"
-            git diff --name-only origin/"$base_ref"...HEAD -- "$BACKEND_DIR/" || true
+          # For push to master or PR closed events
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
+               [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "::group::Master branch update changes"
+            merge_commit="${{ github.event.after || github.sha }}"
+            parents=$(git show --no-patch --format="%P" $merge_commit)
+            master_parent=$(echo $parents | cut -d' ' -f1)
           
-            frontend_changes=$(git diff --name-only origin/"$base_ref"...HEAD -- "$FRONTEND_DIR/" | wc -l)
-            backend_changes=$(git diff --name-only origin/"$base_ref"...HEAD -- "$BACKEND_DIR/" | wc -l)
+            frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
             echo "::endgroup::"
           fi
-          
-          echo "Frontend changes detected: $frontend_changes"
-          echo "Backend changes detected: $backend_changes"
           
           echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
@@ -129,44 +115,38 @@ jobs:
           php-version: '8.4'
           tools: composer
 
-      - name: Cache Composer Dependencies
-        if: needs.detect-changes.outputs.backend-changed == 'true'
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.BACKEND_DIR }}/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles(format('{0}/composer.lock', env.BACKEND_DIR)) }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
       - name: Install PHP Dependencies
         if: needs.detect-changes.outputs.backend-changed == 'true'
         working-directory: ${{ env.BACKEND_DIR }}
         run: composer install --no-dev --optimize-autoloader
 
-      - name: Validate Remote Deployment Paths
+      - name: Ensure Deployment Paths Exist
         run: |
           if [[ "${{ needs.detect-changes.outputs.frontend-changed }}" == 'true' ]]; then
             ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-              "[ -d $FRONTEND_DEPLOY_PATH ]" || { echo "::error::Frontend path missing"; exit 1; }
+              "mkdir -p $FRONTEND_DEPLOY_PATH"
           fi
           if [[ "${{ needs.detect-changes.outputs.backend-changed }}" == 'true' ]]; then
             ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-              "[ -d $BACKEND_DEPLOY_PATH ]" || { echo "::error::Backend path missing"; exit 1; }
+              "mkdir -p $BACKEND_DEPLOY_PATH"
           fi
 
       - name: Deploy Frontend
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         run: |
-          rsync -avz --delete --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
+          rsync -avz --delete-excluded --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
+            --exclude='.env*' \
+            --exclude='new_hms_test/' \
+          --exclude='backend/' \
             ${{ env.FRONTEND_DIR }}/dist/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
       - name: Deploy Backend
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz --delete --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
-            --exclude='.env' \
-            --exclude='storage/*' \
+          rsync -avz --delete-excluded --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
+            --exclude='.env*' \
+            --exclude='storage/' \
             --exclude='tests/' \
             ${{ env.BACKEND_DIR }}/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
