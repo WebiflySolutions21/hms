@@ -134,20 +134,14 @@ jobs:
       - name: Deploy Frontend
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         run: |
-          rsync -avz --delete-excluded --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
-            --exclude='.env*' \
-            --exclude='new_hms_test/*' \
-          --exclude='backend/*' \
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
             ${{ env.FRONTEND_DIR }}/dist/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
       - name: Deploy Backend
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz --delete-excluded --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
-            --exclude='.env*' \
-            --exclude='storage/' \
-            --exclude='tests/' \
+          rsync -avz  --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
             ${{ env.BACKEND_DIR }}/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
