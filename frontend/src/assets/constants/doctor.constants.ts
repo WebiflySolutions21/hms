@@ -144,7 +144,7 @@ export const PRESCRIPTION_VIEW_ROUTES = [
   {
     id: 3,
     title: 'Templates',
-    path: '',
+    path: '/template-dashboard',
   },
   {
     id: 4,

@@ -1,7 +1,41 @@
-canvas {
-    border: 2px solid #000;
-    margin: auto;
-    display: block;
-    background-color: white;
-  }
-  
+/* draw-write-modal.component.scss */
+.modal-xl {
+  max-width: 1200px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.canvas-container {
+  overflow: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+}
+
+.canvas {
+  background-color: white;
+  cursor: crosshair;
+}
+
+.btn.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.form-range {
+  width: 100px;
+  display: inline-block;
+}
+
+.form-control-color {
+  width: 40px;
+  height: 38px;
+  padding: 2px;
+}

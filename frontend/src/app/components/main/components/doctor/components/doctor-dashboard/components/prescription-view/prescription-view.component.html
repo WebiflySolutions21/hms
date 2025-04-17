@@ -79,6 +79,7 @@
     </div>
     <div class="medicine-prescription" #prescriptionSection>
       <app-prescription-table
+        [prescriptionData]="prescriptionData"
         (medicineAdded)="scrollToPrescription()"
         (prescriptionUpdated)="onPrescriptionUpdate($event)"
       ></app-prescription-table>
@@ -205,6 +206,43 @@
           <p *ngIf="selectedDoctor" class="alert alert-success p-2">
             Selected Doctor: <strong>{{ selectedDoctor.name }}</strong>
           </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="selectedDoctor"
+          (click)="referPatient()"
+        >
+          Confirm Refer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div #templateModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Refer Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let data of titleData">
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="useTemplate(data)"
+          >
+            {{ data.title }}
+          </button>
         </div>
       </div>
       <div class="modal-footer">

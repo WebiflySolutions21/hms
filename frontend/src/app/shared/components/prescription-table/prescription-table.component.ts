@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { Input } from '@angular/core';
 
 @Component({
   selector: 'app-prescription-table',
@@ -8,26 +9,62 @@ import { Component, EventEmitter, Output } from '@angular/core';
 export class PrescriptionTableComponent {
   isPrintEnabled: boolean = true;
   @Output() prescriptionUpdated = new EventEmitter<any[]>();
+
   isRecording: boolean = false;
   recognition: any;
   idleTimeout: any;
 
   tableHeaders: string[] = [
-    'Types', 'Medicine', 'सकाळ', 'दुपार', 'रात्र', 'कधी घ्यायचा', 'किती दिवस', 'Qty'
+    'Types',
+    'Medicine',
+    'सकाळ',
+    'दुपार',
+    'रात्र',
+    'कधी घ्यायचा',
+    'किती दिवस',
+    'Qty',
   ];
 
-  medicineTypes: string[] = ['Tab', 'Syrup', 'Injection', 'E/D'];
-  intakeTimes: string[] = ['जेवणानंतर', 'जेवणापूर्वी', '3 times'];
+  medicineTypes: any[] = [];
+  intakeTimes: any[] = [];
 
   medicineHistory = [
-    { medicine: 'Zerodol P', morning: 1, afternoon: 0, night: 1, intakeTime: 'जेवणानंतर', days: 5, quantity: 10 },
-    { medicine: 'Crocin', morning: 1, afternoon: 0, night: 1, intakeTime: 'जेवणानंतर', days: 5, quantity: 10 },
-    { medicine: 'Zincovit', morning: 1, afternoon: 1, night: 0, intakeTime: 'जेवणानंतर', days: 7, quantity: 14 },
+    // {
+    //   medicine: 'Zerodol P',
+    //   morning: 1,
+    //   afternoon: 0,
+    //   night: 1,
+    //   intakeTime: 'जेवणानंतर',
+    //   days: 5,
+    //   quantity: 10,
+    // },
+    // {
+    //   medicine: 'Crocin',
+    //   morning: 1,
+    //   afternoon: 0,
+    //   night: 1,
+    //   intakeTime: 'जेवणानंतर',
+    //   days: 5,
+    //   quantity: 10,
+    // },
+    // {
+    //   medicine: 'Zincovit',
+    //   morning: 1,
+    //   afternoon: 1,
+    //   night: 0,
+    //   intakeTime: 'जेवणानंतर',
+    //   days: 7,
+    //   quantity: 14,
+    // },
   ];
 
-  prescriptionData = [
-    { type: 'Tab', medicine: '', morning: 0, afternoon: 0, night: 0, intakeTime: 'जेवणानंतर', days: '', quantity: '', filteredMedicines: [] },
-  ];
+  @Input() prescriptionData = [];
+
+  ngOnInit() {
+    this.medicineHistory = JSON.parse(localStorage.getItem('prescriptionData'));
+    this.medicineTypes = JSON.parse(localStorage.getItem('medicineTypes'));
+    this.intakeTimes = JSON.parse(localStorage.getItem('medicinePeriods'));
+  }
 
   addRow() {
     this.prescriptionData.push({
@@ -44,7 +81,21 @@ export class PrescriptionTableComponent {
     this.emitPrescriptionData();
   }
 
-  
+  autoCalculateQuantity(row: any) {
+    const morning = Number(row.morning) || 0;
+    const afternoon = Number(row.afternoon) || 0;
+    const night = Number(row.night) || 0;
+    const days = Number(row.days) || 0;
+
+    const calculated = (morning + afternoon + night) * days;
+
+    // Only update quantity if user hasn't manually overridden it
+    if (!row.userModifiedQuantity || row.quantity === 0) {
+      row.quantity = calculated;
+    }
+
+    this.emitPrescriptionData();
+  }
 
   removeRow(index: number) {
     this.prescriptionData.splice(index, 1);
@@ -54,7 +105,7 @@ export class PrescriptionTableComponent {
   filterMedicineSuggestions(row: any) {
     const search = row.medicine.toLowerCase();
     if (search) {
-      row.filteredMedicines = this.medicineHistory.filter(med =>
+      row.filteredMedicines = this.medicineHistory?.filter((med) =>
         med.medicine.toLowerCase().startsWith(search)
       );
     } else {
@@ -75,6 +126,10 @@ export class PrescriptionTableComponent {
   }
 
   emitPrescriptionData() {
+    localStorage.setItem(
+      'prescriptionData',
+      JSON.stringify(this.prescriptionData)
+    );
     this.prescriptionUpdated.emit(this.prescriptionData);
   }
 }
