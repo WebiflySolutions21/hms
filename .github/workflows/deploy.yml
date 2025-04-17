@@ -67,6 +67,28 @@ jobs:
           ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $FRONTEND_DEPLOY_PATH ]]" || { echo '❌ Frontend target directory does not exist!'; exit 1; }
           ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "[[ -d $BACKEND_DEPLOY_PATH ]]" || { echo '❌ Backend target directory does not exist!'; exit 1; }
 
+      - name: 🧹 Clean Frontend Server Directory
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd $FRONTEND_DEPLOY_PATH
+
+            # Delete everything except .env, new_hms_test, and backend
+            find . -mindepth 1 -maxdepth 1 ! -name '.env' ! -name 'new_hms_test' ! -name 'backend' -exec rm -rf {} +
+
+            echo "✅ Cleaned frontend deploy path while preserving .env, new_hms_test/, and backend/"
+          EOF
+
+      - name: 🧹 Clean Backend Server Directory
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd $BACKEND_DEPLOY_PATH
+
+            # Delete everything except .env, new_hms_test, and backend
+            find . -mindepth 1 -maxdepth 1 ! -name '.env' ! -name 'new_hms_test' ! -name 'backend' -exec rm -rf {} +
+
+            echo "✅ Cleaned backend deploy path while preserving .env, new_hms_test/, and backend/"
+          EOF
+ga
       - name: 📂 Deploy Frontend to Server using SSH
         run: |
           rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_rsa" frontend/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
