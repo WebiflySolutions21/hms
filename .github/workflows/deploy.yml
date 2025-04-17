@@ -28,55 +28,51 @@ jobs:
           fetch-depth: 0
 
       - name: Detect Changes
-          id: check-changes
-          run: |
-            # Debug information
-            echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
-            echo "GITHUB_REF: ${{ github.ref }}"
-            echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
-            
-            # For push events to test branch
-            if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
-              echo "::group::Push to test branch changes"
-            
-              # Get the SHA of the previous push to test branch
-              previous_sha=$(git rev-parse origin/test)
-              current_sha="${{ github.sha }}"
-            
-              echo "Comparing $previous_sha (origin/test) with $current_sha (current push)"
-              git log --oneline $previous_sha..$current_sha
-            
-              echo "Frontend changes:"
-              git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" || true
-              echo "Backend changes:"
-              git diff --name-only $previous_sha $current_sha -- "$BACKEND_DIR/" || true
-            
-              frontend_changes=$(git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" | wc -l)
-              backend_changes=$(git diff --name_only $previous_sha $current_sha -- "$BACKEND_DIR/" | wc -l)
-            
-              echo "Frontend changes detected: $frontend_changes"
-              echo "Backend changes detected: $backend_changes"
-              echo "::endgroup::"
-            
-            # For push to master or PR closed events
-            elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
-                 [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
-              echo "::group::Master branch update changes"
-              merge_commit="${{ github.event.after || github.sha }}"
-              parents=$(git show --no-patch --format="%P" $merge_commit)
-              master_parent=$(echo $parents | cut -d' ' -f1)
-            
-              echo "Comparing $master_parent with $merge_commit"
-              git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" || true
-              git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" || true
-            
-              frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
-              backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
-              echo "::endgroup::"
-            fi
-            
-            echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
-            echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+        id: check-changes
+        run: |
+          echo "GITHUB_EVENT_NAME: ${{ github.event_name }}"
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+
+          frontend_changes=0
+          backend_changes=0
+
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
+            echo "::group::Push to test branch changes"
+            previous_sha=$(git rev-parse origin/test)
+            current_sha="${{ github.sha }}"
+
+            echo "Comparing $previous_sha (origin/test) with $current_sha (current push)"
+            git log --oneline $previous_sha..$current_sha
+
+            echo "Frontend changes:"
+            git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" || true
+            echo "Backend changes:"
+            git diff --name-only $previous_sha $current_sha -- "$BACKEND_DIR/" || true
+
+            frontend_changes=$(git diff --name-only $previous_sha $current_sha -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only $previous_sha $current_sha -- "$BACKEND_DIR/" | wc -l)
+            echo "::endgroup::"
+
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
+               [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "::group::Master branch update changes"
+            merge_commit="${{ github.event.after || github.sha }}"
+            parents=$(git show --no-patch --format="%P" $merge_commit)
+            master_parent=$(echo $parents | cut -d' ' -f1)
+
+            echo "Comparing $master_parent with $merge_commit"
+            git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" || true
+            git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" || true
+
+            frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
+            echo "::endgroup::"
+          fi
+
+          echo "frontend=$([ $frontend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "backend=$([ $backend_changes -gt 0 ] && echo true || echo false)" >> $GITHUB_OUTPUT
+
   deploy:
     name: Deploy If Needed
     needs: detect-changes
@@ -109,7 +105,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p ${{ secrets.SSH_PORT || env.SSH_PORT }} -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ secrets.SSH_PORT || env.SSH_PORT }}" -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Setup Node.js
         if: needs.detect-changes.outputs.frontend-changed == 'true'
@@ -140,34 +136,37 @@ jobs:
 
       - name: Ensure Deployment Paths Exist
         run: |
+          port="${{ secrets.SSH_PORT }}"
+          [[ -z "$port" ]] && port="${{ env.SSH_PORT }}"
+
           if [[ "${{ needs.detect-changes.outputs.frontend-changed }}" == 'true' ]]; then
-            ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-              "mkdir -p $FRONTEND_DEPLOY_PATH"
+            ssh -p "$port" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "mkdir -p $FRONTEND_DEPLOY_PATH"
           fi
+
           if [[ "${{ needs.detect-changes.outputs.backend-changed }}" == 'true' ]]; then
-            ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-              "mkdir -p $BACKEND_DEPLOY_PATH"
+            ssh -p "$port" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "mkdir -p $BACKEND_DEPLOY_PATH"
           fi
 
       - name: Deploy Frontend
         if: needs.detect-changes.outputs.frontend-changed == 'true'
         run: |
-          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
-            ${{ env.FRONTEND_DIR }}/dist/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
+          port="${{ secrets.SSH_PORT }}"
+          [[ -z "$port" ]] && port="${{ env.SSH_PORT }}"
+          rsync -avz --progress -e "ssh -p $port" ${{ env.FRONTEND_DIR }}/dist/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$FRONTEND_DEPLOY_PATH
 
       - name: Deploy Backend
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
-            ${{ env.BACKEND_DIR }}/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
+          port="${{ secrets.SSH_PORT }}"
+          [[ -z "$port" ]] && port="${{ env.SSH_PORT }}"
+          rsync -avz --progress -e "ssh -p $port" ${{ env.BACKEND_DIR }}/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
       - name: Run Migrations
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-            "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
+          port="${{ secrets.SSH_PORT }}"
+          [[ -z "$port" ]] && port="${{ env.SSH_PORT }}"
+          ssh -p "$port" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "cd $BACKEND_DEPLOY_PATH && php artisan migrate --seed --force"
 
       - name: Deployment Complete
         run: echo "::notice::🎉 Deployment completed successfully"
