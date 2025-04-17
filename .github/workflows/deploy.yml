@@ -35,14 +35,23 @@ jobs:
           echo "GITHUB_REF: ${{ github.ref }}"
           echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
           
-          # For push events to test branch, compare with previous commit
+          # For push events to test branch, compare with remote test branch
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/test" ]]; then
             echo "::group::Push to test branch changes"
-            echo "Comparing HEAD~1 with HEAD for push event"
-            git log -2 --oneline
-            frontend_changes=$(git diff --name-only HEAD~1 HEAD -- "$FRONTEND_DIR/" | wc -l)
-            backend_changes=$(git diff --name-only HEAD~1 HEAD -- "$BACKEND_DIR/" | wc -l)
+            echo "Fetching origin/test for comparison"
+            git fetch origin test
+          
+            echo "Comparing origin/test with HEAD for push event"
+            git log --oneline origin/test..HEAD
+            echo "Frontend changes:"
+            git diff --name-only origin/test HEAD -- "$FRONTEND_DIR/" || true
+            echo "Backend changes:"
+            git diff --name-only origin/test HEAD -- "$BACKEND_DIR/" || true
+          
+            frontend_changes=$(git diff --name-only origin/test HEAD -- "$FRONTEND_DIR/" | wc -l)
+            backend_changes=$(git diff --name-only origin/test HEAD -- "$BACKEND_DIR/" | wc -l)
             echo "::endgroup::"
+          
           # For push to master or PR closed events
           elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/master" ]] || 
                [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
@@ -50,6 +59,10 @@ jobs:
             merge_commit="${{ github.event.after || github.sha }}"
             parents=$(git show --no-patch --format="%P" $merge_commit)
             master_parent=$(echo $parents | cut -d' ' -f1)
+          
+            echo "Comparing $master_parent with $merge_commit"
+            git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" || true
+            git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" || true
           
             frontend_changes=$(git diff --name-only $master_parent $merge_commit -- "$FRONTEND_DIR/" | wc -l)
             backend_changes=$(git diff --name-only $master_parent $merge_commit -- "$BACKEND_DIR/" | wc -l)
@@ -141,7 +154,7 @@ jobs:
       - name: Deploy Backend
         if: needs.detect-changes.outputs.backend-changed == 'true'
         run: |
-          rsync -avz  --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
+          rsync -avz --progress -e "ssh -p ${{ secrets.SSH_PORT || env.SSH_PORT }}" \
             ${{ env.BACKEND_DIR }}/ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:$BACKEND_DEPLOY_PATH
 
