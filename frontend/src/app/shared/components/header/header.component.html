@@ -1,9 +1,9 @@
 <div class="header-section">
   <div class="hosp" *ngIf="hospitalName">
     <div class="hosp-icon">
-      <img src="assets/images/agent-login/login.png" />
+      <img [src]="hospitalName?.logo" />
     </div>
-    <div class="hospital-name">{{ hospitalName }}</div>
+    <div class="hospital-name">{{ hospitalName?.mainTitle }}</div>
   </div>
 
   <!-- Desktop Navigation (First 4 Logins + Dropdown) -->

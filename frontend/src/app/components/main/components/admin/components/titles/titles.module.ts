@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { TitlesRoutingModule } from './titles-routing.module';
 import { TitlesComponent } from './titles.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -11,7 +12,9 @@ import { TitlesComponent } from './titles.component';
   ],
   imports: [
     CommonModule,
-    TitlesRoutingModule
+    TitlesRoutingModule,
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class TitlesModule { }
