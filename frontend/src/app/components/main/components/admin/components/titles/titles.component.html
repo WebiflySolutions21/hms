@@ -1,1 +1,116 @@
-<p>titles works!</p>
+<div class="titles-component">
+  <div class="titles-wrapper">
+    <div class="container mt-5">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Hospital Setup Form</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="detailsForm" (ngSubmit)="submitForm()">
+
+            <!-- Text Inputs + Color & Weight -->
+            <div class="mb-3">
+              <label>Main Title:</label>
+              <input type="text" formControlName="mainTitle" class="form-control mb-2">
+              <label>Color:</label>
+              <input type="color" formControlName="mainTitleColor" class="form-control form-control-color">
+              <label>Font Weight:</label>
+              <select formControlName="mainTitleWeight" class="form-select">
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+                <option value="lighter">Lighter</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Other Title:</label>
+              <input type="text" formControlName="otherTitle" class="form-control mb-2">
+              <label>Color:</label>
+              <input type="color" formControlName="otherTitleColor" class="form-control form-control-color">
+              <label>Font Weight:</label>
+              <select formControlName="otherTitleWeight" class="form-select">
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+                <option value="lighter">Lighter</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Address:</label>
+              <input type="text" formControlName="address" class="form-control mb-2">
+              <label>Color:</label>
+              <input type="color" formControlName="addressColor" class="form-control form-control-color">
+              <label>Font Weight:</label>
+              <select formControlName="addressWeight" class="form-select">
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+                <option value="lighter">Lighter</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Phone:</label>
+              <input type="text" formControlName="phone" class="form-control mb-2">
+              <label>Color:</label>
+              <input type="color" formControlName="phoneColor" class="form-control form-control-color">
+              <label>Font Weight:</label>
+              <select formControlName="phoneWeight" class="form-select">
+                <option value="normal">Normal</option>
+                <option value="bold">Bold</option>
+                <option value="lighter">Lighter</option>
+              </select>
+            </div>
+
+            <!-- Logo Upload and Shape -->
+            <div class="mb-3">
+              <label>Logo Upload:</label>
+              <input type="file" class="form-control" (change)="onFileSelected($event)">
+              <label class="mt-2">Logo Shape:</label>
+              <select formControlName="logoShape" class="form-select">
+                <option value="original">Original</option>
+                <option value="rounded">Rounded (50%)</option>
+              </select>
+            </div>
+
+            <!-- Live Preview Section -->
+            <div class="border rounded p-3 mt-4 text-center">
+              <small [ngStyle]="{
+                'color': detailsForm.value.otherTitleColor,
+                'font-weight': detailsForm.value.otherTitleWeight
+              }">{{ detailsForm.value.otherTitle || 'Other Title Preview' }}</small>
+              <h3 [ngStyle]="{
+                    'color': detailsForm.value.mainTitleColor,
+                    'font-weight': detailsForm.value.mainTitleWeight
+                  }">{{ detailsForm.value.mainTitle || 'Main Title Preview' }}</h3>
+
+             
+
+              <p [ngStyle]="{
+                    'color': detailsForm.value.addressColor,
+                    'font-weight': detailsForm.value.addressWeight
+                  }">{{ detailsForm.value.address || 'Address Preview' }}</p>
+
+              <p [ngStyle]="{
+                    'color': detailsForm.value.phoneColor,
+                    'font-weight': detailsForm.value.phoneWeight
+                  }">{{ detailsForm.value.phone || 'Phone Preview' }}</p>
+
+              <div *ngIf="detailsForm.value.logo" class="mt-3">
+                <img [src]="detailsForm.value.logo"
+                     [ngStyle]="{
+                       'border-radius': detailsForm.value.logoShape === 'rounded' ? '50%' : '0%',
+                       'width': '150px',
+                       'height': '150px',
+                       'object-fit': 'cover'
+                     }"
+                     alt="Logo Preview">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mt-4">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

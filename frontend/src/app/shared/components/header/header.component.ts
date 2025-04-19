@@ -16,7 +16,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     console.log(this.headingRoutes);
-
+    this.hospitalName = JSON.parse(localStorage.getItem("hospitalFormData"))
     // Listen to window resize to update isMobileView
     window.addEventListener('resize', () => {
       this.isMobileView = window.innerWidth <= 768;

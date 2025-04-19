@@ -38,6 +38,10 @@ const routes: Routes = [
       {
         path:'super-admin',
         loadChildren: () => import('./components/super-admin/super-admin.module').then(m => m.SuperAdminModule) 
+      },
+      {
+        path:'opthal',
+        loadChildren: () => import('./components/opthal/opthal.module').then(m => m.OpthalModule) 
       }
     ]
   }
