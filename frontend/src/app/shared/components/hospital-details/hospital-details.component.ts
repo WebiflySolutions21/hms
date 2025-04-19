@@ -6,5 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./hospital-details.component.scss']
 })
 export class HospitalDetailsComponent {
+hospitalDetails:any
 
+ngOnInit(){
+  this.hospitalDetails = JSON.parse(localStorage.getItem("hospitalFormData"))
+}
 }

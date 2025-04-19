@@ -6,5 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent {
+  hospitalDetails:any
 
+  ngOnInit(){
+    this.hospitalDetails = JSON.parse(localStorage.getItem("hospitalFormData"))
+  }
 }

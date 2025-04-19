@@ -1,39 +1,189 @@
 <div class="doctor-config-dashboard-component">
-    <div class="doctor-config-dashboard-wrapper">
-        <table class="custom-table">
-            <thead>
-              <tr>
-                <th>Sr.No</th>
-                <th>Config Name</th>
-                <th>Toggle</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let config of configList; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ config.name }}</td>
-                <td>
-                  <label class="switch">
-                    <input type="checkbox" [checked]="config.isEnabled" [(ngModel)]="config.isEnabled" (change)="onToggleChange(config)">
-                    <span class="slider round"></span>
-                  </label>
-                </td>
-                <td>
-                  <span [ngClass]="config.isEnabled ? 'status-active' : 'status-inactive'">
-                    {{ config.isEnabled ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="btns">
-                    <button *ngFor="let action of config.actions"
-                            [class]="action.class ? action.class : 'btn btn-primary'"
-                            (click)="handleAction(action)">
-                      {{ action.label }}
-                    </button>
-                  </td>
-              </tr>
-            </tbody>
-          </table>
+  <div class="doctor-config-dashboard-wrapper">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Sr.No</th>
+          <th>Config Name</th>
+          <th>Toggle</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let config of configList; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ config.name }}</td>
+          <td>
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="config.isEnabled"
+                [(ngModel)]="config.isEnabled"
+                (change)="onToggleChange(config)"
+              />
+              <span class="slider round"></span>
+            </label>
+          </td>
+          <td>
+            <span
+              [ngClass]="config.isEnabled ? 'status-active' : 'status-inactive'"
+            >
+              {{ config.isEnabled ? "Active" : "Inactive" }}
+            </span>
+          </td>
+          <td class="btns">
+            <button
+              *ngFor="let action of config.actions"
+              [class]="action.class ? action.class : 'btn btn-primary'"
+              [attr.data-bs-toggle]="'modal'"
+              [attr.data-bs-target]="config?.data_bs_target"
+              (click)="handleAction(action)"
+            >
+              {{ action.label }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="addMedicinePeriodModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addMedicinePeriodModal">
+          Add Medicine Period
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="medicinePeriodForm">
+          <div formArrayName="periods">
+            <div
+              *ngFor="let period of periods.controls; let i = index"
+              [formGroupName]="i"
+              class="mb-2 d-flex align-items-center"
+            >
+              <input
+                type="text"
+                class="form-control me-2"
+                placeholder="Add Medicine Period Option"
+                formControlName="title"
+              />
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="removePeriod(i)"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-success mt-2"
+            (click)="addPeriod()"
+          >
+            Add Option
+          </button>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveMedicinePeriods()"
+          data-bs-dismiss="modal"
+        >
+          Save changes
+        </button>
+      </div>
     </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="addTypeOfMedicineModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addTypeOfMedicineModal">
+          Add Type of Medicine
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="typeForm">
+          <div formArrayName="types">
+            <div
+              *ngFor="let type of types.controls; let i = index"
+              [formGroupName]="i"
+              class="mb-2 d-flex align-items-center"
+            >
+              <input
+                type="text"
+                class="form-control me-2"
+                placeholder="Add Medicine Type"
+                formControlName="title"
+              />
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="removeType(i)"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-success mt-2"
+            (click)="addType()"
+          >
+            Add Type
+          </button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveTypesToLocalStorage()"
+          data-bs-dismiss="modal"
+        >
+          Save changes
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

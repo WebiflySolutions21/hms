@@ -11,6 +11,10 @@ const routes: Routes = [
     path: 'doctor-config',
     loadChildren: () => import('./components/doctor-config/doctor-config.module').then(m => m.DoctorConfigModule),
   },
+  {
+    path: 'template-dashboard',
+    loadChildren: () => import('./components/template-dashboard/template-dashboard.module').then(m => m.TemplateDashboardModule),
+  },
 ];
 
 @NgModule({

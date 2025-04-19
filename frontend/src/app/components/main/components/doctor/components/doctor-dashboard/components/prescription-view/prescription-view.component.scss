@@ -177,7 +177,7 @@ button {
 
 .medicine-prescription{
   width: 95%;
-  @include flex-container(center,flex-start);
+  // @include flex-container(center,flex-start);
   margin-top: 2em;
   padding-bottom: 5em;
 }

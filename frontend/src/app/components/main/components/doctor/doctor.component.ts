@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { DOCTOR_IMAGE_GALLERY_ROUTES, DOCTOR_ROUTES,PRESCRIPTION_VIEW_ROUTES } from '@assets/constants/doctor.constants';
+import { EventEmitterService } from 'src/app/core/services';
 
 @Component({
   selector: 'app-doctor',
@@ -17,7 +18,7 @@ export class DoctorComponent {
   contactNo:"1234567890",
   type:"Orthopedic",
  }
-constructor(private router:Router){}
+constructor(private router:Router,private eventEmitterService:EventEmitterService){}
 
 ngOnInit() {
   this.router.events.subscribe(() => {
@@ -36,7 +37,13 @@ ngOnInit() {
 }
 
   navigateUser(data) {
-    this.router.navigate([`/main/doctor/${data?.path}`])
+    console.log(data)
+    if(data.path==="/template-dashboard"){
+      this.eventEmitterService.emit("open-template-modal")
+    }else{
+      this.router.navigate([`/main/doctor/${data?.path}`])
+
+    }
 
     console.log(data);
   }

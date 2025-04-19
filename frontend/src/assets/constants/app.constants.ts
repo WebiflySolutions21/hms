@@ -104,3 +104,130 @@ export interface DynamicFormConfig {
     options?: string[]; // for dropdowns
   }
   
+  export const DOCTOR_CONFIG_DASHBOARD_CONFIGURATION = [
+    {
+      name: 'View Config',
+      isEnabled: true,
+      actions: [
+        {
+          label: 'Create Config',
+          class: 'btn btn-primary',
+          action: 'create-config',
+        },
+      ],
+    },
+    {
+      name: 'Type of Medicine',
+      isEnabled: true,
+      data_bs_target: '#addTypeOfMedicineModal',
+
+      actions: [
+        {
+          label: 'Add Medicine Type',
+          class: 'btn btn-primary',
+          action: 'add-medicine-type',
+        },
+      ],
+    },
+    {
+      name: 'Medicine Taking Period(When to take)',
+      isEnabled: true,
+      data_bs_target: '#addMedicinePeriodModal',
+      actions: [
+        {
+          label: 'Add Medicine Period',
+          class: 'btn btn-primary',
+          action: 'add-medicine-period',
+        },
+      ],
+    },
+
+    {
+      name: 'Prescription Template Creation',
+      isEnabled: true,
+      actions: [
+        {
+          label: 'Create Template',
+          class: 'btn btn-primary',
+          action: 'create-template',
+        },
+      ],
+    },
+
+    {
+      name: 'Show LMP,GA,EDT ',
+      isEnabled: true,
+    },
+    {
+      name: 'Show OT',
+      isEnabled: true,
+    },
+    {
+      name: 'Show OPD',
+      isEnabled: false,
+    },
+    {
+      name: 'Show IPD',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Opthal',
+      isEnabled: true,
+    },
+    {
+      name: 'Show All Data',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Respective Type Data',
+      isEnabled: true,
+    },
+    {
+      name: 'Show View Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Reports',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Global Search',
+      isEnabled: true,
+    },
+    {
+      name: 'Show FollowUp Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Admit Patient Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Refer Patient Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Canvas Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Image Gallery Button',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Prescription Heading',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Heading in  Footer',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Prescription',
+      isEnabled: true,
+    },
+    {
+      name: 'Show Patient Details Section',
+      isEnabled: true,
+    },
+  ];

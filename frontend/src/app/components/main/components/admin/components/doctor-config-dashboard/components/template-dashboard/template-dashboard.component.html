@@ -1,0 +1,130 @@
+<div class="doctor-config-component">
+  <div class="doctor-config-wrapper">
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h3 class="mb-0">Create Template Prescription</h3>
+        <button
+          type="button"
+          class="btn btn-light"
+          data-bs-toggle="modal"
+          data-bs-target="#exampleModal"
+          (click)="createTemplate()"
+        >
+          <i class="bi bi-plus-circle"></i> Create Template
+        </button>
+      </div>
+
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th width="50px">#</th>
+                <th>Template Title</th>
+                <th>Toggle Visibility</th>
+
+                <th width="150px">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let template of templates; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>
+                  <strong>{{ template.title }}</strong>
+                </td>
+                <td>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      [checked]="template?.isEnabled"
+                      [(ngModel)]="template.isEnabled"
+                      (change)="onToggleChange(template)"
+                    />
+                    <span class="slider round"></span>
+                  </label>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-info btn-sm"
+                    (click)="loadTemplate(template)"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="templates?.length === 0" class="alert alert-info mt-3">
+          No form configurations found. Click "Add New Template" to create one.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <form>
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            Create Template Prescription
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label>Template Title</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="currentTitle"
+                name="title"
+              />
+            </div>
+          </form>
+
+          <app-prescription-table
+            [prescriptionData]="currentPrescription"
+            (prescriptionUpdated)="handlePrescriptionUpdate($event)"
+          ></app-prescription-table>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            (click)="saveTemplate()"
+          >
+            Save changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
