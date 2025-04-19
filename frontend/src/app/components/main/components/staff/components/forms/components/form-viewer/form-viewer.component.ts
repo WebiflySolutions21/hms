@@ -1,18 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { FormService } from 'src/app/core/services';
 
 @Component({
   selector: 'app-form-viewer',
   templateUrl: './form-viewer.component.html',
-  styleUrls: ['./form-viewer.component.scss']
+  styleUrls: ['./form-viewer.component.scss'],
 })
 export class FormViewerComponent implements OnInit {
   form: any;
   formValues: { [key: string]: any } = {};
-  patientId = "1";
+  patientId = '1';
   uploadedFiles: { [key: string]: File[] } = {};
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private formService: FormService
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -20,8 +24,22 @@ export class FormViewerComponent implements OnInit {
     if (stored) {
       const forms = JSON.parse(stored);
       this.form = forms.find((f: any) => f.id === id);
+
+      // Initialize form values with referenced data if available
+      if (this.form) {
+        this.form.sections.forEach((section) => {
+          section.fields.forEach((field) => {
+            if (field.referencesField) {
+              this.formValues[field.id] = this.getReferencedValue(field);
+            } else {
+              // Set default values for date/time fields if no value exists
+              this.setDefaultDateTimeValues(field);
+            }
+          });
+        });
+      }
     }
-    
+
     // Load existing submission if available
     const submissionKey = `form_submission_${id}_patient_${this.patientId}`;
     const savedSubmission = localStorage.getItem(submissionKey);
@@ -31,6 +49,37 @@ export class FormViewerComponent implements OnInit {
     }
   }
 
+  // Add this new method to set default date/time values
+  private setDefaultDateTimeValues(field: any) {
+    if (!this.formValues[field.id]) {
+      const now = new Date();
+      
+      switch (field.type) {
+        case 'date':
+          // Format as YYYY-MM-DD
+          this.formValues[field.id] = now.toISOString().split('T')[0];
+          break;
+          
+        case 'time':
+          // Format as HH:MM
+          this.formValues[field.id] = now.toTimeString().substring(0, 5);
+          break;
+          
+        case 'datetime-local':
+          // Format as YYYY-MM-DDTHH:MM
+          const datePart = now.toISOString().split('T')[0];
+          const timePart = now.toTimeString().substring(0, 5);
+          this.formValues[field.id] = `${datePart}T${timePart}`;
+          break;
+      }
+    }
+  }
+  getFieldLabel(formId, fieldId) {
+    return this.formService.getFieldLabel(formId, fieldId);
+  }
+  getFormTitle(id) {
+    return this.formService.getFormTitle(id);
+  }
   onFileChange(event: any, field: any) {
     const files = event.target.files;
     if (files && files.length > 0) {
@@ -39,13 +88,15 @@ export class FormViewerComponent implements OnInit {
         const maxBytes = field.maxSize * 1024 * 1024;
         for (let file of files) {
           if (file.size > maxBytes) {
-            alert(`File ${file.name} exceeds maximum size of ${field.maxSize}MB`);
+            alert(
+              `File ${file.name} exceeds maximum size of ${field.maxSize}MB`
+            );
             event.target.value = ''; // Clear selection
             return;
           }
         }
       }
-      
+
       // Store files in form values
       if (field.multiple) {
         this.formValues[field.id] = Array.from(files);
@@ -58,13 +109,28 @@ export class FormViewerComponent implements OnInit {
   removeFile(field: any, fileToRemove?: File) {
     if (field.multiple && fileToRemove) {
       const files = this.formValues[field.id] as File[];
-      this.formValues[field.id] = files.filter(file => file !== fileToRemove);
+      this.formValues[field.id] = files.filter((file) => file !== fileToRemove);
     } else {
       this.formValues[field.id] = null;
       // Reset file input
       const input = document.getElementById(field.id) as HTMLInputElement;
       if (input) input.value = '';
     }
+  }
+
+  // Helper method to get referenced field value
+  getReferencedValue(field: any): any {
+    if (!field.referencesField) return null;
+
+    const submissionKey = `form_submission_${field.referencesField.formId}_patient_${this.patientId}`;
+    const savedSubmission = localStorage.getItem(submissionKey);
+
+    if (savedSubmission) {
+      const { submission } = JSON.parse(savedSubmission);
+      return submission[field.referencesField.fieldId];
+    }
+
+    return null;
   }
 
   onMultiCheckboxChange(event: Event, fieldId: string) {
@@ -85,11 +151,11 @@ export class FormViewerComponent implements OnInit {
   async submitForm() {
     // Prepare form data for submission
     const formData = new FormData();
-    
+
     // Add regular fields
     for (const key in this.formValues) {
       const value = this.formValues[key];
-      
+
       if (value instanceof File) {
         // Single file
         formData.append(key, value);
@@ -103,7 +169,7 @@ export class FormViewerComponent implements OnInit {
         formData.append(key, JSON.stringify(value));
       }
     }
-    
+
     // Add metadata
     formData.append('formId', this.form.id);
     formData.append('patientId', this.patientId);
@@ -112,24 +178,32 @@ export class FormViewerComponent implements OnInit {
       // Here you would typically send to your API
       // For now we'll just save to localStorage
       const submissionKey = `form_submission_${this.form.id}_patient_${this.patientId}`;
-      
+
       // Create a submission object without files (since we can't store them in localStorage)
       const submissionWithoutFiles: { [key: string]: any } = {};
       for (const key in this.formValues) {
-        if (!(this.formValues[key] instanceof File) && !Array.isArray(this.formValues[key])) {
+        if (
+          !(this.formValues[key] instanceof File) &&
+          !Array.isArray(this.formValues[key])
+        ) {
           submissionWithoutFiles[key] = this.formValues[key];
         }
       }
-      
-      localStorage.setItem(submissionKey, JSON.stringify({
-        formId: this.form.id,
-        patientId: this.patientId,
-        submission: submissionWithoutFiles
-      }));
+
+      localStorage.setItem(
+        submissionKey,
+        JSON.stringify({
+          formId: this.form.id,
+          patientId: this.patientId,
+          submission: submissionWithoutFiles,
+        })
+      );
 
       console.log('Form submission prepared:', formData);
-      alert('Form data prepared for submission (files not saved to localStorage)');
-      
+      alert(
+        'Form data prepared for submission (files not saved to localStorage)'
+      );
+
       // In a real app, you would send to your API:
       // const response = await this.http.post('/api/submit-form', formData).toPromise();
       // console.log('Submission successful:', response);

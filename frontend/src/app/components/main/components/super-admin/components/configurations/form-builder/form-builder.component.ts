@@ -87,6 +87,64 @@ export class FormBuilderComponent {
       }
     });
   }
+
+  // Add to FormBuilderComponent class
+
+  // Method to check if a field is a reference
+  isReferenceField(field: FormFieldConfig): boolean {
+    return !!field.referencesField;
+  }
+
+  // Method to get all forms that can be referenced
+  getReferenceableForms(): FormConfig[] {
+    console.log();
+    let data2 = this.formService.getAllForms();
+    console.log('data2', data2);
+
+    let data = this.formService
+      .getAllForms()
+      .filter((form) => form.id !== this.formConfig.id);
+    console.log('data', data);
+    return data;
+  }
+
+  // Method to get all fields from a specific form that can be referenced
+  getReferenceableFields(formId: string): FormFieldConfig[] {
+    const form = this.formService.getFormById(formId);
+    if (!form) return [];
+
+    // Filter out fields that are themselves references to avoid circular references
+    return form.sections.flatMap((section) =>
+      section.fields.filter((field) => !field.isReference)
+    );
+  }
+
+  // Method to update a field to reference another field
+  setFieldReference(field: FormFieldConfig, formId: string, fieldId: string) {
+    field.referencesField = { formId, fieldId };
+    field.isReference = true;
+
+    // Optionally copy some properties from the referenced field
+    const referencedForm = this.formService.getFormById(formId);
+    if (referencedForm) {
+      const referencedField = referencedForm.sections
+        .flatMap((s) => s.fields)
+        .find((f) => f.id === fieldId);
+
+      if (referencedField) {
+        field.label = `[Ref] ${referencedField.label}`;
+        field.type = referencedField.type;
+      }
+    }
+  }
+
+  // Method to clear a field reference
+  clearFieldReference(field: FormFieldConfig) {
+    field.referencesField = undefined;
+    field.isReference = false;
+    field.label = field.label.replace('[Ref] ', '');
+  }
+
   ngAfterViewInit() {
     // Initialize modal after view is ready
     this.modal = new (window as any).bootstrap.Modal(
@@ -319,6 +377,7 @@ export class FormBuilderComponent {
       text: { placeholder: 'Enter text...' },
       number: { placeholder: 'Enter number...', min: null, max: null, step: 1 },
       date: { placeholder: 'Select date...', minDate: null, maxDate: null },
+      time: { placeholder: 'Select time...', minTime: null, maxTime: null },
       'datetime-local': { placeholder: 'Pick date & time...' },
       checkbox: { defaultValue: false },
       select: { options: [{ value: '', label: '' }] },
@@ -338,6 +397,11 @@ export class FormBuilderComponent {
       type: 'text',
       label: 'New Field',
       required: false,
+      referencesField: {
+        formId: '',
+        fieldId: '',
+      },
+      isReference: false,
       span: 1,
       ...defaults['text'],
     };
@@ -372,6 +436,31 @@ export class FormBuilderComponent {
         event.currentIndex
       );
     }
+  }
+
+  getSafeReferencesField(field: FormFieldConfig) {
+    if (!field.referencesField) {
+      field.referencesField = { formId: '', fieldId: ''};
+    }
+    console.log(field)
+    return field.referencesField;
+  }
+// Handle form selection change
+onFormSelectChange(field: any) {
+  // Clear fieldId when form changes 
+  if (field.referencesField) {
+    field.referencesField.fieldId = '';
+
+  }
+  // Trigger change detection
+  this.cdr.detectChanges();
+}
+
+  getFieldLabel(formId, fieldId) {
+    return this.formService.getFieldLabel(formId, fieldId);
+  }
+  getFormTitle(id) {
+    return this.formService.getFormTitle(id);
   }
 
   removeOption(field: FormFieldConfig, index: number) {

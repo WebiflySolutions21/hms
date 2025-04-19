@@ -50,50 +50,70 @@ hasError(fieldId: string, errorType: string): boolean {
   return control ? control.hasError(errorType) : false;
 }
 
-  // dynamic-form.component.ts
-  createFormControls() {
-    this.config.sections.forEach(section => {
-      section.fields.forEach(field => {
-        const validators = [];
-  
-        if (field.required) {
-          validators.push(Validators.required);
+createFormControls() {
+  this.config.sections.forEach(section => {
+    section.fields.forEach(field => {
+      const validators = [];
+
+      if (field.required) {
+        validators.push(Validators.required);
+      }
+
+      if (field.type === 'number') {
+        if (field.min !== null && field.min !== undefined) {
+          validators.push(Validators.min(field.min));
         }
-  
-        if (field.type === 'number') {
-          if (field.min !== null && field.min !== undefined) {
-            validators.push(Validators.min(field.min));
-          }
-          if (field.max !== null && field.max !== undefined) {
-            validators.push(Validators.max(field.max));
-          }
+        if (field.max !== null && field.max !== undefined) {
+          validators.push(Validators.max(field.max));
         }
-  
-        // Determine default value based on field type
-        let defaultValue: any;
-  
-        switch (field.type) {
-          case 'checkbox':
-            defaultValue = field.defaultValue ?? false;
-            break;
-          case 'multi-checkbox':
-            defaultValue = field.defaultValue ?? [];
-            break;
-          case 'number':
-            defaultValue = field.defaultValue ?? null;
-            break;
-          default:
-            defaultValue = field.defaultValue ?? '';
-            break;
-        }
-  
-        this.formGroup.addControl(
-          field.id,
-          new FormControl(defaultValue, validators)
-        );
-      });
+      }
+
+      // Determine default value based on field type
+      let defaultValue: any = this.getDefaultValue(field);
+
+      this.formGroup.addControl(
+        field.id,
+        new FormControl(defaultValue, validators)
+      );
     });
+  });
+}
+
+// Add this new method to get default values
+private getDefaultValue(field: any): any {
+  // If there's an explicit default value, use that
+  if (field.defaultValue !== undefined && field.defaultValue !== null) {
+    return field.defaultValue;
   }
+
+  // Set default values for date/time fields
+  const now = new Date();
+  
+  switch (field.type) {
+    case 'date':
+      return now.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+    case 'time':
+      return now.toTimeString().substring(0, 5); // HH:MM
+      
+    case 'datetime-local':
+      const datePart = now.toISOString().split('T')[0];
+      const timePart = now.toTimeString().substring(0, 5);
+      return `${datePart}T${timePart}`; // YYYY-MM-DDTHH:MM
+      
+    case 'checkbox':
+      return false;
+      
+    case 'multi-checkbox':
+      return [];
+      
+    case 'number':
+      return null;
+      
+    default:
+      return '';
+  }
+}
   
 onMultiCheckboxChange(fieldId: string, value: any, checked: boolean): void {
   const control = this.formGroup.get(fieldId);

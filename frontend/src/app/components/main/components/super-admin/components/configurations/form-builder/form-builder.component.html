@@ -44,7 +44,6 @@
                 [(ngModel)]="formConfig.title"
               />
             </div>
-            
           </div>
 
           <button class="btn btn-success mb-4" (click)="addSection()">
@@ -182,7 +181,35 @@
                               <i class="bi bi-trash"></i>
                             </button>
                           </div>
-
+                          <!-- Time Field Configuration -->
+                          <div *ngIf="field.type === 'time'" class="mt-2">
+                            <div class="row g-2">
+                              <div class="col">
+                                <input
+                                  type="text"
+                                  class="form-control form-control-sm"
+                                  [(ngModel)]="field.placeholder"
+                                  placeholder="Placeholder"
+                                />
+                              </div>
+                              <div class="col">
+                                <input
+                                  type="time"
+                                  class="form-control form-control-sm"
+                                  [(ngModel)]="field.minTime"
+                                  placeholder="Min time"
+                                />
+                              </div>
+                              <div class="col">
+                                <input
+                                  type="time"
+                                  class="form-control form-control-sm"
+                                  [(ngModel)]="field.maxTime"
+                                  placeholder="Max time"
+                                />
+                              </div>
+                            </div>
+                          </div>
                           <!-- Text Field Configuration -->
                           <div *ngIf="field.type === 'text'" class="mt-2">
                             <input
@@ -231,43 +258,135 @@
                               </div>
                             </div>
                           </div>
+                          <!-- Add this inside your field configuration section, after the field type selector -->
+                          <div
+                            *ngIf="field.type !== 'section-break'"
+                            class="mt-2"
+                          >
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <div class="form-check form-switch">
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  id="isReference-{{ field.id }}"
+                                  [(ngModel)]="field.isReference"
+                                  (change)="
+                                    field.isReference
+                                      ? null
+                                      : clearFieldReference(field)
+                                  "
+                                />
+                                <label
+                                  class="form-check-label"
+                                  for="isReference-{{ field.id }}"
+                                  >Reference Field</label
+                                >
+                              </div>
+                            </div>
+
+                            <div
+                              *ngIf="field.isReference"
+                              class="reference-configuration border p-2 rounded bg-light"
+                            >
+                            <div class="row g-2 mb-2">
+                              <div class="col-md-6">
+                                <label class="form-label">Source Form</label>
+                                <select
+                                  class="form-select form-select-sm"
+                                  [(ngModel)]="field.referencesField.formId"
+                                  (change)="onFormSelectChange(field)"
+                                >
+                                  <option value="">Select a form</option>
+                                  <option
+                                    *ngFor="let form of getReferenceableForms()"
+                                    [value]="form?.id"
+                                  >
+                                    {{ form?.title }}
+                                  </option>
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label">Field to Reference</label>
+                                <select
+                                  class="form-select form-select-sm"
+                                  [(ngModel)]="field.referencesField.fieldId"
+                                  [disabled]="!field.referencesField?.formId"
+                                >
+                                  <option value="">Select a field</option>
+                                  <option
+                                    *ngFor="let refField of getReferenceableFields(field.referencesField?.formId)"
+                                    [value]="refField.id"
+                                  >
+                                    {{ refField.label }} ({{ refField.type }})
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                              <div
+                                *ngIf="
+                                  field.referencesField?.formId &&
+                                  field.referencesField?.fieldId
+                                "
+                                class="alert alert-info p-2 mb-0"
+                              >
+                                This field will automatically get its value
+                                from:
+                                {{ getFormTitle(field.referencesField.formId) }}
+                                >
+                                {{
+                                  getFieldLabel(
+                                    field.referencesField.formId,
+                                    field.referencesField.fieldId
+                                  )
+                                }}
+                              </div>
+                            </div>
+                          </div>
+
                           <!-- File Upload Configuration -->
-<div *ngIf="field.type === 'file'" class="mt-2">
-  <div class="row g-2">
-    <div class="col-md-6">
-      <label class="form-label">Accepted File Types</label>
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        [(ngModel)]="field.accept"
-        placeholder="e.g. '.pdf,.jpg' or 'image/*'"
-      />
-      <small class="text-muted">Leave as '*' for all file types</small>
-    </div>
-    <div class="col-md-3">
-      <div class="form-check form-switch mt-4">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="multiple-{{field.id}}"
-          [(ngModel)]="field.multiple"
-        />
-        <label class="form-check-label" for="multiple-{{field.id}}">
-          Multiple files
-        </label>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <label class="form-label">Max Size (MB)</label>
-      <input
-        type="number"
-        class="form-control form-control-sm"
-        [(ngModel)]="field.maxSize"
-        min="1"
-      />
-    </div>
-  </div>
-</div>
+                          <div *ngIf="field.type === 'file'" class="mt-2">
+                            <div class="row g-2">
+                              <div class="col-md-6">
+                                <label class="form-label"
+                                  >Accepted File Types</label
+                                >
+                                <input
+                                  type="text"
+                                  class="form-control form-control-sm"
+                                  [(ngModel)]="field.accept"
+                                  placeholder="e.g. '.pdf,.jpg' or 'image/*'"
+                                />
+                                <small class="text-muted"
+                                  >Leave as '*' for all file types</small
+                                >
+                              </div>
+                              <div class="col-md-3">
+                                <div class="form-check form-switch mt-4">
+                                  <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="multiple-{{ field.id }}"
+                                    [(ngModel)]="field.multiple"
+                                  />
+                                  <label
+                                    class="form-check-label"
+                                    for="multiple-{{ field.id }}"
+                                  >
+                                    Multiple files
+                                  </label>
+                                </div>
+                              </div>
+                              <div class="col-md-3">
+                                <label class="form-label">Max Size (MB)</label>
+                                <input
+                                  type="number"
+                                  class="form-control form-control-sm"
+                                  [(ngModel)]="field.maxSize"
+                                  min="1"
+                                />
+                              </div>
+                            </div>
+                          </div>
                           <div
                             *ngIf="field.type === 'datetime-local'"
                             class="mt-2"
@@ -484,29 +603,57 @@
 </div>
 
 <!-- Add after your import modal -->
-<div #registerModal class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+<div
+  #registerModal
+  class="modal fade"
+  id="registerModal"
+  tabindex="-1"
+  aria-hidden="true"
+>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">Create Form Register</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">Register Button Text</label>
-          <input type="text" class="form-control" [(ngModel)]="registerButtonText" 
-                 placeholder="e.g., 'View Entries', 'View Register'">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="registerButtonText"
+            placeholder="e.g., 'View Entries', 'View Register'"
+          />
         </div>
         <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" id="enableRegister" [(ngModel)]="enableRegister">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="enableRegister"
+            [(ngModel)]="enableRegister"
+          />
           <label class="form-check-label" for="enableRegister">
             Enable register for this form
           </label>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="confirmRegister()">Confirm</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="confirmRegister()"
+        >
+          Confirm
+        </button>
       </div>
     </div>
   </div>

@@ -1,194 +1,397 @@
 <div class="patient-registration container mt-4">
-    <h2 class="text-center mb-4">Patient Registration</h2>
-    <svg #barcode></svg>
-    <!-- Camera and Photo Capture -->
-    
-
- 
-  
-  
-    <form [formGroup]="patientForm">
-      <!-- Old Patient -->
-       <div class="camera-heading">
-        <div class="form-group mb-3">
-            <label class="form-label">Are you an Old Patient of this hospital?</label><br/>
-            <div class="yes-no">
-                <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      formControlName="oldPatient"
-                      value="yes"
-                      id="oldYes"
-                      (change)="onPatientTypeChange('yes')"
-                    />
-                    <label class="radio-class form-check-label" for="oldYes">Yes</label>
-                  </div>
-                  
-                  <div class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      formControlName="oldPatient"
-                      value="no"
-                      id="oldNo"
-                      (change)="onPatientTypeChange('no')"
-                    />
-                    <label class="radio-class form-check-label" for="oldNo">No</label>
-                  </div>
-            </div>
-           
-              
-          </div>
-
-        <div class="camera-container">
-            <div class="photo-frame" *ngIf="cameraImagePreview">
-              <img [src]="cameraImagePreview" alt="Captured Photo" class="photo-preview" />
-            </div>
-        
-            <video #videoElement class="video-preview" *ngIf="isCameraOpen"></video>
-        
-            <!-- Camera Buttons -->
-            <div class="camera-buttons">
-              <button *ngIf="!isCameraOpen &&!cameraImagePreview" class="btn btn-primary" (click)="openCamera()">Open Camera</button>
-              <button *ngIf="isCameraOpen &&!cameraImagePreview" class="btn btn-success" (click)="capturePhoto()">Capture Picture</button>
-              <button *ngIf="cameraImagePreview" class="btn btn-warning" (click)="retakePhoto()">Retake</button>
-              <button *ngIf="cameraImagePreview &&!savedPicture" class="btn btn-success" (click)="savePhoto()">Save Picture</button>
-            </div>
-          </div>
-       </div>
-       <div *ngIf="showSearchBar" class="mb-3" style="width: 30%;">
-        <label class="form-label">Search Patient</label>
-        <input
-          type="text"
-          formControlName="searchQuery"
-          class="form-control"
-          placeholder="Search by Name, Mobile, ID, Age, or DOB"
-        />
-        <div *ngIf="searchResults.length" class="list-group mt-2">
-          <button
-            *ngFor="let patient of searchResults"
-            (click)="selectPatient(patient)"
-            class="list-group-item list-group-item-action text-success"
-          >
-            {{ patient.name }} - {{ patient.mobile }} - {{patient.sex}} - {{patient.age}} (ID: {{ patient.id }})
-          </button>
-        </div>
+    <div class="forms-data">
+      <div class="heading-section text-center mb-4">
+        <h2 class="form-title">{{ form?.title }}</h2>
       </div>
+
+      <!-- Dynamic Form -->
+      <div class="card shadow rounded-3">
+        <div class="card-body">
+          <form [formGroup]="patientForm">
+            <!-- Old Patient -->
+             <div class="camera-heading">
+              <div class="form-group mb-3">
+                  <label class="form-label">Are you an Old Patient of this hospital?</label><br/>
+                  <div class="yes-no">
+                      <div class="form-check form-check-inline">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            formControlName="oldPatient"
+                            value="yes"
+                            id="oldYes"
+                            (change)="onPatientTypeChange('yes')"
+                          />
+                          <label class="radio-class form-check-label" for="oldYes">Yes</label>
+                        </div>
+                        
+                        <div class="form-check form-check-inline">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            formControlName="oldPatient"
+                            value="no"
+                            id="oldNo"
+                            (change)="onPatientTypeChange('no')"
+                          />
+                          <label class="radio-class form-check-label" for="oldNo">No</label>
+                        </div>
+                  </div>
+                 
+                    
+                </div>
       
-  
-      <!-- Patient Details -->
-      <div class="card mb-3 p-3 shadow-sm" >
-        <h4 class="card-title">Patient Details</h4>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Name of Patient</label>
-            <input type="text" formControlName="name" class="form-control" placeholder="Enter patient name" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Address</label>
-            <input type="text" formControlName="address" class="form-control" placeholder="Enter address" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Taluka</label>
-            <input type="text" formControlName="taluka" class="form-control" placeholder="Enter taluka" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">District</label>
-            <input type="text" formControlName="district" class="form-control" placeholder="Enter district" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Date of Birth</label>
-            <input type="date" formControlName="dob" class="form-control" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Age</label>
-            <input type="number" formControlName="age" class="form-control" placeholder="Enter age" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Gender</label>
-            <select formControlName="sex" class="form-select">
-              <option value="" disabled>Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Mobile Number</label>
-            <input type="tel" formControlName="mobile" class="form-control" placeholder="Enter mobile number" />
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Consultant</label>
-            <select formControlName="consultant" class="form-select">
-              <option value="" disabled>Select Consultant</option>
-              <option *ngFor="let consultant of consultants" [value]="consultant">
-                {{ consultant }}
-              </option>
-            </select>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Type of Visit</label>
-            <select formControlName="visitType" class="form-select">
-              <option value="" disabled>Select Type of Visit</option>
-              <option *ngFor="let type of visitTypes" [value]="type">
-                {{ type }}
-              </option>
-            </select>
-          </div>
+              <div class="camera-container">
+                  <div class="photo-frame" *ngIf="cameraImagePreview">
+                    <img [src]="cameraImagePreview" alt="Captured Photo" class="photo-preview" />
+                  </div>
+              
+                  <video #videoElement class="video-preview" *ngIf="isCameraOpen"></video>
+              
+                  <!-- Camera Buttons -->
+                  <div class="camera-buttons">
+                    <button *ngIf="!isCameraOpen &&!cameraImagePreview" class="btn btn-primary" (click)="openCamera()">Open Camera</button>
+                    <button *ngIf="isCameraOpen &&!cameraImagePreview" class="btn btn-success" (click)="capturePhoto()">Capture Picture</button>
+                    <button *ngIf="cameraImagePreview" class="btn btn-warning" (click)="retakePhoto()">Retake</button>
+                    <button *ngIf="cameraImagePreview &&!savedPicture" class="btn btn-success" (click)="savePhoto()">Save Picture</button>
+                  </div>
+                </div>
+             </div>
+             <div *ngIf="showSearchBar" class="mb-3 search-container">
+              <label class="form-label">Search Patient</label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  formControlName="searchQuery"
+                  class="form-control"
+                  placeholder="Search by Name, Mobile, ID, Age, or DOB"
+                />
+                <button class="btn btn-outline-secondary" (click)="clearSearch()">
+                  <i class="bi bi-x">X</i>
+                </button>
+              </div>
+
+              <div *ngIf="selectedPatient" class="patient-detail-card mb-4">
+                <div class="card">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Selected Patient Details</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="detail-row">
+                          <label>Patient ID:</label>
+                          <span>{{ selectedPatient.id }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Name:</label>
+                          <span>{{ selectedPatient.name }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Mobile:</label>
+                          <span>{{ selectedPatient.mobile }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Date of Birth:</label>
+                          <span>{{ selectedPatient.dob | date }}</span>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="detail-row">
+                          <label>Age/Sex:</label>
+                          <span>{{ selectedPatient.age }} yrs / {{ selectedPatient.sex }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Address:</label>
+                          <span>{{ selectedPatient.address }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Taluka/District:</label>
+                          <span>{{ selectedPatient.taluka }} / {{ selectedPatient.district }}</span>
+                        </div>
+                        <div class="detail-row">
+                          <label>Last Visit:</label>
+                          <span>{{ selectedPatient.consultant }} ({{ selectedPatient.visitType }})</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger mt-3" (click)="clearSelection()">
+                      Clear Selection
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="searchResults.length" class="search-results mt-2">
+                <div *ngFor="let patient of searchResults" 
+                     class="search-result-card" 
+                     (click)="selectPatient(patient)"
+                     [class.selected]="selectedPatient?.id === patient.id">
+                  <div class="patient-basic-info">
+                    <strong>{{ patient.name }}</strong>
+                    <span class="badge bg-primary">{{ patient.id }}</span>
+                  </div>
+                  <div class="patient-details">
+                    <div><i class="bi bi-telephone"></i> {{ patient.mobile }}</div>
+                    <div><i class="bi bi-gender-ambiguous"></i> {{ patient.sex }}, {{ patient.age }} yrs</div>
+                    <div><i class="bi bi-calendar"></i> DOB: {{ patient.dob | date }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Patient Details -->
+            <div class="" >
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Consultant</label>
+                  <select formControlName="consultant" class="form-select">
+                    <option value="" disabled>Select Consultant</option>
+                    <option *ngFor="let consultant of consultants" [value]="consultant">
+                      {{ consultant }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Type of Visit</label>
+                  <select formControlName="visitType" class="form-select">
+                    <option value="" disabled>Select Type of Visit</option>
+                    <option *ngFor="let type of visitTypes" [value]="type">
+                      {{ type }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+          <form
+            *ngIf="form"
+            (ngSubmit)="submitForm()"
+            #dynamicForm="ngForm"
+            novalidate
+            enctype="multipart/form-data"
+          >
+            <div *ngFor="let section of form.sections" class="mb-5">
+              <h5 class="section-title border-bottom pb-2 mb-4">
+                {{ section.title }}
+              </h5>
+
+              <div class="row g-4" [ngClass]="'row-cols-' + section.columns">
+                <div *ngFor="let field of section.fields" class="col">
+                  <!-- Label -->
+                  <label [for]="field.id" class="form-label">
+                    {{ field.label }}
+                    <span *ngIf="field.required" class="text-danger">*</span>
+                  </label>
+
+                  <!-- Text Input -->
+                  <input
+                    *ngIf="field.type === 'text'"
+                    type="text"
+                    class="form-control"
+                    [id]="field.id"
+                    [placeholder]="field.placeholder"
+                    [(ngModel)]="formValues[field.id]"
+                    [name]="field.id"
+                    [required]="field.required"
+                  />
+
+                  <!-- Number Input -->
+                  <input
+                    *ngIf="field.type === 'number'"
+                    type="number"
+                    class="form-control"
+                    [id]="field.id"
+                    [placeholder]="field.placeholder"
+                    [(ngModel)]="formValues[field.id]"
+                    [name]="field.id"
+                    [required]="field.required"
+                  />
+
+                  <!-- Date Input -->
+                  <input
+                    *ngIf="field.type === 'date'"
+                    type="date"
+                    class="form-control"
+                    [id]="field.id"
+                    [(ngModel)]="formValues[field.id]"
+                    [name]="field.id"
+                    [required]="field.required"
+                  />
+
+                  <!-- Time Input -->
+                  <div *ngIf="field.type === 'time'">
+                    <input
+                      type="time"
+                      class="form-control"
+                      [id]="field.id"
+                      [(ngModel)]="formValues[field.id]"
+                      [name]="field.id"
+                      [required]="field.required"
+                    />
+                  </div>
+
+                  <!-- DateTime Local Input -->
+                  <input
+                    *ngIf="field.type === 'datetime-local'"
+                    type="datetime-local"
+                    class="form-control"
+                    [id]="field.id"
+                    [(ngModel)]="formValues[field.id]"
+                    [name]="field.id"
+                    [required]="field.required"
+                  />
+
+                  <!-- File Upload Input -->
+                  <div *ngIf="field.type === 'file'">
+                    <input
+                      type="file"
+                      class="form-control"
+                      [id]="field.id"
+                      [accept]="field.accept || '*'"
+                      [multiple]="field.multiple || false"
+                      (change)="onFileChange($event, field)"
+                      [required]="field.required"
+                    />
+                    <small *ngIf="field.maxSize" class="text-muted">
+                      Max file size: {{ field.maxSize }}MB
+                    </small>
+
+                    <!-- File Preview -->
+                    <div *ngIf="formValues[field.id]" class="mt-2">
+                      <div
+                        *ngIf="
+                          field.multiple && formValues[field.id].length > 0
+                        "
+                        class="file-preview"
+                      >
+                        <div
+                          *ngFor="let file of formValues[field.id]"
+                          class="file-preview-item"
+                        >
+                          <span>{{ file.name }}</span>
+                          <small class="text-muted ms-2"
+                            >({{ (file.size / 1024).toFixed(2) }} KB)</small
+                          >
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger ms-2"
+                            (click)="removeFile(field, file)"
+                          >
+                            <i class="bi bi-x"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div
+                        *ngIf="!field.multiple && formValues[field.id]"
+                        class="file-preview"
+                      >
+                        <div class="file-preview-item">
+                          <span>{{ formValues[field.id].name }}</span>
+                          <small class="text-muted ms-2"
+                            >({{
+                              (formValues[field.id].size / 1024).toFixed(2)
+                            }}
+                            KB)</small
+                          >
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger ms-2"
+                            (click)="removeFile(field)"
+                          >
+                            <i class="bi bi-x"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Radio Buttons -->
+                  <div *ngIf="field.type === 'radio'">
+                    <div class="form-check" *ngFor="let opt of field.options">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        [id]="field.id + '-' + opt.value"
+                        [name]="field.id"
+                        [value]="opt.value"
+                        [(ngModel)]="formValues[field.id]"
+                        [required]="field.required"
+                      />
+                      <label
+                        class="form-check-label"
+                        [for]="field.id + '-' + opt.value"
+                      >
+                        {{ opt.label }}
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Multi-Checkbox -->
+                  <div *ngIf="field.type === 'multi-checkbox'">
+                    <div class="form-check" *ngFor="let opt of field.options">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="field.id + '-' + opt.value"
+                        [value]="opt.value"
+                        (change)="onMultiCheckboxChange($event, field.id)"
+                        [checked]="formValues[field.id]?.includes(opt.value)"
+                      />
+                      <label
+                        class="form-check-label"
+                        [for]="field.id + '-' + opt.value"
+                      >
+                        {{ opt.label }}
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Checkbox -->
+                  <div
+                    *ngIf="field.type === 'checkbox'"
+                    class="form-check mt-2"
+                  >
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [id]="field.id"
+                      [(ngModel)]="formValues[field.id]"
+                      [name]="field.id"
+                    />
+                    <label class="form-check-label" [for]="field.id">
+                      {{ field.placeholder || field.label }}
+                    </label>
+                  </div>
+
+                  <!-- Dropdown -->
+                  <select
+                    *ngIf="field.type === 'select'"
+                    class="form-select"
+                    [id]="field.id"
+                    [(ngModel)]="formValues[field.id]"
+                    [name]="field.id"
+                    [required]="field.required"
+                  >
+                    <option value="">Select an option</option>
+                    <option
+                      *ngFor="let opt of field.options"
+                      [value]="opt.value"
+                    >
+                      {{ opt.label }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center mt-4" (click)="submitForm()">
+              <button type="submit" class="btn btn-success px-5 py-2">
+                Submit
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-  
-      <!-- Physical Examination -->
-      <div class="card mb-3 p-3 shadow-sm">
-        <h4 class="card-title">Physical Examination</h4>
-        <div class="row">
-          <div class="col-md-3 mb-3">
-            <label class="form-label">Weight</label>
-            <input type="number" formControlName="weight" class="form-control" placeholder="Enter weight" />
-          </div>
-          <div class="col-md-3 mb-3">
-            <label class="form-label">Pulse</label>
-            <input type="number" formControlName="pulse" class="form-control" placeholder="Enter pulse rate" />
-          </div>
-          <div class="col-md-3 mb-3">
-            <label class="form-label">BP</label>
-            <input type="number" formControlName="bp" class="form-control" placeholder="Enter BP" />
-          </div>
-          <div class="col-md-3 mb-3">
-            <label class="form-label">Temperature</label>
-            <input type="number" formControlName="temperature" class="form-control" placeholder="Enter temperature" />
-          </div>
-          <div class="col-md-12 mb-3">
-            <label class="form-label">Upload Image</label>
-            <input
-              type="file"
-              (change)="onImageUpload($event)"
-              class="form-control"
-              accept="image/*"
-            />
-            <img *ngIf="imagePreview" [src]="imagePreview" alt="Uploaded Image" class="img-thumbnail mt-2" width="150" />
-          </div>
-        </div>
-      </div>
-  
-      <!-- General Details -->
-      <div class="card mb-3 p-3 shadow-sm">
-        <h4 class="card-title">General Details</h4>
-        <div class="mb-3">
-          <label class="form-label">Referred By</label>
-          <input type="text" formControlName="referredBy" class="form-control" placeholder="Enter referred by" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Patient Complaints</label>
-          <textarea formControlName="complaints" class="form-control" placeholder="Enter complaints"></textarea>
-        </div>
-      </div>
-  
-      <!-- Submit Button -->
-      <div class="text-center">
-        <button type="submit" class="submit-btn btn btn-primary" (click)="onSubmit()">Submit</button>
-      </div>
-    </form>
+    </div>
   </div>
  
