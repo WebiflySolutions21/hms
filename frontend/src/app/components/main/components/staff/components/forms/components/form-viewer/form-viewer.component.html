@@ -112,7 +112,19 @@
                     [name]="field.id"
                     [required]="field.required"
                   />
-
+<!-- Add this after the referenced-field div -->
+<div *ngIf="field.type === 'template'" class="template-field mb-3">
+  <div class="rendered-template p-3 border rounded bg-light">
+    {{ resolveTemplate(field) }}
+  </div>
+  
+  <!-- Hidden input to store the resolved value -->
+  <input 
+    type="hidden" 
+    [name]="field.id" 
+    [value]="resolveTemplate(field, true)"
+  >
+</div>
                   <!-- File Upload Input -->
                   <div *ngIf="field.type === 'file'">
                     <input

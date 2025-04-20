@@ -70,7 +70,11 @@ export class FormBuilderComponent {
   // Add these properties to your component
   isExistingForm = false;
   originalFormId: string | null = null;
-
+  @ViewChild('referenceModal') referenceModalRef!: ElementRef;
+  referenceModal: any;
+  selectedReferenceFormId: string = '';
+  selectedReferenceFieldId: string = '';
+  currentFieldForReference: any | null = null;
   constructor(
     private formService: FormService,
     private route: ActivatedRoute,
@@ -119,6 +123,86 @@ export class FormBuilderComponent {
     );
   }
 
+  // Add these new methods
+showReferencePicker(field: FormFieldConfig) {
+  this.currentFieldForReference = field;
+  this.selectedReferenceFormId = '';
+  this.selectedReferenceFieldId = '';
+  this.referenceModal.show();
+}
+
+insertReference() {
+  if (!this.currentFieldForReference || !this.selectedReferenceFieldId) return;
+
+  const referencedField = this.getReferencedField(
+    this.selectedReferenceFormId,
+    this.selectedReferenceFieldId
+  );
+
+  if (referencedField) {
+    const referenceTag = `{{${referencedField.label.replace(/\s+/g, '_')}}}`;
+    
+    if (!this.currentFieldForReference.templateString) {
+      this.currentFieldForReference.templateString = '';
+    }
+    
+    this.currentFieldForReference.templateString += referenceTag;
+    
+    // Store the reference relationship
+    if (!this.currentFieldForReference.references) {
+      this.currentFieldForReference.references = [];
+    }
+    
+    this.currentFieldForReference.references.push({
+      formId: this.selectedReferenceFormId,
+      fieldId: this.selectedReferenceFieldId,
+      tag: referenceTag
+    });
+  }
+
+  this.referenceModal.hide();
+}
+
+getReferencedField(formId: string, fieldId: string): FormFieldConfig | null {
+  const form = this.formService.getFormById(formId);
+  if (!form) return null;
+
+  for (const section of form.sections) {
+    const field = section.fields.find(f => f.id === fieldId);
+    if (field) return field;
+  }
+  return null;
+}
+
+previewTemplate(templateString: string): string {
+  if (!templateString) return '';
+  
+  // This is a simple preview - in a real implementation, you'd want to 
+  // actually replace the references with values from the referenced forms
+  return templateString.replace(/\{\{([^}]+)\}\}/g, (match, p1) => {
+    return `[${p1.replace(/_/g, ' ')}]`;
+  });
+}
+resolveTemplate(field: any): string {
+  if (!field.templateString) return '';
+  
+  let result = field.templateString;
+  
+  // Replace each reference with its actual value
+  if (field.references) {
+    for (const ref of field.references) {
+      const value = this.getReferencedValue(ref.formId, ref.fieldId);
+      result = result.replace(ref.tag, value);
+    }
+  }
+  
+  return result;
+}
+getReferencedValue(formId: string, fieldId: string): string {
+  // Implement logic to get the actual value from the referenced form/field
+  // This might involve looking up form data from a service
+  return '[Resolved Value]'; // Placeholder
+}
   // Method to update a field to reference another field
   setFieldReference(field: FormFieldConfig, formId: string, fieldId: string) {
     field.referencesField = { formId, fieldId };
@@ -152,6 +236,9 @@ export class FormBuilderComponent {
     );
     this.registerModal = new (window as any).bootstrap.Modal(
       this.registerModalRef.nativeElement
+    );
+    this.referenceModal = new (window as any).bootstrap.Modal(
+      this.referenceModalRef.nativeElement
     );
   }
   addOption(field: FormFieldConfig) {

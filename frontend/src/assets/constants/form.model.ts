@@ -14,6 +14,7 @@ export interface FormFieldConfig {
   label: string;
   defaultValue?: any;
   required: boolean;
+  templateString?: string;
   placeholder?: string;
   minTime?: string; // Format: "HH:mm"
   maxTime?: string; // Format: "HH:mm"
