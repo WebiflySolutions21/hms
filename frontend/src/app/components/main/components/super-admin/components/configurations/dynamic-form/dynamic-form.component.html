@@ -28,8 +28,29 @@
               This field is required
             </div>
           </div>
+
+          <!-- Time Input -->
+          <div *ngIf="field.type === 'time'" class="mb-3">
+            <label [for]="field.id" class="form-label">{{ field.label }}</label>
+            <input
+              [id]="field.id"
+              type="time"
+              class="form-control"
+              [formControlName]="field.id"
+              [min]="field.minTime"
+              [max]="field.maxTime"
+            />
+            <div
+              *ngIf="hasError(field.id, 'required')"
+              class="invalid-feedback d-block"
+            >
+              This field is required
+            </div>
+          </div>
+
           <div *ngIf="field.type === 'file'" class="mb-3">
-            <label [for]="field.id" class="form-label">{{field.label}} 
+            <label [for]="field.id" class="form-label"
+              >{{ field.label }}
               <span *ngIf="field.required" class="text-danger">*</span>
             </label>
             <input
@@ -40,9 +61,9 @@
               [multiple]="field.multiple || false"
               (change)="onFileChange($event, field)"
               [required]="field.required"
-            >
+            />
             <small *ngIf="field.maxSize" class="text-muted">
-              Max file size: {{field.maxSize}}MB
+              Max file size: {{ field.maxSize }}MB
             </small>
           </div>
 

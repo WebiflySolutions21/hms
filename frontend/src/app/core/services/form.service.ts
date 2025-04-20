@@ -12,6 +12,26 @@ export class FormService {
     this.registrationForm = null;
   }
 
+  // In form.service.ts
+
+getFormTitle(formId: string): string {
+  const form = this.getFormById(formId);
+  console.log("form Title",form)
+  return form ? form.title : 'Unknown Form';
+}
+
+getFieldLabel(formId: string, fieldId: string): string {
+  const form = this.getFormById(formId);
+  if (!form) return 'Unknown Field';
+  
+  for (const section of form.sections) {
+    const field = section.fields.find(f => f.id === fieldId);
+    if (field) return field.label;
+  }
+  
+  return 'Unknown Field';
+}
+
   // Save form to localStorage
   saveForm(form: FormConfig): void {
     const forms = this.getAllForms();

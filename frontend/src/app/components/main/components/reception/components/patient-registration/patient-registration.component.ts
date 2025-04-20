@@ -42,7 +42,6 @@ export class PatientRegistrationComponent implements OnInit {
   ];
   @ViewChild('barcode') barcodeElement!: ElementRef;
   patientId: string = '';
-
   showSearchBar: boolean = false;
   searchQuery: string = '';
   searchResults: Patient[] = [];
@@ -97,34 +96,13 @@ export class PatientRegistrationComponent implements OnInit {
       visitType: 'Eye Checkup',
     },
   ];
+  formValues: { [key: string]: any } = {};
+  form: any;
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private patientService: PatientService
-  ) {}
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
-    this.patientForm = this.fb.group({
-      oldPatient: ['no', Validators.required],
-      name: ['', Validators.required],
-      address: ['', Validators.required],
-      taluka: ['', Validators.required],
-      district: ['', Validators.required],
-      dob: ['', Validators.required],
-      age: ['', Validators.required],
-      sex: ['Male', Validators.required],
-      mobile: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      consultant: ['', Validators.required],
-      visitType: ['', Validators.required],
-      weight: ['', Validators.required],
-      pulse: ['', Validators.required],
-      bp: ['', Validators.required],
-      temperature: ['', Validators.required],
-      referredBy: [''],
-      complaints: [''],
-      searchQuery: [''],
-    });
+    this.initializeForm();
 
     // Trigger search when the search query changes
     this.patientForm
@@ -132,8 +110,130 @@ export class PatientRegistrationComponent implements OnInit {
       ?.valueChanges.subscribe((query: string) => {
         this.searchPatients(query);
       });
-    this.patientId = 'P' + Date.now().toString();
 
+    this.patientId = 'P' + Date.now().toString();
+    this.getFormDetails();
+  }
+
+  initializeForm() {
+    this.patientForm = this.fb.group({
+      oldPatient: ['no', Validators.required],
+      consultant: ['', Validators.required],
+      visitType: ['', Validators.required],
+      searchQuery: [''],
+    });
+  }
+
+  autoFillForm(formId?, patientId?) {
+    const submissionKey = `form_submission_${formId}_patient_${patientId}`;
+    const savedSubmission = localStorage.getItem(submissionKey);
+    if (savedSubmission) {
+      const submission = JSON.parse(savedSubmission);
+      this.formValues = submission.values;
+      this.patientForm.patchValue({
+        consultant: this.formValues['consultant'],
+        visitType: this.formValues['visitType'],
+      });
+    }
+  }
+
+  getFormDetails() {
+    const stored = localStorage.getItem('dynamicForms');
+    if (stored) {
+      const forms = JSON.parse(stored);
+      this.form = forms.find(
+        (f: any) =>
+          f.title === 'Patient Registration Form' &&
+          f.formVisibility.some((v: any) =>
+            v.loginTypes.some((lt: any) => lt.name === 'Receptionist')
+          )
+      );
+    }
+    if (this.form) {
+      this.form.sections.forEach((section) => {
+        section.fields.forEach((field) => {
+          this.setDefaultDateTimeValues(field);
+        });
+      });
+    }
+  }
+
+  private setDefaultDateTimeValues(field: any) {
+    if (!this.formValues[field.id]) {
+      const now = new Date();
+
+      switch (field.type) {
+        case 'date':
+          // Format as YYYY-MM-DD
+          this.formValues[field.id] = now.toISOString().split('T')[0];
+          break;
+
+        case 'time':
+          // Format as HH:MM
+          this.formValues[field.id] = now.toTimeString().substring(0, 5);
+          break;
+
+        case 'datetime-local':
+          // Format as YYYY-MM-DDTHH:MM
+          const datePart = now.toISOString().split('T')[0];
+          const timePart = now.toTimeString().substring(0, 5);
+          this.formValues[field.id] = `${datePart}T${timePart}`;
+          break;
+      }
+    }
+  }
+
+  onFileChange(event: any, field: any) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      // Validate file size if specified
+      if (field.maxSize) {
+        const maxBytes = field.maxSize * 1024 * 1024;
+        for (let file of files) {
+          if (file.size > maxBytes) {
+            alert(
+              `File ${file.name} exceeds maximum size of ${field.maxSize}MB`
+            );
+            event.target.value = ''; // Clear selection
+            return;
+          }
+        }
+      }
+
+      // Store files in form values
+      if (field.multiple) {
+        this.formValues[field.id] = Array.from(files);
+      } else {
+        this.formValues[field.id] = files[0];
+      }
+    }
+  }
+
+  removeFile(field: any, fileToRemove?: File) {
+    if (field.multiple && fileToRemove) {
+      const files = this.formValues[field.id] as File[];
+      this.formValues[field.id] = files.filter((file) => file !== fileToRemove);
+    } else {
+      this.formValues[field.id] = null;
+      // Reset file input
+      const input = document.getElementById(field.id) as HTMLInputElement;
+      if (input) input.value = '';
+    }
+  }
+
+  onMultiCheckboxChange(event: Event, fieldId: string) {
+    const checkbox = event.target as HTMLInputElement;
+    if (!this.formValues[fieldId]) {
+      this.formValues[fieldId] = [];
+    }
+
+    if (checkbox.checked) {
+      this.formValues[fieldId].push(checkbox.value);
+    } else {
+      this.formValues[fieldId] = this.formValues[fieldId].filter(
+        (val: string) => val !== checkbox.value
+      );
+    }
   }
 
   generateBarcode(): void {
@@ -174,89 +274,145 @@ export class PatientRegistrationComponent implements OnInit {
       // Only reset relevant fields, not the entire form
       this.patientForm.patchValue({
         searchQuery: '',
-        name: '',
-        address: '',
-        taluka: '',
-        district: '',
-        dob: '',
-        age: '',
-        sex: 'Male', // or any default value
-        mobile: '',
         consultant: '',
         visitType: '',
-        weight: '',
-        pulse: '',
-        bp: '',
-        temperature: '',
-        referredBy: '',
-        complaints: '',
-        image: '',
       });
     }
   }
 
+  // Enhanced search with debounce
   searchPatients(query: string): void {
-    query = query?.toLowerCase().trim();
-    if (query) {
-      this.searchResults = this.existingPatients.filter(
-        (patient) =>
-          patient.name.toLowerCase().includes(query) ||
-          patient.mobile.toLowerCase().includes(query) ||
-          patient.id.toString().includes(query) ||
-          patient.dob.toLowerCase().includes(query) ||
-          patient.age.toString().includes(query) ||
-          patient.sex.toLowerCase().includes(query) ||
-          patient.address.toLowerCase().includes(query) ||
-          patient.taluka.toLowerCase().includes(query) ||
-          patient.district.toLowerCase().includes(query) ||
-          patient.consultant.toLowerCase().includes(query) ||
-          patient.visitType.toLowerCase().includes(query)
-      );
-    } else {
+    if (!query?.trim()) {
       this.searchResults = [];
+      return;
     }
+
+    query = query.toLowerCase().trim();
+
+    // Search through all patient properties
+    this.searchResults = this.existingPatients.filter((patient) =>
+      Object.values(patient).some((val) =>
+        val?.toString().toLowerCase().includes(query)
+      )
+    );
   }
 
+  // Select patient with more details
   selectPatient(patient: Patient): void {
     this.selectedPatient = patient;
-    this.patientForm.get('searchQuery').reset();
+    this.searchResults = []; // Clear search results but keep the query
+
+    // Auto-fill form fields
     this.patientForm.patchValue({
-      name: patient.name,
-      address: patient.address,
-      taluka: patient.taluka,
-      district: patient.district,
-      dob: patient.dob,
-      age: patient.age,
-      sex: patient.sex,
-      mobile: patient.mobile,
       consultant: patient.consultant,
       visitType: patient.visitType,
     });
+
+    // Load any additional form data from storage
+    this.autoFillForm(this.form?.id, patient.id);
+  }
+  // Clear search results
+  clearSearch(): void {
+    this.patientForm.get('searchQuery')?.reset();
+    this.searchResults = [];
   }
 
-  onSubmit() {
-    this.generateBarcode();
-    const formData = new FormData();
-
-    Object.entries(this.patientForm.value).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, value.toString());
-      }
+  // Clear selected patient
+  clearSelection(): void {
+    this.selectedPatient = null;
+    this.patientForm.patchValue({
+      consultant: '',
+      visitType: '',
     });
-    formData.append('patientId', this.patientId);
+  }
+  async submitForm() {
+    // Construct one single object for storage
+    const submissionObject: { [key: string]: any } = {
+      formId: this.form.id,
+      patientId: this.patientId,
+      values: {},
+    };
 
-    // Append file uploads
+    // Loop through formValues and assign to values
+    for (const key in this.formValues) {
+      const value = this.formValues[key];
+
+      if (value instanceof File) {
+        // Skip actual file data for localStorage
+        submissionObject['values'][key] = 'FILE_NOT_STORED';
+      } else if (Array.isArray(value) && value[0] instanceof File) {
+        submissionObject['values'][key] = value.map(() => 'FILE_NOT_STORED');
+      } else {
+        submissionObject['values'][key] = value;
+      }
+    }
+    console.log(this.patientForm.value);
+    // Add live picture info
+    if (this.livePicFile) {
+      submissionObject['values']['patientLivePic'] = this.livePicFile;
+    }
+
+    submissionObject['values']['consultant'] =
+      this.patientForm.value.consultant;
+    submissionObject['values']['visitType'] = this.patientForm.value.visitType;
+    submissionObject['values']['oldPatient'] =
+      this.patientForm.value.oldPatient;
+
+    // Store into localStorage as one single JSON object
+    const submissionKey = `form_submission_${this.form.id}_patient_${this.patientId}`;
+    localStorage.setItem(submissionKey, JSON.stringify(submissionObject));
+
+    console.log('Form saved as object:', submissionObject);
+    alert('Form data saved (files not stored in localStorage)');
+
+    // If you still want to send files, use FormData for API submission
+    const formData = new FormData();
+    for (const key in this.formValues) {
+      const value = this.formValues[key];
+
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else if (Array.isArray(value) && value[0] instanceof File) {
+        for (let i = 0; i < value.length; i++) {
+          formData.append(`${key}_${i}`, value[i]);
+        }
+      } else {
+        formData.append(key, JSON.stringify(value));
+      }
+    }
+
+    formData.append('formId', this.form.id);
+    formData.append('patientId', this.patientId);
     if (this.livePicFile) {
       formData.append('patientLivePic', this.livePicFile);
     }
-    if (this.uploadedPicFile) {
-      formData.append('imageUploaded', this.uploadedPicFile);
-    }
 
-    this.patientService.savePatient(formData).subscribe((res) => {
-      console.log('Patient registered!', res);
-    });
+    console.log('FormData prepared for API:', formData);
   }
+
+  // onSubmit() {
+  //   this.generateBarcode();
+  //   const formData = new FormData();
+
+  //   Object.entries(this.patientForm.value).forEach(([key, value]) => {
+  //     if (value !== null && value !== undefined) {
+  //       formData.append(key, value.toString());
+  //     }
+  //   });
+  //   formData.append('patientId', this.patientId);
+
+  //   // Append file uploads
+  //   if (this.livePicFile) {
+  //     formData.append('patientLivePic', this.livePicFile);
+  //   }
+  //   if (this.uploadedPicFile) {
+  //     formData.append('imageUploaded', this.uploadedPicFile);
+  //   }
+
+  //   this.patientService.savePatient(formData).subscribe((res) => {
+  //     console.log('Patient registered!', res);
+  //   });
+  // }
   openCamera() {
     this.isCameraOpen = true;
     navigator.mediaDevices
