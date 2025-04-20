@@ -14,9 +14,17 @@ export interface FormFieldConfig {
   label: string;
   defaultValue?: any;
   required: boolean;
+  templateString?: string;
   placeholder?: string;
+  minTime?: string; // Format: "HH:mm"
+  maxTime?: string; // Format: "HH:mm"
   options?: { value: any; label: string }[];
   span?: number;
+  referencesField?: {
+    formId: string;
+    fieldId: string;
+  };
+  isReference?: boolean;
 
   // Number specific
   min: number;
