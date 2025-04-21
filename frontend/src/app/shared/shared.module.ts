@@ -11,10 +11,11 @@ import { HospitalDetailsComponent } from './components/hospital-details/hospital
 import { PatientDetailsComponent } from './components/patient-details/patient-details.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ConsultantSignComponent } from './components/consultant-sign/consultant-sign.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 
 @NgModule({
-  declarations: [...fromComponents.components,InputTemplateComponent, PrescriptionTableComponent, PrintPreviewComponent, DrawWriteModalComponent, HospitalDetailsComponent, PatientDetailsComponent, FooterComponent, ConsultantSignComponent],
+  declarations: [...fromComponents.components,InputTemplateComponent, PrescriptionTableComponent, PrintPreviewComponent, DrawWriteModalComponent, HospitalDetailsComponent, PatientDetailsComponent, FooterComponent, ConsultantSignComponent, ChatComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,

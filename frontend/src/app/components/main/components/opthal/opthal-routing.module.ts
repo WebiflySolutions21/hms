@@ -14,6 +14,13 @@ const routes: Routes = [
             (m) => m.OpthalDashboardModule
           ),
       },
+      {
+        path: 'opthal-view',
+        loadChildren: () =>
+          import('./components/opthal-view/opthal-view.module').then(
+            (m) => m.OpthalViewModule
+          ),
+      },
     ],
   },
 ];

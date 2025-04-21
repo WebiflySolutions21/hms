@@ -1,0 +1,83 @@
+@import "mixins";
+.opthal-view-component{
+    height: 100%;
+    width: 100%;
+    .opthal-view-wrapper{
+        height: 100%;
+        width: 100%;
+        margin-top: 4em;
+
+        .title{
+          @include font(18,1vw,22,hbold,#000);
+        }
+        .vision-section {
+            padding: 1rem;
+            background: #f8f8f8;
+            border-radius: 8px;
+          }
+          
+          .eye-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+          
+            div {
+              flex: 1;
+              margin-right: 20px;
+            }
+          
+            input {
+              display: block;
+              width: 100%;
+              margin-bottom: 5px;
+              padding: 5px;
+            }
+          }
+          
+          .eye-theme {
+            background-color: #f8fbff;
+            border-radius: 15px;
+          
+            .table-eye-header th {
+              background-color: #0077cc;
+              @include font(14,1vw,16,hbold,#fff);
+            }
+
+            input,label{
+              @include font(14,1vw,16,hbold,#000);
+
+            }
+          
+            input.form-control {
+              border-radius: 8px;
+              text-align: center;
+            }
+          
+            button {
+              border-radius: 12px;
+            }
+          }
+    }
+}
+
+.cal{
+  @include font(14,1vw,16,hbold,#0d6efd);
+  
+}
+
+.patient-diagnosis-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); // 4 columns
+  gap: 1em;
+  width: 95%;
+  margin-top: 2em;
+  justify-content: center;
+  align-items: center;
+  .examination {
+    width: 100%; // Ensure each dropdown takes full column width
+  }
+}
+
+.medicine-prescription{
+  width: 95%;
+}

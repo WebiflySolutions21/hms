@@ -5,8 +5,9 @@
         <tr>
           <th>Sr.No</th>
           <th>Config Name</th>
-          <th>Toggle</th>
-          <th>Status</th>
+          <th>Doctor Toggle</th>
+          <th>Opthal Toggle</th>
+          <!-- <th>Status</th> -->
           <th>Actions</th>
         </tr>
       </thead>
@@ -18,20 +19,31 @@
             <label class="switch">
               <input
                 type="checkbox"
-                [checked]="config.isEnabled"
-                [(ngModel)]="config.isEnabled"
-                (change)="onToggleChange(config)"
+                [checked]="config.isEnabledForDoctor"
+                [(ngModel)]="config.isEnabledForDoctor"
+                (change)="onToggleChange('doctor',config)"
               />
               <span class="slider round"></span>
             </label>
           </td>
           <td>
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="config.isEnabledForOpthal"
+                [(ngModel)]="config.isEnabledForOpthal"
+                (change)="onToggleChange('opthal',config)"
+              />
+              <span class="slider round"></span>
+            </label>
+          </td>
+          <!-- <td>
             <span
               [ngClass]="config.isEnabled ? 'status-active' : 'status-inactive'"
             >
               {{ config.isEnabled ? "Active" : "Inactive" }}
             </span>
-          </td>
+          </td> -->
           <td class="btns">
             <button
               *ngFor="let action of config.actions"

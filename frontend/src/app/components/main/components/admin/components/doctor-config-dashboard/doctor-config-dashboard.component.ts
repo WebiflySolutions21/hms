@@ -99,12 +99,26 @@ export class DoctorConfigDashboardComponent {
       this.medicinePeriodForm.value.periods
     );
   }
-  onToggleChange(config: any) {
-    config.isEnabled = !config.isEnabled;
-    console.log(
-      `Config "${config.name}" toggled to:`,
-      config.isEnabled ? 'Active' : 'Inactive'
-    );
+  onToggleChange(type,config: any) {
+
+    switch(type){
+      case 'doctor':
+        config.isEnabledForDoctor = !config.isEnabledForDoctor;
+        console.log(
+          `Config "${config.name}" toggled to:`,
+          config.isEnabledForDoctor ? 'Active' : 'Inactive'
+        );
+        break;
+
+      case 'opthal':
+        config.isEnabledForOpthal = !config.isEnabledForOpthal;
+        console.log(
+          `Config "${config.name}" toggled to:`,
+          config.isEnabledForOpthal ? 'Active' : 'Inactive'
+        );
+        break;
+    }
+  
   }
 
   handleAction(action: any) {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { OpthalDashboardRoutingModule } from './opthal-dashboard-routing.module';
 import { OpthalDashboardComponent } from './opthal-dashboard.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -11,7 +13,10 @@ import { OpthalDashboardComponent } from './opthal-dashboard.component';
   ],
   imports: [
     CommonModule,
-    OpthalDashboardRoutingModule
+    OpthalDashboardRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+    SharedModule
   ]
 })
 export class OpthalDashboardModule { }

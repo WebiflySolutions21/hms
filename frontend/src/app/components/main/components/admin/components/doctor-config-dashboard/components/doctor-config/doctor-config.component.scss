@@ -1,3 +1,4 @@
+@import "mixins";
 .doctor-config-component {
     .card {
       border-radius: 0.5rem;
@@ -94,4 +95,8 @@
 
   .cursor-pointer {
     cursor: pointer;
+  }
+
+  .type{
+    @include font(16,1vw,18,hbold,#000);
   }

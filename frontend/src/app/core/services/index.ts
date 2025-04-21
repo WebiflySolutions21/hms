@@ -8,6 +8,7 @@ import {DropdownStateService} from "./dropdown-state.service"
 import {RegistrationService} from "./registration.service"
 import {PatientService} from "./patient.service"
 import {EventEmitterService} from "./event-emitter.service"
+import {ChatService} from "./chat.service"
 
 export * from "./event-emitter.service"
 export * from './agent.service';
@@ -19,6 +20,7 @@ export * from "./data.service"
 export * from "./dropdown-state.service"
 export * from "./registration.service"
 export * from "./patient.service"
+export * from "./chat.service"
 
 
 export const services=[
@@ -31,5 +33,6 @@ export const services=[
     DropdownStateService,
     RegistrationService,
     PatientService,
-    EventEmitterService
+    EventEmitterService,
+    ChatService
 ]
