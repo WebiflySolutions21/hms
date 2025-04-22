@@ -32,13 +32,15 @@ export class DoctorConfigDashboardComponent {
     return this.typeForm.get('types') as FormArray;
   }
 
-  addType(value: string = '') {
+  addType(value: string = '', visibility: string = 'both') {
     this.types.push(
       this.fb.group({
         title: [value],
+        visibility: [visibility],  // <-- Add this
       })
     );
   }
+  
 
   removeType(index: number) {
     this.types.removeAt(index);
@@ -57,11 +59,12 @@ export class DoctorConfigDashboardComponent {
     const savedData = localStorage.getItem(this.typeLocalStorageKey);
     if (savedData) {
       const types = JSON.parse(savedData);
-      types.forEach((t: any) => this.addType(t.title));
+      types.forEach((t: any) => this.addType(t.title, t.visibility || 'both'));
     } else {
       this.addType();
     }
   }
+  
 
   loadFromLocalStorage() {
     const savedData = localStorage.getItem(this.localStorageKey);

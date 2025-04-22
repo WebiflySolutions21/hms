@@ -155,24 +155,35 @@
         <form [formGroup]="typeForm">
           <div formArrayName="types">
             <div
-              *ngFor="let type of types.controls; let i = index"
-              [formGroupName]="i"
-              class="mb-2 d-flex align-items-center"
+            *ngFor="let type of types.controls; let i = index"
+            [formGroupName]="i"
+            class="mb-2 d-flex align-items-center"
+          >
+            <input
+              type="text"
+              class="form-control me-2"
+              placeholder="Add Medicine Type"
+              formControlName="title"
+            />
+          
+            <select
+              class="form-select me-2"
+              formControlName="visibility"
             >
-              <input
-                type="text"
-                class="form-control me-2"
-                placeholder="Add Medicine Type"
-                formControlName="title"
-              />
-              <button
-                type="button"
-                class="btn btn-danger btn-sm"
-                (click)="removeType(i)"
-              >
-                Remove
-              </button>
-            </div>
+              <option value="doctor">Doctor</option>
+              <option value="opthal">Opthal</option>
+              <option value="both">Both</option>
+            </select>
+          
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              (click)="removeType(i)"
+            >
+              Remove
+            </button>
+          </div>
+          
           </div>
           <button
             type="button"

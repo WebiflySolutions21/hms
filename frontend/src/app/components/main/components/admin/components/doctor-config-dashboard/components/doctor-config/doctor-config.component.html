@@ -138,11 +138,18 @@
           ></button>
         </div>
         <div class="modal-body">
-          <div class="type">Editing for: {{selectedType}}</div>
-          <select class="form-select" (change)="selectedViewType($event.target.value)" *ngIf="editingIndex">
-            <option selected>Please select visibility type</option>
-            <option *ngFor="let viewData of viewType" [value]="viewData">{{viewData}}</option>
-          </select>
+          <div class="title">Select Visibility Type</div>
+
+          <select
+          class="form-select"
+          [(ngModel)]="selectedType"
+          name="selectedType"
+          (change)="selectedViewType($event.target.value)"
+        >
+          <option selected disabled value="">Please select visibility type</option>
+          <option *ngFor="let viewData of viewType" [value]="viewData">{{ viewData }}</option>
+        </select>
+        
           <div class="inputs" *ngIf="selectedType">
             <div class="mb-3">
               <label for="heading" class="form-label">Heading</label>
