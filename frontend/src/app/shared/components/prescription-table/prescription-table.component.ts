@@ -17,6 +17,7 @@ export class PrescriptionTableComponent {
   tableHeaders: string[] = [
     'Types',
     'Medicine',
+    'Content',
     'सकाळ',
     'दुपार',
     'रात्र',
@@ -70,6 +71,7 @@ export class PrescriptionTableComponent {
     this.prescriptionData.push({
       type: '',
       medicine: '',
+      content:'',
       morning: 0,
       afternoon: 0,
       night: 0,
@@ -115,6 +117,7 @@ export class PrescriptionTableComponent {
 
   selectMedicine(row: any, selectedMedicine: any) {
     row.medicine = selectedMedicine.medicine;
+    row.content = selectedMedicine.content
     row.morning = selectedMedicine.morning;
     row.afternoon = selectedMedicine.afternoon;
     row.night = selectedMedicine.night;
