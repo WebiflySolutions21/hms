@@ -17,7 +17,7 @@ import { EventEmitterService } from 'src/app/core/services';
   styleUrls: ['./prescription-view.component.scss'],
 })
 export class PrescriptionViewComponent {
-  patientDetails = PATIENT_DETAILS;
+  
   showFollowup = false;
   isFollowupOpen = false;
   selectedDate: string = '';

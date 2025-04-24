@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { OpthalViewRoutingModule } from './opthal-view-routing.module';
 import { OpthalViewComponent } from './opthal-view.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 
@@ -15,7 +15,8 @@ import { SharedModule } from 'src/app/shared/shared.module';
     CommonModule,
     OpthalViewRoutingModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    FormsModule
   ]
 })
 export class OpthalViewModule { }

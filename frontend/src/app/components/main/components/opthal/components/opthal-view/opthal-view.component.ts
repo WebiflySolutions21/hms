@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FOLLOW_UP_DETAILS } from '@assets/constants/doctor.constants';
+import { Modal } from 'bootstrap';
+
 interface EyeForm {
   title: string;
   form: any;
@@ -14,20 +17,55 @@ export class OpthalViewComponent {
   autoRefractionForm: FormGroup;
   cycloAutoRefractionForm: FormGroup;
   todaysGlassPrescription: FormGroup;
+  visualAquityForm:FormGroup
   aScanForm: FormGroup;
   forms: EyeForm[] = [];
   surgeryForm: FormGroup;
   wnlForm: FormGroup;  // Define form for WNL entries
   prescriptionData: any[] = [];
   dropdowns = [];
-  constructor(private fb: FormBuilder) {
+   showFollowup = false;
+    isFollowupOpen = false;
+    selectedDate: string = '';
+    followupDay: string = '';
+    followupDuration: string = '';
+    followupDate: string = '';
+    selectedCheckboxes = [];
+    followupOptions = FOLLOW_UP_DETAILS;
+    isAdmitted = false;
+    showReferDropdown = false;
+    selectedDoctor: any = null;
+    searchQuery = '';
+  titleData:any
+filteredDoctors:any
+doctors = [
+  { id: 1, name: 'Dr. Sharma' },
+  { id: 2, name: 'Dr. Patel' },
+  { id: 3, name: 'Dr. Nair' },
+  { id: 4, name: 'Dr. Mehta' },
+  { id: 5, name: 'Dr. Rao' },
+];
+   @ViewChild('templateModal', { static: false })
+    templateModalRef!: ElementRef;
+    private templateModal!: Modal;
+    @ViewChild('admitPatientModal', { static: false })
+    admitPatientModalRef!: ElementRef;
+    private admitPatientModal!: Modal;
+    @ViewChild('followUpPatientModal', { static: false })
+    followUpPatientModalRef!: ElementRef;
+    private followUpPatientModal!: Modal;
+    @ViewChild('referUpPatientModal', { static: false })
+    referUpPatientModalRef!: ElementRef;
+    private referUpPatientModal!: Modal;
+    
+  constructor(private fb: FormBuilder,private cdr:ChangeDetectorRef) {
     this.visionForm = this.createEyeForm();
     this.autoRefractionForm = this.createEyeForm();
     this.cycloAutoRefractionForm = this.createEyeForm();
     this.todaysGlassPrescription = this.createEyeForm();
     this.aScanForm = this.createAScanForm();
     this.wnlForm = this.createWNLForm();  // Initialize WNL form
-
+    this.visualAquityForm = this.createVisualAquityForm();
     this.surgeryForm = this.fb.group({
       surgeryAdvice: [''],
       surgeryPlanDate: [''],
@@ -52,6 +90,7 @@ export class OpthalViewComponent {
     
     this.forms = [
       { title: 'Vision Refraction 👁️', form: this.visionForm },
+      { title: "Visual Aquity 👁️", form: this.visualAquityForm },
       { title: 'Auto Refraction 👁️', form: this.autoRefractionForm },
       { title: 'Cyclo Auto Refraction 👁️', form: this.cycloAutoRefractionForm },
       { title: "Today's Glass Prescription 👁️", form: this.todaysGlassPrescription }
@@ -65,6 +104,133 @@ export class OpthalViewComponent {
     this.dropdowns = data.filter((data)=> data.type === 'Opthal' || data.type === 'Both')
   }
 
+
+  
+  useTemplate(data:any){
+    this.prescriptionData = data.data
+    if(this.templateModal){
+      this.templateModal.hide()
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.admitPatientModalRef) {
+      this.admitPatientModal = new Modal(
+        this.admitPatientModalRef.nativeElement
+      );
+    }
+    if (this.followUpPatientModalRef) {
+      this.followUpPatientModal = new Modal(
+        this.followUpPatientModalRef.nativeElement
+      );
+    }
+
+    if (this.referUpPatientModalRef) {
+      this.referUpPatientModal = new Modal(
+        this.referUpPatientModalRef.nativeElement
+      );
+    }
+    if(this.templateModalRef){
+      this.templateModal = new Modal(this.templateModalRef.nativeElement)
+    }
+  }
+
+  openModal(type: 'admit' | 'followup' | 'refer' | 'template') {
+    if (type === 'admit' && this.admitPatientModal) {
+      this.admitPatientModal.show();
+    } else if (type === 'followup' && this.followUpPatientModal) {
+      this.followUpPatientModal.show();
+    } else if (type === 'refer' && this.referUpPatientModal) {
+      this.referUpPatientModal.show();
+    }else if(type ==='template' && this.templateModal){
+      this.templateModal.show()
+    }
+  }
+
+  closeModal() {
+    if (this.admitPatientModal) {
+      this.admitPatientModal.hide();
+    }
+
+    if (this.followUpPatientModal) {
+      console.log('Follow-up modal closed');
+      this.followUpPatientModal.hide();
+    }
+    if (this.referUpPatientModal) {
+      this.referUpPatientModal.hide();
+    }
+    if(this.templateModal){
+      this.templateModal.hide()
+    }
+  }
+
+  admitPatient() {
+    this.isAdmitted = true;
+    this.closeModal();
+  }
+
+  toggleReferDropdown() {
+    this.showReferDropdown = !this.showReferDropdown;
+    if (this.showReferDropdown) {
+      this.filteredDoctors = [...this.doctors]; // Reset only when opening
+      this.searchQuery = ''; // Clear search input
+    }
+  }
+
+  filterDoctors() {
+    this.filteredDoctors = this.doctors.filter((doctor) =>
+      doctor.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
+    this.cdr.detectChanges(); // Force UI update
+  }
+
+  selectDoctor(doctor: any) {
+    this.selectedDoctor = doctor;
+  }
+
+  referPatient() {
+    if (this.selectedDoctor) {
+      console.log(`Patient referred to ${this.selectedDoctor.name}`);
+      alert(`Patient referred to Dr. ${this.selectedDoctor.name}`);
+      this.showReferDropdown = false; // Hide dropdown after refer
+      this.selectedDoctor = null;
+      this.searchQuery = '';
+      this.closeModal();
+    }
+  }
+
+  toggleFollowup() {
+    this.isFollowupOpen = !this.isFollowupOpen;
+  }
+
+  onDateChange(event: any) {
+    const selected = new Date(event.target.value);
+    this.selectedDate = event.target.value;
+    this.followupDay = selected.toLocaleDateString('en-US', {
+      weekday: 'long',
+    });
+    this.calculateFollowupDate();
+  }
+
+  onDurationChange(days: number) {
+    this.followupDuration = `${days} days`;
+    this.calculateFollowupDate(days);
+  }
+
+  calculateFollowupDate(days: number = 0) {
+    let selected = this.selectedDate ? new Date(this.selectedDate) : new Date();
+    selected.setDate(selected.getDate() + days);
+
+    this.followupDate = selected.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    this.followupDay = selected.toLocaleDateString('en-US', {
+      weekday: 'long',
+    });
+
+    console.log('Follow-up Date:', this.followupDate);
+    console.log('Follow-up Day:', this.followupDay);
+    this.toggleFollowup();
+  }
+
   createWNLForm(): FormGroup {
     return this.fb.group({
       entries: this.fb.array([])
@@ -73,9 +239,6 @@ export class OpthalViewComponent {
 
   get wnlEntries() {
     return this.wnlForm.get('entries') as FormArray;
-  }
-  submitSurgeryDetails() {
-    console.log(this.surgeryForm.value);
   }
 
   onPrescriptionUpdate(data: any[]) {
@@ -95,14 +258,6 @@ export class OpthalViewComponent {
 
   deleteWNLData(index: number) {
     this.wnlEntries.removeAt(index);
-  }
-
-  saveWNLData(id: string) {
-    const data = this.wnlForm.value;
-    // Set saved flag to true for all entries
-    this.wnlEntries.controls.forEach(control => control.get('saved')?.setValue(true));
-    localStorage.setItem(`wnl-${id}`, JSON.stringify(data));
-    alert('WNL data saved!');
   }
 
   loadWNLData(id: string = 'yourUniqueId') {
@@ -143,14 +298,6 @@ export class OpthalViewComponent {
     this.entries.removeAt(index);
   }
   
-  saveAScanData(id: string) {
-    const data = this.aScanForm.value;
-    // Set saved flag to true for all entries
-    this.entries.controls.forEach(control => control.get('saved')?.setValue(true));
-    localStorage.setItem(`aScan-${id}`, JSON.stringify(data));
-    alert('A-Scan data saved!');
-  }
-  
   loadAScanData(id: string = 'yourUniqueId') {
     const saved = localStorage.getItem(`aScan-${id}`);
     if (saved) {
@@ -178,8 +325,19 @@ export class OpthalViewComponent {
       }),
       glassDetails: this.fb.group({
         type: [''], color: [''], use: [''], pd: ['']
-      })
+      }),
+
     });
+  }
+
+  createVisualAquityForm(){
+return this.fb.group({
+  distanceVision:this.fb.group({reDV:[''],leDV:['']}),
+  vaph:this.fb.group({reVAPH:[''],leVAPH:['']}),
+  nearVision:this.fb.group({reNearVision:[''],leNearVision:['']}),
+  vaSpect:this.fb.group({reVASpect:[''],leVASpect:['']}),
+  colorVision:this.fb.group({reColorVision:[''],leColorVision:['']})
+})
   }
 
   calculate(form: FormGroup) {
@@ -194,9 +352,64 @@ export class OpthalViewComponent {
     }
   }
 
-  submitEyeForms() {
+  onSelectionChanged(selectedOptions) {
+    if (selectedOptions.length) {
+      selectedOptions.forEach((option) => {
+        // Check if the label already exists in selectedCheckboxes
+        let existingLabelIndex = this.selectedCheckboxes.findIndex(
+          (item) => Object.keys(item)[0] === option.key
+        );
+        // Prepare a dynamic list of options without duplicates
+        const dynamicOptions = option.options.map((opt) => ({
+          id: opt.id,
+          name: opt.name,
+        }));
+
+        if (existingLabelIndex !== -1) {
+          // Replace existing data with the new data
+          this.selectedCheckboxes[existingLabelIndex] = {
+            [option.key]: dynamicOptions,
+            isPrintable: option.isPrintEnabled,
+          };
+        } else {
+          // Create a new label object with the dynamic options
+          let newOption = {
+            [option.key]: dynamicOptions,
+            isPrintable: option.isPrintEnabled,
+          };
+          this.selectedCheckboxes.push(newOption);
+        }
+      });
+
+      console.log(this.selectedCheckboxes);
+    }
+  }
+
+  save(arg?){
     this.forms.forEach(({ title, form }) => {
       console.log(`${title} Data:`, form.value);
     });
+    // const data2 = this.aScanForm.value;
+
+    // this.entries.controls.forEach(control => control.get('saved')?.setValue(true));
+    // localStorage.setItem(`aScan-${'id'}`, JSON.stringify(data2));
+    // const data = this.wnlForm.value;
+    // Set saved flag to true for all entries
+    // this.wnlEntries.controls.forEach(control => control.get('saved')?.setValue(true));
+    // localStorage.setItem(`wnl-${'id'}`, JSON.stringify(data));
+    // console.log(this.surgeryForm.value);
+
+    let payload = {
+      followupDate: this.followupDate || null,
+      followupDay: this.followupDay || null,
+      isAdmitted: this.isAdmitted ? this.isAdmitted : false,
+      referDoctor: this.selectedDoctor || null,
+      prescriptionData: this.prescriptionData || [],
+      selectedCheckboxes: this.selectedCheckboxes,
+      aScan:this.aScanForm.value,
+      wnl:this.wnlForm.value,
+      surgery:this.surgeryForm.value
+    }
+    console.log("payload",payload)
   }
 }

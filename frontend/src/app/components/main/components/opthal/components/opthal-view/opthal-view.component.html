@@ -1,5 +1,42 @@
 <div class="opthal-view-component">
   <div class="opthal-view-wrapper">
+    <div class="patient-details">
+      <app-patient-details-view></app-patient-details-view>
+    </div>
+    <div class="top-section">
+      <!-- Follow-up Section -->
+      <div class="add-followup">
+        <button (click)="openModal('followup')">Add Follow-up</button>
+        <div *ngIf="followupDate">
+          <p class="selected-date">
+            Follow-up Date: <span>{{ followupDate }}</span> ({{ followupDay }})
+          </p>
+        </div>
+      </div>
+
+      <div class="admin-patient">
+        <button (click)="openModal('admit')">
+          {{ isAdmitted ? "Admitted" : "Admit Patient" }}
+        </button>
+      </div>
+
+      <div class="refer-patient">
+        <button (click)="openModal('refer')">Refer Patient</button>
+      </div>
+      <div class="prescription-canvas">
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#drawWriteModal"
+        >
+          Draw/Write
+        </button>
+      </div>
+      <div class="image-gallery">
+        <button class="btn btn-primary">Image Gallery</button>
+      </div>
+    </div>
+    
     <div class="patient-diagnosis-section">
       <div class="examination mt-4" *ngFor="let item of dropdowns">
         <app-multi-select-dropdown
@@ -14,13 +51,16 @@
       </div>
     </div>
 
-    <div
+    <div class="eye-theme-section">
+      <div
       *ngFor="let item of forms"
       class="vision-section card shadow-sm p-4 eye-theme"
       [formGroup]="item.form"
+      [style.border-radius.em]="1"
     >
-      <div class="title text-center mb-4">{{ item.title }}</div>
+    <div class="title text-center mb-4">{{ item.title }}</div>
 
+    <div class="normal-form" *ngIf="item.title != 'Visual Aquity 👁️'">
       <table class="table table-bordered text-center table-striped">
         <thead class="table-eye-header">
           <tr>
@@ -83,7 +123,7 @@
       </table>
 
       <!-- ADD Section -->
-      <div class="row mt-4" [formGroup]="item.form.get('add')">
+      <div class="row mt-4" [formGroup]="item.form.get('add')" [style.width.%]="100">
         <div class="col-md-3">
           <label>BE ADD</label>
           <input formControlName="be" class="form-control" />
@@ -96,7 +136,7 @@
           <label>LE ADD</label>
           <input formControlName="le" class="form-control" />
         </div>
-        <div class="col-md-3 d-flex align-items-end">
+        <div class="col-md-3 d-flex align-items-center" [style.margin-top.em]="'0.5'">
           <button
             class="cal btn btn-outline-primary w-100"
             (click)="calculate(item.form)"
@@ -107,7 +147,7 @@
       </div>
 
       <!-- Glass Details -->
-      <div class="row mt-3" [formGroup]="item.form.get('glassDetails')">
+      <div class="row mt-3" [formGroup]="item.form.get('glassDetails')" [style.width.%]="100">
         <div
           class="col-md-3"
           *ngFor="let detail of ['type', 'color', 'use', 'pd']"
@@ -116,16 +156,97 @@
           <input [formControlName]="detail" class="form-control" />
         </div>
       </div>
-
-      <button class="btn btn-primary mt-4 w-100" (click)="submitEyeForms()">
-        💾 Save Record
-      </button>
     </div>
+    <div class="normal-form" *ngIf="item.title === 'Visual Aquity 👁️'">
+      <table class="table table-bordered text-center table-striped">
+        <thead class="table-eye-header">
+          <tr>
+            <th>Visual Aquity</th>
+            <th>Right Eye</th>
+            <th>Left Eye</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr [formGroup]="item.form.get('distanceVision')">
+            <td><strong>Distance Vision</strong></td>
+            <td
+              *ngFor="
+                let field of [
+                  'reDV',
+                  'leDV',
+                ]
+              "
+            >
+              <input [formControlName]="field" class="form-control" />
+            </td>
+          </tr>
+          <tr [formGroup]="item.form.get('vaph')">
+            <td><strong>V/A PH</strong></td>
+            <td
+              *ngFor="
+                let field of [
+                  'reVAPH',
+                  'leVAPH',
+                ]
+              "
+            >
+              <input [formControlName]="field" class="form-control" />
+            </td>
+          </tr>
+          <tr [formGroup]="item.form.get('nearVision')">
+            <td><strong>Near Vision</strong></td>
+            <td
+              *ngFor="
+                let field of [
+                  'reNearVision',
+                  'leNearVision',
+                ]
+              "
+            >
+              <input [formControlName]="field" class="form-control" />
+            </td>
+          </tr>
+          <tr [formGroup]="item.form.get('vaSpect')">
+            <td><strong>V/A Spect</strong></td>
+            <td
+              *ngFor="
+                let field of [
+                  'reVASpect',
+                  'leVASpect',
+                ]
+              "
+            >
+              <input [formControlName]="field" class="form-control" />
+            </td>
+          </tr>
+          <tr [formGroup]="item.form.get('colorVision')">
+            <td><strong>Color Vision</strong></td>
+            <td
+              *ngFor="
+                let field of [
+                  'reColorVision',
+                  'leColorVision',
+                ]
+              "
+            >
+              <input [formControlName]="field" class="form-control" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+     
+
+    </div>
+    </div>
+  
 
     <!-- WNL Section -->
     <div
-      class="vision-section card shadow-sm p-4 eye-theme"
+      class="wnl-section vision-section card shadow-sm p-4 eye-theme"
       [formGroup]="wnlForm"
+      [style.border-radius.em]="1"
     >
       <h2 class="section-title text-center mb-4">WNL</h2>
       <table class="table table-bordered text-center table-striped">
@@ -183,18 +304,19 @@
       <button class="btn btn-outline-primary w-100 mb-2" (click)="addWNLData()">
         ➕ Add Title Row
       </button>
-      <button
+      <!-- <button
         class="btn btn-primary w-100"
         (click)="saveWNLData('yourUniqueId')"
       >
         💾 Save WNL
-      </button>
+      </button> -->
     </div>
 
     <!-- Existing A-Scan Section -->
     <div
-      class="vision-section card shadow-sm p-4 eye-theme"
+      class="wnl-section vision-section card shadow-sm p-4 eye-theme"
       [formGroup]="aScanForm"
+      [style.border-radius.em]="1"
     >
       <h2 class="section-title text-center mb-4">A-Scan</h2>
       <table class="table table-bordered text-center table-striped">
@@ -253,14 +375,14 @@
       >
         ➕ Add Title Row
       </button>
-      <button
+      <!-- <button
         class="btn btn-primary w-100"
         (click)="saveAScanData('yourUniqueId')"
       >
         💾 Save A-Scan
-      </button>
+      </button> -->
     </div>
-    <div class="medicine-prescription" #prescriptionSection>
+    <div class="medicine-prescription card shadow-sm p-4" #prescriptionSection [style.border-radius.em]="1">
       <app-prescription-table
         [prescriptionData]="prescriptionData"
         (prescriptionUpdated)="onPrescriptionUpdate($event)"
@@ -270,6 +392,7 @@
     <div
       class="surgery-section card shadow-sm p-4 eye-theme"
       [formGroup]="surgeryForm"
+      [style.border-radius.em]="1"
     >
       <h2 class="section-title text-center mb-4">Surgery Details</h2>
 
@@ -424,12 +547,187 @@
         </div>
       </div>
 
-      <button
+      <!-- <button
         class="btn btn-primary mt-4 w-100"
         (click)="submitSurgeryDetails()"
       >
         💾 Save Surgery Details
-      </button>
+      </button> -->
     </div>
   </div>
 </div>
+<div class="print-save-button" (click)="save()">
+  <button class="save-button">Save</button>
+  <button class="save-button" (click)="save('print')">
+   Print 
+  </button>
+</div>
+
+
+
+<div #admitPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Admit Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to admit this patient?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button type="button" class="btn btn-success" (click)="admitPatient()">
+          Confirm Admit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div #followUpPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Follow-Up Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="add-followup">
+          <div class="followup-container">
+            <label class="selected-date">Select Follow-up Date:</label>
+            <input
+              class="form-control"
+              type="date"
+              (change)="onDateChange($event)"
+            />
+
+            <label class="selected-date">Select Follow-up Duration:</label>
+            <div class="followup-options">
+              <button
+                *ngFor="let option of followupOptions"
+                (click)="onDurationChange(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+
+            <div *ngIf="followupDate">
+              <p class="selected-date">
+                Follow-up Date: <span>{{ followupDate }}</span> ({{
+                  followupDay
+                }})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button type="button" class="btn btn-success" (click)="closeModal()">
+          Confirm Follow-Up
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div #referUpPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Refer Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="card mt-2 p-3">
+          <div class="mb-2">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search doctor..."
+              [(ngModel)]="searchQuery"
+              (input)="filterDoctors()"
+            />
+          </div>
+
+          <ul class="list-group mb-2" *ngIf="filteredDoctors?.length > 0">
+            <li
+              class="list-group-item list-group-item-action"
+              *ngFor="let doctor of filteredDoctors"
+              (click)="selectDoctor(doctor)"
+            >
+              {{ doctor.name }}
+            </li>
+          </ul>
+
+          <p *ngIf="selectedDoctor" class="alert alert-success p-2">
+            Selected Doctor: <strong>{{ selectedDoctor.name }}</strong>
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="selectedDoctor"
+          (click)="referPatient()"
+        >
+          Confirm Refer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div #templateModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Use Template</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let data of titleData">
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="useTemplate(data)"
+          >
+            {{ data.title }}
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="selectedDoctor"
+          (click)="referPatient()"
+        >
+          Confirm Refer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-draw-write-modal [patientId]=""></app-draw-write-modal>
