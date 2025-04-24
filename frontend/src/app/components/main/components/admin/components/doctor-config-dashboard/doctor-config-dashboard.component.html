@@ -21,7 +21,7 @@
                 type="checkbox"
                 [checked]="config.isEnabledForDoctor"
                 [(ngModel)]="config.isEnabledForDoctor"
-                (change)="onToggleChange('doctor',config)"
+                (change)="onToggleChange('doctor', config)"
               />
               <span class="slider round"></span>
             </label>
@@ -32,7 +32,7 @@
                 type="checkbox"
                 [checked]="config.isEnabledForOpthal"
                 [(ngModel)]="config.isEnabledForOpthal"
-                (change)="onToggleChange('opthal',config)"
+                (change)="onToggleChange('opthal', config)"
               />
               <span class="slider round"></span>
             </label>
@@ -68,7 +68,7 @@
   aria-labelledby="exampleModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="addMedicinePeriodModal">
@@ -89,19 +89,53 @@
               [formGroupName]="i"
               class="mb-2 d-flex align-items-center"
             >
-              <input
-                type="text"
-                class="form-control me-2"
-                placeholder="Add Medicine Period Option"
-                formControlName="title"
-              />
-              <button
-                type="button"
-                class="btn btn-danger btn-sm"
-                (click)="removePeriod(i)"
-              >
-                Remove
-              </button>
+              <div class="inputs-container">
+                <div class="dropdowns">
+                  <div class="section">
+                    <div class="drop-title">Select Visibility Type</div>
+                    <select class="form-select me-2" formControlName="visibility" (change)="selectVisibilityType($event.target.value)">
+                      <option value="doctor">Doctor</option>
+                      <option value="opthal">Opthal</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                 <div class="section">
+                  <div class="drop-title">Select Medicine Type</div>
+                  <select
+                    class="form-select me-2"
+                    formControlName="medicineType"
+                    (change)="selectedMedicineType($event.target.value)"
+                  >
+                    <option [value]="medicineType.title" *ngFor="let medicineType of medicineTypes">{{medicineType?.title}}</option>
+                  </select>
+                 </div>
+                  
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="removePeriod(i)"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div formArrayName="options" class="inputs">
+                  <div
+                    *ngFor="let opt of period.get('options')['controls']; let j = index"
+                    [formGroupName]="j"
+                    class="mb-2"
+                  >
+                    <label>{{ opt.get('time')?.value | titlecase }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="value"
+                      placeholder="{{ opt.get('time')?.value }}"
+                    />
+                  </div>
+                </div>
+                
+              </div>
             </div>
           </div>
           <button
@@ -155,35 +189,31 @@
         <form [formGroup]="typeForm">
           <div formArrayName="types">
             <div
-            *ngFor="let type of types.controls; let i = index"
-            [formGroupName]="i"
-            class="mb-2 d-flex align-items-center"
-          >
-            <input
-              type="text"
-              class="form-control me-2"
-              placeholder="Add Medicine Type"
-              formControlName="title"
-            />
-          
-            <select
-              class="form-select me-2"
-              formControlName="visibility"
+              *ngFor="let type of types.controls; let i = index"
+              [formGroupName]="i"
+              class="mb-2 d-flex align-items-center"
             >
-              <option value="doctor">Doctor</option>
-              <option value="opthal">Opthal</option>
-              <option value="both">Both</option>
-            </select>
-          
-            <button
-              type="button"
-              class="btn btn-danger btn-sm"
-              (click)="removeType(i)"
-            >
-              Remove
-            </button>
-          </div>
-          
+              <input
+                type="text"
+                class="form-control me-2"
+                placeholder="Add Medicine Type"
+                formControlName="title"
+              />
+
+              <select class="form-select me-2" formControlName="visibility">
+                <option value="doctor">Doctor</option>
+                <option value="opthal">Opthal</option>
+                <option value="both">Both</option>
+              </select>
+
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                (click)="removeType(i)"
+              >
+                Remove
+              </button>
+            </div>
           </div>
           <button
             type="button"

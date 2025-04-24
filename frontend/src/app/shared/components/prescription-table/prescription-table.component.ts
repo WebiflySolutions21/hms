@@ -28,7 +28,7 @@ export class PrescriptionTableComponent {
 
   medicineTypes: any[] = [];
   intakeTimes: any[] = [];
-
+  sel:any
   medicineHistory = [
     // {
     //   medicine: 'Zerodol P',
@@ -58,7 +58,7 @@ export class PrescriptionTableComponent {
     //   quantity: 14,
     // },
   ];
-
+  selectedPrescripitionFillData:any
   @Input() prescriptionData = [];
 
   ngOnInit() {
@@ -72,15 +72,26 @@ export class PrescriptionTableComponent {
       type: '',
       medicine: '',
       content:'',
-      morning: 0,
-      afternoon: 0,
-      night: 0,
+      morning: '',
+      afternoon: '',
+      night: '',
       intakeTime: '',
       days: '',
       quantity: '',
       filteredMedicines: [],
     });
     this.emitPrescriptionData();
+  }
+
+  
+
+  selectedMedicineType(type){
+    this.sel = type
+
+    console.log(this.sel)
+    let data = this.intakeTimes.filter((data)=> data.medicineType === type)
+    this.selectedPrescripitionFillData = data
+    console.log(data)
   }
 
   autoCalculateQuantity(row: any) {

@@ -121,3 +121,23 @@
           }
     }
 }
+
+.inputs-container{
+  width: 100%;
+  margin-top: 2em;
+  .dropdowns{
+    width: 100%;
+    @include flex-container(center,center,row);
+    gap: 2em;
+  }
+
+  .inputs{
+    width: 100%;
+    @include flex-container(center,space-between,row);
+
+  }
+}
+
+.section{
+  width: 100%;
+}
