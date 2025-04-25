@@ -324,7 +324,24 @@ getFormVisibility(title: string): boolean {
       entries: this.fb.array([]),
     });
   }
-
+  
+  createWNLRow(): FormGroup {
+    return this.fb.group({
+      title: [''],
+      re: [''],
+      le: [''],
+      reTopLeft: [''],
+      reTopRight: [''],
+      reBottomLeft: [''],
+      reBottomRight: [''],
+      leTopLeft: [''],
+      leTopRight: [''],
+      leBottomLeft: [''],
+      leBottomRight: [''],
+      saved: [false],
+    });
+  }
+  
   get wnlEntries() {
     return this.wnlForm.get('entries') as FormArray;
   }
@@ -335,14 +352,8 @@ getFormVisibility(title: string): boolean {
   }
 
   addWNLData() {
-    const entry = this.fb.group({
-      title: [''],
-      re: [''],
-      le: [''],
-      saved: [false], // flag to track saved status
-      showGraph: [false], // new flag
-    });
-    this.wnlEntries.push(entry);
+    const entries = this.wnlForm.get('entries') as FormArray;
+    entries.push(this.createWNLRow());
   }
 
   deleteWNLData(index: number) {

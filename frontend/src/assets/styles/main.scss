@@ -10,16 +10,11 @@
   .print-container * {
     visibility: visible;
   }
-
-  // .print-container {
-  //   position: absolute;
-  //   top: 0;
-  //   left: 0;
-  //   width: 100%;
-  // }
-
   /* Hide print button */
   .print-container .btn {
     display: none;
   }
 }
+
+
+

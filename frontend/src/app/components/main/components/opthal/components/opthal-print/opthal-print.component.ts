@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { PrintService } from 'src/app/core/services';
 
 @Component({
   selector: 'app-opthal-print',
@@ -426,8 +427,13 @@ data = {
       "adviceRemarkPlan": "Voluptatem illum so"
   }
 }
+constructor(private printService:PrintService){}
+// print(){
+//   window.print();
+// }
 
 print() {
-  window.print()
+  this.printService.printElement('print-section');
 }
+
 }
