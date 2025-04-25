@@ -5,9 +5,7 @@
   .opthal-view-wrapper {
     height: 100%;
     width: 100%;
-    margin-top: 5em;
-    padding-bottom: 3em;
-    @include flex-container(center, center, column);
+    @include flex-container(center, flex-start, column);
     .title {
       @include font(18, 1vw, 22, hbold, #000);
     }
@@ -90,6 +88,7 @@
 .surgery-section {
   width: 90%;
   margin: 2em 0em;
+  padding: 1.5em 1.5em 5em 1.5em;
 }
 
 button {
