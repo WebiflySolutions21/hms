@@ -17,7 +17,7 @@ import { EventEmitterService } from 'src/app/core/services';
   styleUrls: ['./prescription-view.component.scss'],
 })
 export class PrescriptionViewComponent {
-  patientDetails = PATIENT_DETAILS;
+  
   showFollowup = false;
   isFollowupOpen = false;
   selectedDate: string = '';
@@ -69,10 +69,10 @@ export class PrescriptionViewComponent {
   ngOnInit(){
     let data = JSON.parse(localStorage.getItem("view"))
     let templateData = JSON.parse(localStorage.getItem("view_template"))
-    this.dropdowns = data
+    this.dropdowns = data.filter((data)=> data.type === 'Doctor' || data.type === 'Both')
 
     this.eventEmitterService.on("open-template-modal",(data)=>{
-      this.titleData = templateData
+      this.titleData = templateData.filter((data)=>data.visibility ==='Doctor' || data.visibility==='Both')
       this.openModal('template')
     })
 

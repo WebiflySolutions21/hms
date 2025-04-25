@@ -11,7 +11,8 @@ export class TemplateDashboardComponent {
   showTemplateForm = false;
   currentTitle = '';
   currentPrescription: any[] = [];
-
+  selectedType:any
+  viewType = ['Doctor', 'Opthal', 'Both'];
   createTemplate() {
     this.showTemplateForm = true;
     this.currentTitle = '';
@@ -26,11 +27,17 @@ export class TemplateDashboardComponent {
     );
   }
 
+  selectedViewType(type: any) {
+    console.log(type);
+    this.selectedType = type;
+  }
+
   saveTemplate() {
     console.log('Saving Template Title:', this.currentTitle);
 
     this.templates.push({
       title: this.currentTitle,
+      visibility:this.selectedType,
       data: JSON.parse(JSON.stringify(this.currentPrescription)), // deep copy
     });
     localStorage.setItem("view_template",JSON.stringify(this.templates))

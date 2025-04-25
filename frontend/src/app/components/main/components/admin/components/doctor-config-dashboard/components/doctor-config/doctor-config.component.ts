@@ -6,7 +6,6 @@ declare var bootstrap: any;
   templateUrl: './doctor-config.component.html',
   styleUrls: ['./doctor-config.component.scss'],
 })
-
 export class DoctorConfigComponent {
   formData = {
     heading: '',
@@ -15,15 +14,23 @@ export class DoctorConfigComponent {
     showMic: false,
     options: [],
   };
+  viewType = ['Doctor', 'Opthal', 'Both'];
   viewValue: any = [];
-  data = []
-  ngOnInit(){
-    this.data = JSON.parse(localStorage.getItem("view"))
+  data = [];
+  selectedType: any;
+  ngOnInit() {
+    const storedData = JSON.parse(localStorage.getItem('view') || '[]');
+    this.data = Array.isArray(storedData) ? storedData : [];
   }
   generateKey() {
     this.formData.key = this.formData.heading
       .toLowerCase()
       .replace(/\s+/g, '_');
+  }
+
+  selectedViewType(type: any) {
+    console.log(type);
+    this.selectedType = type;
   }
 
   toggleOptions(form: any) {
@@ -44,9 +51,9 @@ export class DoctorConfigComponent {
   editingIndex: number | null = null;
 
   editForm(form: any, index: number) {
-    this.formData = JSON.parse(JSON.stringify(form));  // Deep clone to avoid live binding
+    this.formData = JSON.parse(JSON.stringify(form)); // Deep clone to avoid live binding
     this.editingIndex = index;
-  
+    this.selectedType = form.type
     // Open the modal programmatically
     const modalElement = document.getElementById('exampleModal');
     if (modalElement) {
@@ -54,20 +61,24 @@ export class DoctorConfigComponent {
       modal.show();
     }
   }
-  
 
   saveChanges() {
+    let payload = {
+      ...this.formData,
+      type: this.selectedType,
+    };
     if (this.editingIndex !== null) {
       // Edit mode
-      this.data[this.editingIndex] = { ...this.formData };
+      this.data[this.editingIndex] = payload;
     } else {
       // Add new mode
-      this.data.push({ ...this.formData });
+      this.data.push(payload);
     }
-  
+
+    // return
     localStorage.setItem('view', JSON.stringify(this.data));
     this.resetForm();
-  
+
     // Close modal
     const modalElement = document.getElementById('exampleModal');
     if (modalElement) {
@@ -93,6 +104,4 @@ export class DoctorConfigComponent {
       localStorage.setItem('view', JSON.stringify(this.data));
     }
   }
-    
-  
 }

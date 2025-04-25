@@ -11,6 +11,8 @@ import { PrescriptionTableComponent } from './prescription-table/prescription-ta
 import {PreviewComponent} from './preview/preview.component'
 import { TableComponent } from './table/table.component'
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component'
+import { ChatComponent } from './chat/chat.component'
+import { PatientDetailsViewComponent } from './patient-details-view/patient-details-view.component'
 export * from './preview/preview.component'
 
 export const components=[
@@ -25,5 +27,7 @@ export const components=[
     PatientDetailsComponent,
     FooterComponent,
     ConsultantSignComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    ChatComponent,
+    PatientDetailsViewComponent
 ]

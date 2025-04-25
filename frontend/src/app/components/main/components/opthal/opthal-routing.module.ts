@@ -14,6 +14,20 @@ const routes: Routes = [
             (m) => m.OpthalDashboardModule
           ),
       },
+      {
+        path: 'opthal-view',
+        loadChildren: () =>
+          import('./components/opthal-view/opthal-view.module').then(
+            (m) => m.OpthalViewModule
+          ),
+      },
+      {
+        path: 'opthal-print',
+        loadChildren: () =>
+          import('./components/opthal-print/opthal-print.module').then(
+            (m) => m.OpthalPrintModule
+          ),
+      },
     ],
   },
 ];

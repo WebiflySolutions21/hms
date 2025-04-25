@@ -13,7 +13,9 @@ export class DoctorConfigDashboardComponent {
   localStorageKey = 'medicinePeriods';
   typeForm: FormGroup;
   typeLocalStorageKey = 'medicineTypes';
-
+  medicineTypes:any
+  selectedVisibility:any
+  selectedMedicineTyp:any
   constructor(private router: Router, private fb: FormBuilder) {
     this.medicinePeriodForm = this.fb.group({
       periods: this.fb.array([]), // dynamic form array
@@ -32,13 +34,23 @@ export class DoctorConfigDashboardComponent {
     return this.typeForm.get('types') as FormArray;
   }
 
-  addType(value: string = '') {
+  selectVisibilityType(value){
+    this.selectedVisibility = value
+  }
+
+  selectedMedicineType(value){
+    this.selectedMedicineTyp = value
+  }
+
+  addType(value: string = '', visibility: string = 'both') {
     this.types.push(
       this.fb.group({
         title: [value],
+        visibility: [visibility],  // <-- Add this
       })
     );
   }
+  
 
   removeType(index: number) {
     this.types.removeAt(index);
@@ -57,33 +69,65 @@ export class DoctorConfigDashboardComponent {
     const savedData = localStorage.getItem(this.typeLocalStorageKey);
     if (savedData) {
       const types = JSON.parse(savedData);
-      types.forEach((t: any) => this.addType(t.title));
+     types.forEach((t: any) => this.addType(t.title, t.visibility || 'both'));
+     this.medicineTypes = types
+     console.log(this.medicineTypes)
     } else {
       this.addType();
     }
   }
+  
 
   loadFromLocalStorage() {
     const savedData = localStorage.getItem(this.localStorageKey);
     if (savedData) {
       const periods = JSON.parse(savedData);
-      periods.forEach((p: any) => this.addPeriod(p.title));
+      periods.forEach((p: any) => {
+        this.addPeriod(
+          p.title,
+          p.visibility,
+          p.medicineType,
+          p.options // pass array of options
+        );
+      });
     } else {
-      // Add one empty field by default
+      // Add one default period
       this.addPeriod();
     }
   }
+  
   get periods() {
     return this.medicinePeriodForm.get('periods') as FormArray;
   }
 
-  addPeriod(value: string = '') {
+  addPeriod(value: string = '', visibility?: string, medicineType?: string, options?: any[]) {
+    const defaultOptions = [
+      { time: 'morning', value: '' },
+      { time: 'afternoon', value: '' },
+      { time: 'night', value: '' },
+      { time: 'whenToTake', value: '' }
+    ];
+  
+    const optionArray = this.fb.array(
+      (options || defaultOptions).map(opt =>
+        this.fb.group({
+          time: [opt.time],
+          value: [opt.value]
+        })
+      )
+    );
+  
     this.periods.push(
       this.fb.group({
         title: [value],
+        visibility: [visibility],
+        medicineType: [medicineType],
+        options: optionArray
       })
     );
   }
+  
+  
 
   removePeriod(index: number) {
     this.periods.removeAt(index);
@@ -99,12 +143,26 @@ export class DoctorConfigDashboardComponent {
       this.medicinePeriodForm.value.periods
     );
   }
-  onToggleChange(config: any) {
-    config.isEnabled = !config.isEnabled;
-    console.log(
-      `Config "${config.name}" toggled to:`,
-      config.isEnabled ? 'Active' : 'Inactive'
-    );
+  onToggleChange(type,config: any) {
+
+    switch(type){
+      case 'doctor':
+        config.isEnabledForDoctor = !config.isEnabledForDoctor;
+        console.log(
+          `Config "${config.name}" toggled to:`,
+          config.isEnabledForDoctor ? 'Active' : 'Inactive'
+        );
+        break;
+
+      case 'opthal':
+        config.isEnabledForOpthal = !config.isEnabledForOpthal;
+        console.log(
+          `Config "${config.name}" toggled to:`,
+          config.isEnabledForOpthal ? 'Active' : 'Inactive'
+        );
+        break;
+    }
+  
   }
 
   handleAction(action: any) {

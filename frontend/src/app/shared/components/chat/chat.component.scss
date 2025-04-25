@@ -1,0 +1,477 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+// Color variables
+$primary-color: #4361ee;
+$secondary-color: #3f37c9;
+$light-color: #f8f9fa;
+$dark-color: #212529;
+$success-color: #4cc9f0;
+$danger-color: #f72585;
+$warning-color: #f8961e;
+$info-color: #4895ef;
+
+// Chat container
+.chat-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 380px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  @include media-breakpoint-down(sm) {
+    width: 100%;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+}
+
+// Chat header
+.chat-header {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .chat-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 20px;
+  }
+
+  .btn-icon {
+    color: white;
+    background: transparent;
+    border: none;
+    padding: 5px;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      color: $success-color;
+    }
+  }
+}
+
+// Message controls
+.message-controls {
+  display: flex;
+  gap: 5px;
+}
+
+// Chat messages area
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #f5f7fb;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+}
+
+// Message container
+.message-container {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Message bubble
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 15px;
+  border-radius: 18px;
+  position: relative;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  word-wrap: break-word;
+
+  .message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .sender-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .timestamp {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+    margin-left: 10px;
+  }
+
+  .message-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+}
+
+// Outgoing message (current user)
+.outgoing-message {
+  background-color: $primary-color;
+  color: white;
+  border-radius: 18px 18px 0 18px;
+  margin-left: auto;
+
+  .sender-name, .timestamp {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Incoming message (other users)
+.incoming-message {
+  background-color: white;
+  color: $dark-color;
+  border-radius: 18px 18px 18px 0;
+  margin-right: auto;
+  border: 1px solid #e9ecef;
+}
+
+// Unread message
+.unread {
+  border-left: 3px solid $warning-color;
+  animation: pulse 1.5s infinite;
+
+  &.outgoing-message {
+    border-right: 3px solid $warning-color;
+    border-left: none;
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+// Message footer
+.message-footer {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+
+  .seen-by {
+    color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    i {
+      color: $success-color;
+    }
+  }
+}
+
+// Message input area
+.message-input {
+  padding: 15px;
+  background-color: white;
+  border-top: 1px solid #e9ecef;
+
+  .recipient-controls {
+    margin-bottom: 10px;
+  }
+
+  .send-to-all {
+    margin-bottom: 10px;
+
+    .form-check {
+      display: flex;
+      align-items: center;
+    }
+
+    .form-check-label {
+      margin-left: 8px;
+      font-size: 0.9rem;
+      color: $dark-color;
+    }
+  }
+}
+
+// Role selection
+.role-selection {
+  margin-bottom: 10px;
+}
+
+.role-multiselect {
+  position: relative;
+
+  .search-container {
+    position: relative;
+    margin-bottom: 10px;
+
+    i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+    }
+  }
+
+  .search-input {
+    padding-left: 35px;
+    font-size: 0.9rem;
+    border-radius: 20px;
+    border: 1px solid #dee2e6;
+    height: 38px;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+    }
+  }
+}
+
+// Role list
+.role-list {
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .role-item {
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+    }
+
+    .form-check-label {
+      font-size: 0.9rem;
+      margin-left: 8px;
+    }
+  }
+}
+
+// Input group
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 20px;
+  padding: 5px;
+  border: 1px solid #dee2e6;
+
+  &:focus-within {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+  }
+
+  .message-field {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 15px;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  .btn-send {
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+
+    &:disabled {
+      background-color: #adb5bd;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Floating chat button
+.floating-chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: $primary-color;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  i {
+    transition: all 0.3s;
+  }
+
+  &:hover i {
+    transform: scale(1.1);
+  }
+}
+
+// Unread badge
+.unread-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 10px;
+  background-color: $danger-color;
+  color: white;
+  font-weight: bold;
+}
+
+// For all checkboxes
+.form-check-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:checked {
+    background-color: $primary-color;
+    border-color: $primary-color;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
+    outline: none;
+  }
+}
+
+// For the role items
+.role-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+
+  .form-check-label {
+    cursor: pointer;
+    user-select: none;
+  }
+}
+.unread {
+  border-left: 3px solid $warning-color;
+  animation: pulse 1.5s infinite;
+  background-color: rgba($warning-color, 0.05);
+
+  &.outgoing-message {
+    border-right: 3px solid $warning-color;
+    border-left: none;
+    background-color: rgba($primary-color, 0.8);
+  }
+}

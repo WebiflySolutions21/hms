@@ -17,6 +17,7 @@ export class PrescriptionTableComponent {
   tableHeaders: string[] = [
     'Types',
     'Medicine',
+    'Content',
     'सकाळ',
     'दुपार',
     'रात्र',
@@ -27,7 +28,7 @@ export class PrescriptionTableComponent {
 
   medicineTypes: any[] = [];
   intakeTimes: any[] = [];
-
+  sel:any
   medicineHistory = [
     // {
     //   medicine: 'Zerodol P',
@@ -57,28 +58,41 @@ export class PrescriptionTableComponent {
     //   quantity: 14,
     // },
   ];
-
+  selectedPrescripitionFillData:any
   @Input() prescriptionData = [];
 
   ngOnInit() {
     this.medicineHistory = JSON.parse(localStorage.getItem('prescriptionData'));
     this.medicineTypes = JSON.parse(localStorage.getItem('medicineTypes'));
     this.intakeTimes = JSON.parse(localStorage.getItem('medicinePeriods'));
+    this.addRow()
   }
 
   addRow() {
     this.prescriptionData.push({
       type: '',
       medicine: '',
-      morning: 0,
-      afternoon: 0,
-      night: 0,
+      content:'',
+      morning: '',
+      afternoon: '',
+      night: '',
       intakeTime: '',
       days: '',
       quantity: '',
       filteredMedicines: [],
     });
     this.emitPrescriptionData();
+  }
+
+  
+
+  selectedMedicineType(type){
+    this.sel = type
+
+    console.log(this.sel)
+    let data = this.intakeTimes.filter((data)=> data.medicineType === type)
+    this.selectedPrescripitionFillData = data
+    console.log(data)
   }
 
   autoCalculateQuantity(row: any) {
@@ -115,6 +129,7 @@ export class PrescriptionTableComponent {
 
   selectMedicine(row: any, selectedMedicine: any) {
     row.medicine = selectedMedicine.medicine;
+    row.content = selectedMedicine.content
     row.morning = selectedMedicine.morning;
     row.afternoon = selectedMedicine.afternoon;
     row.night = selectedMedicine.night;

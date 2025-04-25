@@ -1,0 +1,90 @@
+<div class="chat-container" *ngIf="chatOpen">
+    <div class="chat-header">
+      <div class="header-content">
+        <h5 class="chat-title">{{ title }}</h5>
+        <div class="user-info">
+          <span class="badge user-badge">{{ currentUserRole | titlecase }}</span>
+          <button class="btn btn-icon" (click)="toggleChatWindow()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+      <div class="message-controls">
+        <button class="btn btn-icon active">
+          <i class="bi bi-chat-left-text"></i>
+          <span *ngIf="unreadCount > 0" class="badge unread-badge">{{ unreadCount }}</span>
+        </button>
+      </div>
+    </div>
+  
+    <!-- Chat Messages -->
+    <div class="chat-messages" #messageContainer>
+      <div *ngFor="let msg of messages" class="message-container" (click)="markMessageAsRead(msg)">
+        <div [ngClass]="{
+              'outgoing-message': msg.fromRole === currentUserRole, 
+              'incoming-message': msg.fromRole !== currentUserRole,
+              'unread': !isRead(msg)
+            }" class="message-bubble">
+          <div class="message-content">
+            <div class="message-header">
+              <span class="sender-name">{{ msg.fromRole | titlecase }}</span>
+              <span class="timestamp">{{ msg.timestamp | date: 'shortTime' }}</span>
+            </div>
+            <div class="message-text">{{ msg.content }}</div>
+          </div>
+          
+          <div class="message-footer" *ngIf="isSender(msg) && msg.readBy.length > 0">
+            <div class="seen-by">
+              <i class="bi bi-check2-all"></i> Seen by {{ msg.readBy.join(', ') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Message Input Area -->
+    <div class="message-input">
+      <div class="recipient-controls">
+        <div class="send-to-all">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sendToAll" [(ngModel)]="sendToAll" (change)="handleSendToAll()">
+            <label class="form-check-label" for="sendToAll">Send to all</label>
+          </div>
+        </div>
+  
+        <div *ngIf="!sendToAll" class="role-selection">
+          <div class="role-multiselect">
+            <div class="search-container">
+              <i class="bi bi-search"></i>
+              <input type="text" [(ngModel)]="searchQuery" class="form-control search-input" 
+                     placeholder="Search roles..." />
+            </div>
+            <div class="role-list">
+              <div *ngFor="let role of filteredRoles()" class="role-item">
+                <input type="checkbox" 
+                       [id]="'role-' + role"
+                       [checked]="selectedRoles.includes(role)"
+                       (change)="toggleRoleSelection(role)"
+                       class="form-check-input">
+                <label [for]="'role-' + role" class="form-check-label">{{ role | titlecase }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="input-group">
+        <input type="text" class="form-control message-field" placeholder="Type your message here..." 
+               [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" />
+        <button class="btn btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Floating Chat Button -->
+  <div class="floating-chat-btn" *ngIf="floatingButton" (click)="toggleChatWindow()">
+    <i class="bi bi-chat-dots"></i>
+    <span *ngIf="unreadCount > 0" class="badge unread-badge">{{ unreadCount }}</span>
+  </div>

@@ -1,33 +1,7 @@
 <div class="prescription-view-component">
   <div class="prescription-view-wrapper">
     <div class="patient-details">
-      <div class="detail-card">
-        Name: <span>{{ patientDetails.name }}</span>
-      </div>
-      <div class="detail-card">
-        Age: <span>{{ patientDetails.age }}</span>
-      </div>
-      <div class="detail-card">
-        Sex: <span>{{ patientDetails.sex }}</span>
-      </div>
-      <div class="detail-card">
-        Complaint: <span>{{ patientDetails.complaint }}</span>
-      </div>
-      <div class="detail-card">
-        Weight: <span>{{ patientDetails.weight }}</span>
-      </div>
-      <div class="detail-card">
-        Pulse: <span>{{ patientDetails.pulse }}</span>
-      </div>
-      <div class="detail-card">
-        BP: <span>{{ patientDetails.bp }}</span>
-      </div>
-      <div class="detail-card">
-        Temp: <span>{{ patientDetails.temp }}</span>
-      </div>
-      <div class="detail-card">
-        SPO2: <span>{{ patientDetails.spo2 }}</span>
-      </div>
+      <app-patient-details-view></app-patient-details-view>
     </div>
 
     <div class="top-section">
@@ -77,22 +51,21 @@
         ></app-multi-select-dropdown>
       </div>
     </div>
-    <div class="medicine-prescription" #prescriptionSection>
+    <div
+      class="medicine-prescription card shadow-sm p-2"
+      #prescriptionSection
+      [style.border-radius.em]="1"
+    >
       <app-prescription-table
         [prescriptionData]="prescriptionData"
         (medicineAdded)="scrollToPrescription()"
         (prescriptionUpdated)="onPrescriptionUpdate($event)"
       ></app-prescription-table>
     </div>
-    <div class="print-button">
-      <div class="sticky-save-button">
-        <button (click)="saveDetails()">Save Prescription</button>
-      </div>
-      <div class="sticky-save-button">
-        <button (click)="saveDetails('print')">
-          Save & Print Prescription
-        </button>
-      </div>
+
+    <div class="print-save-button" (click)="saveDetails()">
+      <button class="save-button">Save</button>
+      <button class="save-button" (click)="saveDetails('print')">Print</button>
     </div>
   </div>
 </div>
@@ -229,7 +202,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Refer Patient</h5>
+        <h5 class="modal-title">Use Template</h5>
         <div type="button" (click)="closeModal()">
           <span>&times;</span>
         </div>

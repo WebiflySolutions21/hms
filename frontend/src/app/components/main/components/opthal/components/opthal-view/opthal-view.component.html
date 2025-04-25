@@ -1,0 +1,841 @@
+<div class="opthal-view-component">
+  <div class="opthal-view-wrapper">
+    <div class="patient-details">
+      <app-patient-details-view></app-patient-details-view>
+    </div>
+    <div class="top-section">
+      <!-- Follow-up Section -->
+      <div class="add-followup">
+        <button (click)="openModal('followup')">Add Follow-up</button>
+        <div *ngIf="followupDate">
+          <p class="selected-date">
+            Follow-up Date: <span>{{ followupDate }}</span> ({{ followupDay }})
+          </p>
+        </div>
+      </div>
+
+      <div class="admin-patient">
+        <button (click)="openModal('admit')">
+          {{ isAdmitted ? "Admitted" : "Admit Patient" }}
+        </button>
+      </div>
+
+      <div class="refer-patient">
+        <button (click)="openModal('refer')">Refer Patient</button>
+      </div>
+      <div class="prescription-canvas">
+        <button
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#drawWriteModal"
+        >
+          Draw/Write
+        </button>
+      </div>
+      <div class="image-gallery">
+        <button class="btn btn-primary">Image Gallery</button>
+      </div>
+    </div>
+    <!-- Section Visibility Control -->
+    <div class="section-control">
+      <button
+        class="btn btn-sm btn-outline-primary"
+        (click)="toggleAllSections()"
+      >
+        {{ allSectionsVisible ? "Hide All" : "View All" }}
+      </button>
+
+      <button
+        *ngFor="let section of sections"
+        class="btn btn-sm"
+        [class.btn-primary]="section.visible"
+        [class.btn-outline-primary]="!section.visible"
+        (click)="toggleSection(section)"
+      >
+        {{ section.label }}
+      </button>
+    </div>
+    <div class="opthal-input-sections">
+      <div class="patient-diagnosis-section" *ngIf="sectionVisibility.diagnosis">
+        <div class="examination mt-4" *ngFor="let item of dropdowns">
+          <app-multi-select-dropdown
+            [label]="item.heading"
+            [key]="item.key"
+            [showCheckBox]="item.showPrintToggle"
+            [showVoiceInput]="item.showMic"
+            [options]="item.options"
+            [dropdownId]="item.dropdownId"
+            (selectionChanged)="onSelectionChanged($event)"
+          ></app-multi-select-dropdown>
+        </div>
+      </div>
+  
+      <div class="eye-theme-section">
+        <ng-container *ngFor="let item of forms">
+          <div
+            class="vision-section card shadow-sm p-4 eye-theme"
+            [formGroup]="item.form"
+            [style.border-radius.em]="1"
+            *ngIf="getFormVisibility(item.title)"
+          >
+            <div class="title text-center mb-4">{{ item.title }}</div>
+  
+            <div class="normal-form" *ngIf="item.title != 'Visual Aquity 👁️'">
+              <table class="table table-bordered text-center table-striped">
+                <thead class="table-eye-header">
+                  <tr>
+                    <th></th>
+                    <th colspan="4">Right Eye (RE)</th>
+                    <th colspan="4">Left Eye (LE)</th>
+                  </tr>
+                  <tr>
+                    <th></th>
+                    <th>SPH</th>
+                    <th>CYL</th>
+                    <th>AXIS</th>
+                    <th>Vision</th>
+                    <th>SPH</th>
+                    <th>CYL</th>
+                    <th>AXIS</th>
+                    <th>Vision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr [formGroup]="item.form.get('distance')">
+                    <td><strong>DIST</strong></td>
+                    <td
+                      *ngFor="
+                        let field of [
+                          'reSph',
+                          'reCyl',
+                          'reAxis',
+                          'reVision',
+                          'leSph',
+                          'leCyl',
+                          'leAxis',
+                          'leVision'
+                        ]
+                      "
+                    >
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                  <tr [formGroup]="item.form.get('near')">
+                    <td><strong>NEAR</strong></td>
+                    <td
+                      *ngFor="
+                        let field of [
+                          'reSph',
+                          'reCyl',
+                          'reAxis',
+                          'reVision',
+                          'leSph',
+                          'leCyl',
+                          'leAxis',
+                          'leVision'
+                        ]
+                      "
+                    >
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+  
+              <!-- ADD Section -->
+              <div
+                class="row mt-4"
+                [formGroup]="item.form.get('add')"
+                [style.width.%]="100"
+              >
+                <div class="col-md-3">
+                  <label>BE ADD</label>
+                  <input formControlName="be" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                  <label>RE ADD</label>
+                  <input formControlName="re" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                  <label>LE ADD</label>
+                  <input formControlName="le" class="form-control" />
+                </div>
+                <div
+                  class="col-md-3 d-flex align-items-center"
+                  [style.margin-top.em]="'0.5'"
+                >
+                  <button
+                    class="cal btn btn-outline-primary w-100"
+                    (click)="calculate(item.form)"
+                  >
+                    🧮 Calculate
+                  </button>
+                </div>
+              </div>
+  
+              <!-- Glass Details -->
+              <div
+                class="row mt-3"
+                [formGroup]="item.form.get('glassDetails')"
+                [style.width.%]="100"
+              >
+                <div
+                  class="col-md-3"
+                  *ngFor="let detail of ['type', 'color', 'use', 'pd']"
+                >
+                  <label>{{ detail | titlecase }}</label>
+                  <input [formControlName]="detail" class="form-control" />
+                </div>
+              </div>
+            </div>
+            <div class="normal-form" *ngIf="item.title === 'Visual Aquity 👁️'">
+              <table class="table table-bordered text-center table-striped">
+                <thead class="table-eye-header">
+                  <tr>
+                    <th>Visual Aquity</th>
+                    <th>Right Eye</th>
+                    <th>Left Eye</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr [formGroup]="item.form.get('distanceVision')">
+                    <td><strong>Distance Vision</strong></td>
+                    <td *ngFor="let field of ['reDV', 'leDV']">
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                  <tr [formGroup]="item.form.get('vaph')">
+                    <td><strong>V/A PH</strong></td>
+                    <td *ngFor="let field of ['reVAPH', 'leVAPH']">
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                  <tr [formGroup]="item.form.get('nearVision')">
+                    <td><strong>Near Vision</strong></td>
+                    <td *ngFor="let field of ['reNearVision', 'leNearVision']">
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                  <tr [formGroup]="item.form.get('vaSpect')">
+                    <td><strong>V/A Spect</strong></td>
+                    <td *ngFor="let field of ['reVASpect', 'leVASpect']">
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                  <tr [formGroup]="item.form.get('colorVision')">
+                    <td><strong>Color Vision</strong></td>
+                    <td *ngFor="let field of ['reColorVision', 'leColorVision']">
+                      <input [formControlName]="field" class="form-control" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+  
+      <!-- WNL Section -->
+      <div
+        class="wnl-section vision-section card shadow-sm p-4 eye-theme"
+        [formGroup]="wnlForm"
+        *ngIf="sectionVisibility.wnl"
+      >
+        <h2 class="section-title text-center mb-4">WNL</h2>
+        <table class="table table-bordered text-center table-striped">
+          <thead class="table-eye-header">
+            <tr>
+              <th>Title</th>
+              <th>RE/OD</th>
+              <th>LE/OS</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="entries">
+            <tr
+              *ngFor="let group of wnlEntries.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <!-- Title -->
+              <td *ngIf="!group.get('saved')?.value">
+                <input
+                  formControlName="title"
+                  class="form-control"
+                  placeholder="Enter Title"
+                />
+              </td>
+              <td *ngIf="group.get('saved')?.value">
+                <h5>{{ group.get("title")?.value }}</h5>
+              </td>
+  
+              <!-- RE/OD Column with Quadrants -->
+              <td>
+                <div
+                  *ngIf="
+                    group.get('title')?.value === 'Fundus';
+                    else normalReInput
+                  "
+                  class="quadrant-inputs"
+                >
+                  <div class="position-relative" style="height: 8em">
+                    <!-- Vertical Line -->
+                    <div
+                      style="
+                        width: 2px;
+                        height: 100%;
+                        background-color: #000;
+                        position: absolute;
+                        left: 50%;
+                      "
+                    ></div>
+                    <!-- Horizontal Line -->
+                    <div
+                      style="
+                        height: 2px;
+                        width: 100%;
+                        background-color: #000;
+                        position: absolute;
+                        top: 50%;
+                      "
+                    ></div>
+  
+                    <!-- Quadrant Inputs -->
+                    <input
+                      formControlName="reTopLeft"
+                      class="form-control position-absolute"
+                      style="top: 5px; left: 5px; width: 40%"
+                      placeholder="+Y"
+                    />
+                    <input
+                      formControlName="reTopRight"
+                      class="form-control position-absolute"
+                      style="top: 5px; right: 5px; width: 40%"
+                      placeholder="+Y"
+                    />
+                    <input
+                      formControlName="reBottomLeft"
+                      class="form-control position-absolute"
+                      style="bottom: -5px; left: 5px; width: 40%"
+                      placeholder="-Y"
+                    />
+                    <input
+                      formControlName="reBottomRight"
+                      class="form-control position-absolute"
+                      style="bottom: -5px; right: 5px; width: 40%"
+                      placeholder="-Y"
+                    />
+                  </div>
+                </div>
+                <ng-template #normalReInput>
+                  <input
+                    formControlName="re"
+                    class="form-control"
+                    placeholder="RE Value"
+                  />
+                </ng-template>
+              </td>
+  
+              <!-- LE/OS Column with Quadrants -->
+              <td>
+                <div
+                  *ngIf="
+                    group.get('title')?.value === 'Fundus';
+                    else normalLeInput
+                  "
+                  class="quadrant-inputs"
+                >
+                  <div class="position-relative" style="height: 8em">
+                    <!-- Vertical Line -->
+                    <div
+                      style="
+                        width: 2px;
+                        height: 100%;
+                        background-color: #000;
+                        position: absolute;
+                        left: 50%;
+                      "
+                    ></div>
+                    <!-- Horizontal Line -->
+                    <div
+                      style="
+                        height: 2px;
+                        width: 100%;
+                        background-color: #000;
+                        position: absolute;
+                        top: 50%;
+                      "
+                    ></div>
+  
+                    <!-- Quadrant Inputs -->
+                    <input
+                      formControlName="leTopLeft"
+                      class="form-control position-absolute"
+                      style="top: 5px; left: 5px; width: 40%"
+                      placeholder="+Y"
+                    />
+                    <input
+                      formControlName="leTopRight"
+                      class="form-control position-absolute"
+                      style="top: 5px; right: 5px; width: 40%"
+                      placeholder="+Y"
+                    />
+                    <input
+                      formControlName="leBottomLeft"
+                      class="form-control position-absolute"
+                      style="bottom: -5px; left: 5px; width: 40%"
+                      placeholder="-Y"
+                    />
+                    <input
+                      formControlName="leBottomRight"
+                      class="form-control position-absolute"
+                      style="bottom: -5px; right: 5px; width: 40%"
+                      placeholder="-Y"
+                    />
+                  </div>
+                </div>
+                <ng-template #normalLeInput>
+                  <input
+                    formControlName="le"
+                    class="form-control"
+                    placeholder="LE Value"
+                  />
+                </ng-template>
+              </td>
+  
+              <!-- Delete Button -->
+              <td>
+                <button class="btn btn-danger" (click)="deleteWNLData(i)">
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <button class="btn btn-outline-primary w-100 mb-2" (click)="addWNLData()">
+          ➕ Add Title Row
+        </button>
+      </div>
+  
+      <!-- Existing A-Scan Section -->
+      <div
+        class="wnl-section vision-section card shadow-sm p-4 eye-theme"
+        [formGroup]="aScanForm"
+        [style.border-radius.em]="1"
+        *ngIf="sectionVisibility.aScan"
+      >
+        <h2 class="section-title text-center mb-4">A-Scan</h2>
+        <table class="table table-bordered text-center table-striped">
+          <thead class="table-eye-header">
+            <tr>
+              <th>Title</th>
+              <th>RE/OD</th>
+              <th>LE/OS</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="entries">
+            <tr
+              *ngFor="let group of entries.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <!-- Display Title as Heading after Saving -->
+              <td *ngIf="!group.get('saved')?.value">
+                <input
+                  formControlName="title"
+                  class="form-control"
+                  placeholder="Enter Title"
+                />
+              </td>
+              <td *ngIf="group.get('saved')?.value">
+                <h5>{{ group.get("title")?.value }}</h5>
+              </td>
+  
+              <td>
+                <input
+                  formControlName="re"
+                  class="form-control"
+                  placeholder="RE Value"
+                />
+              </td>
+              <td>
+                <input
+                  formControlName="le"
+                  class="form-control"
+                  placeholder="LE Value"
+                />
+              </td>
+  
+              <!-- Delete Button -->
+              <td>
+                <button class="btn btn-danger" (click)="deleteAScanEntry(i)">
+                  <i class="fas fa-eye-slash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button
+          class="btn btn-outline-primary w-100 mb-2"
+          (click)="addAScanEntry()"
+        >
+          ➕ Add Title Row
+        </button>
+        <!-- <button
+          class="btn btn-primary w-100"
+          (click)="saveAScanData('yourUniqueId')"
+        >
+          💾 Save A-Scan
+        </button> -->
+      </div>
+      <div
+        class="medicine-prescription card shadow-sm p-4"
+        #prescriptionSection
+        [style.border-radius.em]="1"
+        *ngIf="sectionVisibility.prescription"
+      >
+        <app-prescription-table
+          [prescriptionData]="prescriptionData"
+          (prescriptionUpdated)="onPrescriptionUpdate($event)"
+        ></app-prescription-table>
+      </div>
+  
+      <div
+        class="surgery-section card shadow-sm eye-theme"
+        [formGroup]="surgeryForm"
+        [style.border-radius.em]="1"
+        *ngIf="sectionVisibility.surgery"
+      >
+        <h2 class="section-title text-center mb-4">Surgery Details</h2>
+  
+        <!-- Surgery Advice and Plan Date -->
+        <div class="row">
+          <div class="col-md-6">
+            <label>Surgery Advice</label>
+            <input formControlName="surgeryAdvice" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label>Surgery Plan Date</label>
+            <input
+              type="date"
+              formControlName="surgeryPlanDate"
+              class="form-control"
+            />
+          </div>
+        </div>
+  
+        <!-- Surgery Status -->
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label>Surgery Status</label>
+            <input formControlName="surgeryStatus" class="form-control" />
+          </div>
+        </div>
+  
+        <!-- Surgery Details for Right and Left Eye -->
+        <table class="table table-bordered text-center table-striped mt-4">
+          <thead>
+            <tr>
+              <th>Surgery</th>
+              <th>Right Eye</th>
+              <th>Left Eye</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Admission</strong></td>
+              <td>
+                <input
+                  formControlName="rightEyeAdmission"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+              <td>
+                <input
+                  formControlName="leftEyeAdmission"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Surgery</strong></td>
+              <td>
+                <input
+                  formControlName="rightEyeSurgery"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+              <td>
+                <input
+                  formControlName="leftEyeSurgery"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Discharge</strong></td>
+              <td>
+                <input
+                  formControlName="rightEyeDischarge"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+              <td>
+                <input
+                  formControlName="leftEyeDischarge"
+                  class="form-control"
+                  type="date"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <!-- Lens and Power Details for Right and Left Eye -->
+        <table class="table table-bordered text-center table-striped mt-4">
+          <thead>
+            <tr>
+              <th>Lens</th>
+              <th>Right Eye</th>
+              <th>Left Eye</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Lens</strong></td>
+              <td>
+                <input formControlName="rightEyeLens" class="form-control" />
+              </td>
+              <td>
+                <input formControlName="leftEyeLens" class="form-control" />
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Power</strong></td>
+              <td>
+                <input formControlName="rightEyePower" class="form-control" />
+              </td>
+              <td>
+                <input formControlName="leftEyePower" class="form-control" />
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Batch</strong></td>
+              <td>
+                <input formControlName="rightEyeBatch" class="form-control" />
+              </td>
+              <td>
+                <input formControlName="leftEyeBatch" class="form-control" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <!-- Other Items, Final Diagnosis, Condition on Discharge, and Advice/Remark/Plan -->
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <label>Other Item</label>
+            <input formControlName="otherItem" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label>Final Diagnosis</label>
+            <input formControlName="finalDiagnosis" class="form-control" />
+          </div>
+        </div>
+  
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label>Condition on Discharge</label>
+            <input formControlName="conditionOnDischarge" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label>Advice/Remark/Plan</label>
+            <input formControlName="adviceRemarkPlan" class="form-control" />
+          </div>
+        </div>
+  
+        <!-- <button
+          class="btn btn-primary mt-4 w-100"
+          (click)="submitSurgeryDetails()"
+        >
+          💾 Save Surgery Details
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+<div class="print-save-button" >
+  <button class="save-button" (click)="save()">Save</button>
+  <button class="save-button" (click)="save('print')">Print</button>
+</div>
+
+<div #admitPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Admit Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to admit this patient?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button type="button" class="btn btn-success" (click)="admitPatient()">
+          Confirm Admit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div #followUpPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Follow-Up Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="add-followup">
+          <div class="followup-container">
+            <label class="selected-date">Select Follow-up Date:</label>
+            <input
+              class="form-control"
+              type="date"
+              (change)="onDateChange($event)"
+            />
+
+            <label class="selected-date">Select Follow-up Duration:</label>
+            <div class="followup-options">
+              <button
+                *ngFor="let option of followupOptions"
+                (click)="onDurationChange(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+
+            <div *ngIf="followupDate">
+              <p class="selected-date">
+                Follow-up Date: <span>{{ followupDate }}</span> ({{
+                  followupDay
+                }})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button type="button" class="btn btn-success" (click)="closeModal()">
+          Confirm Follow-Up
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div #referUpPatientModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Refer Patient</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="card mt-2 p-3">
+          <div class="mb-2">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search doctor..."
+              [(ngModel)]="searchQuery"
+              (input)="filterDoctors()"
+            />
+          </div>
+
+          <ul class="list-group mb-2" *ngIf="filteredDoctors?.length > 0">
+            <li
+              class="list-group-item list-group-item-action"
+              *ngFor="let doctor of filteredDoctors"
+              (click)="selectDoctor(doctor)"
+            >
+              {{ doctor.name }}
+            </li>
+          </ul>
+
+          <p *ngIf="selectedDoctor" class="alert alert-success p-2">
+            Selected Doctor: <strong>{{ selectedDoctor.name }}</strong>
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="selectedDoctor"
+          (click)="referPatient()"
+        >
+          Confirm Refer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div #templateModal class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Use Template</h5>
+        <div type="button" (click)="closeModal()">
+          <span>&times;</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let data of titleData">
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="useTemplate(data)"
+          >
+            {{ data.title }}
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="selectedDoctor"
+          (click)="referPatient()"
+        >
+          Confirm Refer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-draw-write-modal [patientId]=""></app-draw-write-modal>

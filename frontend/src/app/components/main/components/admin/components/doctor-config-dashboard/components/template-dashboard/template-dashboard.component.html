@@ -92,7 +92,19 @@
         </div>
         <div class="modal-body">
           <form>
-            <div class="form-group">
+            <div class="title">Select Visibility Type</div>
+            <select
+              class="form-select"
+              [(ngModel)]="selectedType"
+              name="selectedType"
+              (change)="selectedViewType($event.target.value)"
+            >
+              <option selected value="">Please select visibility type</option>
+              <option *ngFor="let viewData of viewType" [value]="viewData">
+                {{ viewData }}
+              </option>
+            </select>
+            <div class="form-group" *ngIf="selectedType">
               <label>Template Title</label>
               <input
                 type="text"
@@ -104,6 +116,7 @@
           </form>
 
           <app-prescription-table
+            *ngIf="selectedType"
             [prescriptionData]="currentPrescription"
             (prescriptionUpdated)="handlePrescriptionUpdate($event)"
           ></app-prescription-table>

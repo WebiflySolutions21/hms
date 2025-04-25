@@ -18,7 +18,10 @@
     <tbody>
       <tr *ngFor="let row of prescriptionData; let i = index">
         <td>
-          <select [(ngModel)]="row.type">
+          <select
+            [(ngModel)]="row.type"
+            (change)="selectedMedicineType($event.target.value)"
+          >
             <option value="" disabled>Select type</option>
             <option *ngFor="let type of medicineTypes" [value]="type?.title">
               {{ type?.title }}
@@ -48,40 +51,98 @@
             </li>
           </ul>
         </td>
-
         <td>
           <input
             class="form-control"
-            type="number"
+            type="text"
+            [(ngModel)]="row.content"
+            placeholder="Enter Content"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control"
+            type="text"
             [(ngModel)]="row.morning"
-            min="0"
             (ngModelChange)="autoCalculateQuantity(row)"
+            [attr.list]="'morningOptions'"
+            placeholder="Enter or select morning dose"
           />
+        
+          <datalist id="morningOptions">
+            <ng-container *ngFor="let data of intakeTimes">
+              <ng-container *ngFor="let opt of data.options">
+                <option
+                  *ngIf="opt.time === 'morning' && data.medicineType === sel"
+                  [value]="opt.value"
+                ></option>
+              </ng-container>
+            </ng-container>
+          </datalist>
         </td>
+        
         <td>
           <input
             class="form-control"
-            type="number"
+            type="text"
             [(ngModel)]="row.afternoon"
-            min="0"
             (ngModelChange)="autoCalculateQuantity(row)"
+            [attr.list]="'afternoonOptions'"
+            placeholder="Enter or select afternoon dose"
           />
+        
+          <datalist id="afternoonOptions">
+            <ng-container *ngFor="let data of intakeTimes">
+              <ng-container *ngFor="let opt of data.options">
+                <option
+                  *ngIf="opt.time === 'afternoon' && data.medicineType === sel"
+                  [value]="opt.value"
+                ></option>
+              </ng-container>
+            </ng-container>
+          </datalist>
         </td>
         <td>
           <input
             class="form-control"
-            type="number"
+            type="text"
             [(ngModel)]="row.night"
-            min="0"
             (ngModelChange)="autoCalculateQuantity(row)"
+            [attr.list]="'nightOptions'"
+            placeholder="Enter or select night dose"
           />
+        
+          <datalist id="nightOptions">
+            <ng-container *ngFor="let data of intakeTimes">
+              <ng-container *ngFor="let opt of data.options">
+                <option
+                  *ngIf="opt.time === 'night' && data.medicineType === sel"
+                  [value]="opt.value"
+                ></option>
+              </ng-container>
+            </ng-container>
+          </datalist>
         </td>
         <td>
-          <select [(ngModel)]="row.intakeTime">
-            <option *ngFor="let time of intakeTimes" [value]="time?.title">
-              {{ time?.title?time?.title:time }}
-            </option>
-          </select>
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="row.intakeTime"
+            (ngModelChange)="autoCalculateQuantity(row)"
+            [attr.list]="'intakeTimeOptions'"
+            placeholder="Enter or select whenToTake dose"
+          />
+        
+          <datalist id="intakeTimeOptions">
+            <ng-container *ngFor="let data of intakeTimes">
+              <ng-container *ngFor="let opt of data.options">
+                <option
+                  *ngIf="opt.time === 'whenToTake' && data.medicineType === sel"
+                  [value]="opt.value"
+                ></option>
+              </ng-container>
+            </ng-container>
+          </datalist>
         </td>
         <td>
           <input

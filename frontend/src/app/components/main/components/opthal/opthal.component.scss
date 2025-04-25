@@ -1,12 +1,13 @@
-.admin-component{
+.opthal-component{
     width: 100%;
     height: 100%;
     .header{
         width: 100%;
         height: 5em;
+        position: relative;
     }
     .router{
         width: 100%;
-        height: calc(100% - 5em);
+        height: 100%;
     }
 }

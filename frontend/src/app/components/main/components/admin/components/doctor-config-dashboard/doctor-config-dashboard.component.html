@@ -5,8 +5,9 @@
         <tr>
           <th>Sr.No</th>
           <th>Config Name</th>
-          <th>Toggle</th>
-          <th>Status</th>
+          <th>Doctor Toggle</th>
+          <th>Opthal Toggle</th>
+          <!-- <th>Status</th> -->
           <th>Actions</th>
         </tr>
       </thead>
@@ -18,20 +19,31 @@
             <label class="switch">
               <input
                 type="checkbox"
-                [checked]="config.isEnabled"
-                [(ngModel)]="config.isEnabled"
-                (change)="onToggleChange(config)"
+                [checked]="config.isEnabledForDoctor"
+                [(ngModel)]="config.isEnabledForDoctor"
+                (change)="onToggleChange('doctor', config)"
               />
               <span class="slider round"></span>
             </label>
           </td>
           <td>
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="config.isEnabledForOpthal"
+                [(ngModel)]="config.isEnabledForOpthal"
+                (change)="onToggleChange('opthal', config)"
+              />
+              <span class="slider round"></span>
+            </label>
+          </td>
+          <!-- <td>
             <span
               [ngClass]="config.isEnabled ? 'status-active' : 'status-inactive'"
             >
               {{ config.isEnabled ? "Active" : "Inactive" }}
             </span>
-          </td>
+          </td> -->
           <td class="btns">
             <button
               *ngFor="let action of config.actions"
@@ -56,7 +68,7 @@
   aria-labelledby="exampleModalLabel"
   aria-hidden="true"
 >
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="addMedicinePeriodModal">
@@ -77,19 +89,53 @@
               [formGroupName]="i"
               class="mb-2 d-flex align-items-center"
             >
-              <input
-                type="text"
-                class="form-control me-2"
-                placeholder="Add Medicine Period Option"
-                formControlName="title"
-              />
-              <button
-                type="button"
-                class="btn btn-danger btn-sm"
-                (click)="removePeriod(i)"
-              >
-                Remove
-              </button>
+              <div class="inputs-container">
+                <div class="dropdowns">
+                  <div class="section">
+                    <div class="drop-title">Select Visibility Type</div>
+                    <select class="form-select me-2" formControlName="visibility" (change)="selectVisibilityType($event.target.value)">
+                      <option value="doctor">Doctor</option>
+                      <option value="opthal">Opthal</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                 <div class="section">
+                  <div class="drop-title">Select Medicine Type</div>
+                  <select
+                    class="form-select me-2"
+                    formControlName="medicineType"
+                    (change)="selectedMedicineType($event.target.value)"
+                  >
+                    <option [value]="medicineType.title" *ngFor="let medicineType of medicineTypes">{{medicineType?.title}}</option>
+                  </select>
+                 </div>
+                  
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="removePeriod(i)"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div formArrayName="options" class="inputs">
+                  <div
+                    *ngFor="let opt of period.get('options')['controls']; let j = index"
+                    [formGroupName]="j"
+                    class="mb-2"
+                  >
+                    <label>{{ opt.get('time')?.value | titlecase }}</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="value"
+                      placeholder="{{ opt.get('time')?.value }}"
+                    />
+                  </div>
+                </div>
+                
+              </div>
             </div>
           </div>
           <button
@@ -153,6 +199,13 @@
                 placeholder="Add Medicine Type"
                 formControlName="title"
               />
+
+              <select class="form-select me-2" formControlName="visibility">
+                <option value="doctor">Doctor</option>
+                <option value="opthal">Opthal</option>
+                <option value="both">Both</option>
+              </select>
+
               <button
                 type="button"
                 class="btn btn-danger btn-sm"
