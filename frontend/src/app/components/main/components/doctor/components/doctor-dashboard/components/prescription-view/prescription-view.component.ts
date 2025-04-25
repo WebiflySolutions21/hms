@@ -72,7 +72,7 @@ export class PrescriptionViewComponent {
     this.dropdowns = data.filter((data)=> data.type === 'Doctor' || data.type === 'Both')
 
     this.eventEmitterService.on("open-template-modal",(data)=>{
-      this.titleData = templateData
+      this.titleData = templateData.filter((data)=>data.visibility ==='Doctor' || data.visibility==='Both')
       this.openModal('template')
     })
 

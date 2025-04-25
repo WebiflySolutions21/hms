@@ -21,6 +21,13 @@ const routes: Routes = [
             (m) => m.OpthalViewModule
           ),
       },
+      {
+        path: 'opthal-print',
+        loadChildren: () =>
+          import('./components/opthal-print/opthal-print.module').then(
+            (m) => m.OpthalPrintModule
+          ),
+      },
     ],
   },
 ];

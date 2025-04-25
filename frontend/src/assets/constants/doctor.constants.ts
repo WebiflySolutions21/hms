@@ -172,7 +172,9 @@ export const PATIENT_DETAILS = {
   registrationDate:"23/04/2025",
   contact:7218509409,
   barcode : "Barcode",
-  admissionDate:"25/04/2025"
+  admissionDate:"25/04/2025",
+  visitCount:3,
+  uhidNo:'P559769',
 };
 export const FOLLOW_UP_DETAILS = [
   { label: '1 Day', value: 1 },

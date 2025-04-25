@@ -1,77 +1,72 @@
 @import "mixins";
-.opthal-view-component{
+.opthal-view-component {
+  height: 100%;
+  width: 100%;
+  .opthal-view-wrapper {
     height: 100%;
     width: 100%;
-    .opthal-view-wrapper{
-        height: 100%;
-        width: 100%;
-        margin-top: 5em;
-        padding-bottom: 3em;
-        @include flex-container(center,center,column);
-        .title{
-          @include font(18,1vw,22,hbold,#000);
-        }
-        .vision-section {
-            padding: 1rem;
-            background: #f8f8f8;
-            border-radius: 8px;
-            width: 90%;
-          }
-          .wnl-section{
-            margin-top: 2em;
-
-          }
-          
-          .eye-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-          
-            div {
-              flex: 1;
-              margin-right: 20px;
-            }
-          
-            input {
-              display: block;
-              width: 100%;
-              margin-bottom: 5px;
-              padding: 5px;
-            }
-          }
-          .eye-theme-section{
-            @include flex-container(center,center,column);
-            width: 90%;
-            gap: 2em;
-            .eye-theme {
-              background-color: #f8fbff;
-              border-radius: 15px;
-              width: 100%;
-              @include flex-container(center,center,column);
-              .table-eye-header th {
-                background-color: #0077cc;
-                @include font(14,1vw,16,hbold,#fff);
-              }
-  
-            
-            
-              input.form-control {
-                border-radius: 8px;
-                text-align: center;
-              }
-            
-              button {
-                border-radius: 12px;
-              }
-            }
-          }
-          
+    margin-top: 5em;
+    padding-bottom: 3em;
+    @include flex-container(center, center, column);
+    .title {
+      @include font(18, 1vw, 22, hbold, #000);
     }
+    .vision-section {
+      padding: 1rem;
+      background: #f8f8f8;
+      border-radius: 8px;
+      width: 90%;
+    }
+    .wnl-section {
+      margin-top: 2em;
+    }
+
+    .eye-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+
+      div {
+        flex: 1;
+        margin-right: 20px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+        padding: 5px;
+      }
+    }
+    .eye-theme-section {
+      @include flex-container(center, center, column);
+      width: 90%;
+      gap: 2em;
+      .eye-theme {
+        background-color: #f8fbff;
+        border-radius: 15px;
+        width: 100%;
+        @include flex-container(center, center, column);
+        .table-eye-header th {
+          background-color: #0077cc;
+          @include font(14, 1vw, 16, hbold, #fff);
+        }
+
+        input.form-control {
+          border-radius: 8px;
+          text-align: center;
+        }
+
+        button {
+          border-radius: 12px;
+        }
+      }
+    }
+  }
 }
 
-.cal{
-  @include font(14,1vw,16,hbold,#0d6efd);
-  
+.cal {
+  @include font(14, 1vw, 16, hbold, #0d6efd);
 }
 
 .patient-diagnosis-section {
@@ -87,24 +82,23 @@
   }
 }
 
-.medicine-prescription{
-  width: 90%;
-  margin:2em 0em;
-}
-
-.surgery-section{
+.medicine-prescription {
   width: 90%;
   margin: 2em 0em;
-
 }
 
-button{
+.surgery-section {
+  width: 90%;
+  margin: 2em 0em;
+}
+
+button {
   font-family: helvetica-bold;
 }
 
-input,label{
-  @include font(14,1vw,16,hbold,#000);
-
+input,
+label {
+  @include font(14, 1vw, 16, hbold, #000);
 }
 
 .button-wrapper {
@@ -149,9 +143,9 @@ input,label{
   }
 }
 
-.print-save-button{
+.print-save-button {
   position: absolute;
-  bottom: 1em;
+  bottom: 0em;
   width: 100%;
   text-align: center;
   background: linear-gradient(to top, rgba(255, 255, 255, 0.8), transparent);
@@ -173,7 +167,7 @@ input,label{
       transform: translateY(-2px);
       box-shadow: 0 6px 10px rgba(0, 123, 255, 0.4);
     }
-  
+
     &:active {
       transform: translateY(0);
       box-shadow: none;
@@ -196,7 +190,8 @@ input,label{
   .add-followup,
   .admin-patient,
   .refer-patient,
-  .prescription-canvas,.image-gallery {
+  .prescription-canvas,
+  .image-gallery {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -237,7 +232,6 @@ input,label{
     }
   }
 }
-
 
 .modal-header {
   width: 100%;
@@ -280,7 +274,6 @@ input,label{
     }
   }
 }
-
 
 .modal-header {
   width: 100%;
@@ -349,7 +342,7 @@ input,label{
   }
 }
 
-.medicine-prescription{
+.medicine-prescription {
   width: 90%;
   margin: 2em 0em;
 }
@@ -460,4 +453,20 @@ input,label{
 
 .btn-secondary:hover {
   background-color: #5a6268;
+}
+
+.patient-details {
+  width: 90%;
+}
+
+.graph-origin {
+  width: 40px;
+  height: 40px;
+  background-color: #eee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border: 1px solid #ccc;
 }

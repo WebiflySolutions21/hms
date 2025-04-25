@@ -1,0 +1,281 @@
+<div class="print-container" id="print-section">
+    <!-- Header Section -->
+    <app-hospital-details></app-hospital-details>
+    <!-- Patient Details Section -->
+ <app-patient-details></app-patient-details>
+  
+    <!-- Follow-up Details -->
+    <div class="mt-4">
+      <strong>Follow-up Date:</strong> {{ data.followupDate }} ({{ data.followupDay }})<br />
+      <strong>Admitted:</strong> {{ data.isAdmitted ? 'Yes' : 'No' }}
+    </div>
+
+    <!-- Dynamic Section Forms -->
+<div class="mt-4" *ngFor="let section of data.sectionForms">
+    <h4 class="title-text text-primary">{{ section.title }}</h4>
+  
+    <!-- Distance -->
+    <div *ngIf="section.data.distance">
+      <h5>Distance</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th></th>
+            <th>SPH</th>
+            <th>CYL</th>
+            <th>AXIS</th>
+            <th>VISION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Right Eye</td>
+            <td>{{ section.data.distance.reSph }}</td>
+            <td>{{ section.data.distance.reCyl }}</td>
+            <td>{{ section.data.distance.reAxis }}</td>
+            <td>{{ section.data.distance.reVision }}</td>
+          </tr>
+          <tr>
+            <td>Left Eye</td>
+            <td>{{ section.data.distance.leSph }}</td>
+            <td>{{ section.data.distance.leCyl }}</td>
+            <td>{{ section.data.distance.leAxis }}</td>
+            <td>{{ section.data.distance.leVision }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Near -->
+    <div *ngIf="section.data.near">
+      <h5>Near</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th></th>
+            <th>SPH</th>
+            <th>CYL</th>
+            <th>AXIS</th>
+            <th>VISION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Right Eye</td>
+            <td>{{ section.data.near.reSph }}</td>
+            <td>{{ section.data.near.reCyl }}</td>
+            <td>{{ section.data.near.reAxis }}</td>
+            <td>{{ section.data.near.reVision }}</td>
+          </tr>
+          <tr>
+            <td>Left Eye</td>
+            <td>{{ section.data.near.leSph }}</td>
+            <td>{{ section.data.near.leCyl }}</td>
+            <td>{{ section.data.near.leAxis }}</td>
+            <td>{{ section.data.near.leVision }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Add -->
+    <div *ngIf="section.data.add">
+      <h5>Add</h5>
+      <table class="table table-bordered w-50">
+        <tbody>
+          <tr><th>BE</th><td>{{ section.data.add.be }}</td></tr>
+          <tr><th>RE</th><td>{{ section.data.add.re }}</td></tr>
+          <tr><th>LE</th><td>{{ section.data.add.le }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Glass Details -->
+    <div *ngIf="section.data.glassDetails">
+      <h5>Glass Details</h5>
+      <table class="table table-bordered w-75">
+        <tbody>
+          <tr><th>Type</th><td>{{ section.data.glassDetails.type }}</td></tr>
+          <tr><th>Color</th><td>{{ section.data.glassDetails.color }}</td></tr>
+          <tr><th>Use</th><td>{{ section.data.glassDetails.use }}</td></tr>
+          <tr><th>PD</th><td>{{ section.data.glassDetails.pd }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Visual Acuity Specific Fields -->
+    <div *ngIf="section.data.distanceVision || section.data.vaph || section.data.nearVision || section.data.vaSpect || section.data.colorVision">
+      <h5>Visual Acuity</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Right Eye</th>
+            <th>Left Eye</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="section.data.distanceVision">
+            <td>Distance Vision</td>
+            <td>{{ section.data.distanceVision.reDV }}</td>
+            <td>{{ section.data.distanceVision.leDV }}</td>
+          </tr>
+          <tr *ngIf="section.data.vaph">
+            <td>VAPH</td>
+            <td>{{ section.data.vaph.reVAPH }}</td>
+            <td>{{ section.data.vaph.leVAPH }}</td>
+          </tr>
+          <tr *ngIf="section.data.nearVision">
+            <td>Near Vision</td>
+            <td>{{ section.data.nearVision.reNearVision }}</td>
+            <td>{{ section.data.nearVision.leNearVision }}</td>
+          </tr>
+          <tr *ngIf="section.data.vaSpect">
+            <td>VA Spect</td>
+            <td>{{ section.data.vaSpect.reVASpect }}</td>
+            <td>{{ section.data.vaSpect.leVASpect }}</td>
+          </tr>
+          <tr *ngIf="section.data.colorVision">
+            <td>Color Vision</td>
+            <td>{{ section.data.colorVision.reColorVision }}</td>
+            <td>{{ section.data.colorVision.leColorVision }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  
+    <!-- Prescription Table -->
+    <h5 class="mt-4">Prescription Details</h5>
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Type</th>
+          <th>Medicine</th>
+          <th>Content</th>
+          <th>Morning</th>
+          <th>Afternoon</th>
+          <th>Night</th>
+          <th>Intake Time</th>
+          <th>Days</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of data.prescriptionData">
+          <td>{{ item.type }}</td>
+          <td>{{ item.medicine }}</td>
+          <td>{{ item.content }}</td>
+          <td>{{ item.morning }}</td>
+          <td>{{ item.afternoon }}</td>
+          <td>{{ item.night }}</td>
+          <td>{{ item.intakeTime }}</td>
+          <td>{{ item.days }}</td>
+          <td>{{ item.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- A Scan -->
+    <h5 class="mt-4">A Scan</h5>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Right Eye</th>
+          <th>Left Eye</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of data.aScan.entries">
+          <td>{{ entry.title }}</td>
+          <td>{{ entry.re }}</td>
+          <td>{{ entry.le }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="page-break"></div>
+    <!-- WNL -->
+    <h5 class="mt-4">WNL</h5>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Right Eye</th>
+          <th>Left Eye</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of data.wnl.entries">
+          <td>{{ entry.title }}</td>
+          <td>{{ entry.re }}</td>
+          <td>{{ entry.le }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Surgery Section -->
+    <h5 class="mt-4">Surgery Details</h5>
+    <table class="table table-bordered">
+      <tbody>
+        <tr><th>Advice</th><td colspan="3">{{ data.surgery.surgeryAdvice }}</td></tr>
+        <tr>
+          <th>Plan Date</th><td>{{ data.surgery.surgeryPlanDate }}</td>
+          <th>Status</th><td>{{ data.surgery.surgeryStatus }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Admission</th><td>{{ data.surgery.rightEyeAdmission }}</td>
+          <th>Left Eye Admission</th><td>{{ data.surgery.leftEyeAdmission }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Surgery</th><td>{{ data.surgery.rightEyeSurgery }}</td>
+          <th>Left Eye Surgery</th><td>{{ data.surgery.leftEyeSurgery }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Discharge</th><td>{{ data.surgery.rightEyeDischarge }}</td>
+          <th>Left Eye Discharge</th><td>{{ data.surgery.leftEyeDischarge }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Lens</th><td>{{ data.surgery.rightEyeLens }}</td>
+          <th>Left Eye Lens</th><td>{{ data.surgery.leftEyeLens }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Power</th><td>{{ data.surgery.rightEyePower }}</td>
+          <th>Left Eye Power</th><td>{{ data.surgery.leftEyePower }}</td>
+        </tr>
+        <tr>
+          <th>Right Eye Batch</th><td>{{ data.surgery.rightEyeBatch }}</td>
+          <th>Left Eye Batch</th><td>{{ data.surgery.leftEyeBatch }}</td>
+        </tr>
+        <tr>
+          <th>Other Items</th><td colspan="3">{{ data.surgery.otherItem }}</td>
+        </tr>
+        <tr>
+          <th>Final Diagnosis</th><td colspan="3">{{ data.surgery.finalDiagnosis }}</td>
+        </tr>
+        <tr>
+          <th>Condition on Discharge</th><td colspan="3">{{ data.surgery.conditionOnDischarge }}</td>
+        </tr>
+        <tr>
+          <th>Advice / Remark / Plan</th><td colspan="3">{{ data.surgery.adviceRemarkPlan }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Selected Checkboxes -->
+    <div class="mt-4">
+      <h4>Examinations</h4>
+      <ul>
+        <li *ngFor="let item of data.selectedCheckboxes[0].opthal_examination">
+          {{ item.name }}
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Print Button -->
+  <div class="text-center mt-4 no-print">
+    <button class="btn btn-primary" (click)="print()">Print</button>
+  </div>
+  

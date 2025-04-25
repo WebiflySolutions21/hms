@@ -36,7 +36,7 @@
         <button class="btn btn-primary">Image Gallery</button>
       </div>
     </div>
-    
+
     <div class="patient-diagnosis-section">
       <div class="examination mt-4" *ngFor="let item of dropdowns">
         <app-multi-select-dropdown
@@ -53,200 +53,171 @@
 
     <div class="eye-theme-section">
       <div
-      *ngFor="let item of forms"
-      class="vision-section card shadow-sm p-4 eye-theme"
-      [formGroup]="item.form"
-      [style.border-radius.em]="1"
-    >
-    <div class="title text-center mb-4">{{ item.title }}</div>
+        *ngFor="let item of forms"
+        class="vision-section card shadow-sm p-4 eye-theme"
+        [formGroup]="item.form"
+        [style.border-radius.em]="1"
+      >
+        <div class="title text-center mb-4">{{ item.title }}</div>
 
-    <div class="normal-form" *ngIf="item.title != 'Visual Aquity 👁️'">
-      <table class="table table-bordered text-center table-striped">
-        <thead class="table-eye-header">
-          <tr>
-            <th></th>
-            <th colspan="4">Right Eye (RE)</th>
-            <th colspan="4">Left Eye (LE)</th>
-          </tr>
-          <tr>
-            <th></th>
-            <th>SPH</th>
-            <th>CYL</th>
-            <th>AXIS</th>
-            <th>Vision</th>
-            <th>SPH</th>
-            <th>CYL</th>
-            <th>AXIS</th>
-            <th>Vision</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr [formGroup]="item.form.get('distance')">
-            <td><strong>DIST</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reSph',
-                  'reCyl',
-                  'reAxis',
-                  'reVision',
-                  'leSph',
-                  'leCyl',
-                  'leAxis',
-                  'leVision'
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-          <tr [formGroup]="item.form.get('near')">
-            <td><strong>NEAR</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reSph',
-                  'reCyl',
-                  'reAxis',
-                  'reVision',
-                  'leSph',
-                  'leCyl',
-                  'leAxis',
-                  'leVision'
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="normal-form" *ngIf="item.title != 'Visual Aquity 👁️'">
+          <table class="table table-bordered text-center table-striped">
+            <thead class="table-eye-header">
+              <tr>
+                <th></th>
+                <th colspan="4">Right Eye (RE)</th>
+                <th colspan="4">Left Eye (LE)</th>
+              </tr>
+              <tr>
+                <th></th>
+                <th>SPH</th>
+                <th>CYL</th>
+                <th>AXIS</th>
+                <th>Vision</th>
+                <th>SPH</th>
+                <th>CYL</th>
+                <th>AXIS</th>
+                <th>Vision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr [formGroup]="item.form.get('distance')">
+                <td><strong>DIST</strong></td>
+                <td
+                  *ngFor="
+                    let field of [
+                      'reSph',
+                      'reCyl',
+                      'reAxis',
+                      'reVision',
+                      'leSph',
+                      'leCyl',
+                      'leAxis',
+                      'leVision'
+                    ]
+                  "
+                >
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+              <tr [formGroup]="item.form.get('near')">
+                <td><strong>NEAR</strong></td>
+                <td
+                  *ngFor="
+                    let field of [
+                      'reSph',
+                      'reCyl',
+                      'reAxis',
+                      'reVision',
+                      'leSph',
+                      'leCyl',
+                      'leAxis',
+                      'leVision'
+                    ]
+                  "
+                >
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-      <!-- ADD Section -->
-      <div class="row mt-4" [formGroup]="item.form.get('add')" [style.width.%]="100">
-        <div class="col-md-3">
-          <label>BE ADD</label>
-          <input formControlName="be" class="form-control" />
-        </div>
-        <div class="col-md-3">
-          <label>RE ADD</label>
-          <input formControlName="re" class="form-control" />
-        </div>
-        <div class="col-md-3">
-          <label>LE ADD</label>
-          <input formControlName="le" class="form-control" />
-        </div>
-        <div class="col-md-3 d-flex align-items-center" [style.margin-top.em]="'0.5'">
-          <button
-            class="cal btn btn-outline-primary w-100"
-            (click)="calculate(item.form)"
+          <!-- ADD Section -->
+          <div
+            class="row mt-4"
+            [formGroup]="item.form.get('add')"
+            [style.width.%]="100"
           >
-            🧮 Calculate
-          </button>
+            <div class="col-md-3">
+              <label>BE ADD</label>
+              <input formControlName="be" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label>RE ADD</label>
+              <input formControlName="re" class="form-control" />
+            </div>
+            <div class="col-md-3">
+              <label>LE ADD</label>
+              <input formControlName="le" class="form-control" />
+            </div>
+            <div
+              class="col-md-3 d-flex align-items-center"
+              [style.margin-top.em]="'0.5'"
+            >
+              <button
+                class="cal btn btn-outline-primary w-100"
+                (click)="calculate(item.form)"
+              >
+                🧮 Calculate
+              </button>
+            </div>
+          </div>
+
+          <!-- Glass Details -->
+          <div
+            class="row mt-3"
+            [formGroup]="item.form.get('glassDetails')"
+            [style.width.%]="100"
+          >
+            <div
+              class="col-md-3"
+              *ngFor="let detail of ['type', 'color', 'use', 'pd']"
+            >
+              <label>{{ detail | titlecase }}</label>
+              <input [formControlName]="detail" class="form-control" />
+            </div>
+          </div>
+        </div>
+        <div class="normal-form" *ngIf="item.title === 'Visual Aquity 👁️'">
+          <table class="table table-bordered text-center table-striped">
+            <thead class="table-eye-header">
+              <tr>
+                <th>Visual Aquity</th>
+                <th>Right Eye</th>
+                <th>Left Eye</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr [formGroup]="item.form.get('distanceVision')">
+                <td><strong>Distance Vision</strong></td>
+                <td *ngFor="let field of ['reDV', 'leDV']">
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+              <tr [formGroup]="item.form.get('vaph')">
+                <td><strong>V/A PH</strong></td>
+                <td *ngFor="let field of ['reVAPH', 'leVAPH']">
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+              <tr [formGroup]="item.form.get('nearVision')">
+                <td><strong>Near Vision</strong></td>
+                <td *ngFor="let field of ['reNearVision', 'leNearVision']">
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+              <tr [formGroup]="item.form.get('vaSpect')">
+                <td><strong>V/A Spect</strong></td>
+                <td *ngFor="let field of ['reVASpect', 'leVASpect']">
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+              <tr [formGroup]="item.form.get('colorVision')">
+                <td><strong>Color Vision</strong></td>
+                <td *ngFor="let field of ['reColorVision', 'leColorVision']">
+                  <input [formControlName]="field" class="form-control" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <!-- Glass Details -->
-      <div class="row mt-3" [formGroup]="item.form.get('glassDetails')" [style.width.%]="100">
-        <div
-          class="col-md-3"
-          *ngFor="let detail of ['type', 'color', 'use', 'pd']"
-        >
-          <label>{{ detail | titlecase }}</label>
-          <input [formControlName]="detail" class="form-control" />
-        </div>
-      </div>
     </div>
-    <div class="normal-form" *ngIf="item.title === 'Visual Aquity 👁️'">
-      <table class="table table-bordered text-center table-striped">
-        <thead class="table-eye-header">
-          <tr>
-            <th>Visual Aquity</th>
-            <th>Right Eye</th>
-            <th>Left Eye</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr [formGroup]="item.form.get('distanceVision')">
-            <td><strong>Distance Vision</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reDV',
-                  'leDV',
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-          <tr [formGroup]="item.form.get('vaph')">
-            <td><strong>V/A PH</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reVAPH',
-                  'leVAPH',
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-          <tr [formGroup]="item.form.get('nearVision')">
-            <td><strong>Near Vision</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reNearVision',
-                  'leNearVision',
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-          <tr [formGroup]="item.form.get('vaSpect')">
-            <td><strong>V/A Spect</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reVASpect',
-                  'leVASpect',
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-          <tr [formGroup]="item.form.get('colorVision')">
-            <td><strong>Color Vision</strong></td>
-            <td
-              *ngFor="
-                let field of [
-                  'reColorVision',
-                  'leColorVision',
-                ]
-              "
-            >
-              <input [formControlName]="field" class="form-control" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-     
-
-    </div>
-    </div>
-  
 
     <!-- WNL Section -->
     <div
       class="wnl-section vision-section card shadow-sm p-4 eye-theme"
       [formGroup]="wnlForm"
-      [style.border-radius.em]="1"
     >
       <h2 class="section-title text-center mb-4">WNL</h2>
       <table class="table table-bordered text-center table-striped">
@@ -263,7 +234,7 @@
             *ngFor="let group of wnlEntries.controls; let i = index"
             [formGroupName]="i"
           >
-            <!-- Display Title as Heading after Saving -->
+            <!-- Title -->
             <td *ngIf="!group.get('saved')?.value">
               <input
                 formControlName="title"
@@ -275,26 +246,144 @@
               <h5>{{ group.get("title")?.value }}</h5>
             </td>
 
+            <!-- RE/OD Column with Quadrants -->
             <td>
-              <input
-                formControlName="re"
-                class="form-control"
-                placeholder="RE Value"
-              />
+              <div
+                *ngIf="
+                  group.get('title')?.value === 'Fundus';
+                  else normalReInput
+                "
+                class="quadrant-inputs"
+              >
+                <div class="position-relative" style="height: 8em">
+                  <!-- Vertical Line -->
+                  <div
+                    style="
+                      width: 2px;
+                      height: 100%;
+                      background-color: #000;
+                      position: absolute;
+                      left: 50%;
+                    "
+                  ></div>
+                  <!-- Horizontal Line -->
+                  <div
+                    style="
+                      height: 2px;
+                      width: 100%;
+                      background-color: #000;
+                      position: absolute;
+                      top: 50%;
+                    "
+                  ></div>
+
+                  <!-- Quadrant Inputs -->
+                  <input
+                    formControlName="reTopLeft"
+                    class="form-control position-absolute"
+                    style="top: 5px; left: 5px; width: 40%"
+                    placeholder="+Y"
+                  />
+                  <input
+                    formControlName="reTopRight"
+                    class="form-control position-absolute"
+                    style="top: 5px; right: 5px; width: 40%"
+                    placeholder="+Y"
+                  />
+                  <input
+                    formControlName="reBottomLeft"
+                    class="form-control position-absolute"
+                    style="bottom: 5px; left: 5px; width: 40%"
+                    placeholder="-Y"
+                  />
+                  <input
+                    formControlName="reBottomRight"
+                    class="form-control position-absolute"
+                    style="bottom: 5px; right: 5px; width: 40%"
+                    placeholder="-Y"
+                  />
+                </div>
+              </div>
+              <ng-template #normalReInput>
+                <input
+                  formControlName="re"
+                  class="form-control"
+                  placeholder="RE Value"
+                />
+              </ng-template>
             </td>
+
+            <!-- LE/OS Column with Quadrants -->
             <td>
-              <input
-                formControlName="le"
-                class="form-control"
-                placeholder="LE Value"
-              />
+              <div
+                *ngIf="
+                  group.get('title')?.value === 'Fundus';
+                  else normalLeInput
+                "
+                class="quadrant-inputs"
+              >
+                <div class="position-relative" style="height: 8em">
+                  <!-- Vertical Line -->
+                  <div
+                    style="
+                      width: 2px;
+                      height: 100%;
+                      background-color: #000;
+                      position: absolute;
+                      left: 50%;
+                    "
+                  ></div>
+                  <!-- Horizontal Line -->
+                  <div
+                    style="
+                      height: 2px;
+                      width: 100%;
+                      background-color: #000;
+                      position: absolute;
+                      top: 50%;
+                    "
+                  ></div>
+
+                  <!-- Quadrant Inputs -->
+                  <input
+                    formControlName="leTopLeft"
+                    class="form-control position-absolute"
+                    style="top: 5px; left: 5px; width: 40%"
+                    placeholder="+Y"
+                  />
+                  <input
+                    formControlName="leTopRight"
+                    class="form-control position-absolute"
+                    style="top: 5px; right: 5px; width: 40%"
+                    placeholder="+Y"
+                  />
+                  <input
+                    formControlName="leBottomLeft"
+                    class="form-control position-absolute"
+                    style="bottom: 5px; left: 5px; width: 40%"
+                    placeholder="-Y"
+                  />
+                  <input
+                    formControlName="leBottomRight"
+                    class="form-control position-absolute"
+                    style="bottom: 5px; right: 5px; width: 40%"
+                    placeholder="-Y"
+                  />
+                </div>
+              </div>
+              <ng-template #normalLeInput>
+                <input
+                  formControlName="le"
+                  class="form-control"
+                  placeholder="LE Value"
+                />
+              </ng-template>
             </td>
 
             <!-- Delete Button -->
             <td>
               <button class="btn btn-danger" (click)="deleteWNLData(i)">
                 <i class="fas fa-eye-slash"></i>
-                <!-- Eye Close Icon -->
               </button>
             </td>
           </tr>
@@ -304,12 +393,6 @@
       <button class="btn btn-outline-primary w-100 mb-2" (click)="addWNLData()">
         ➕ Add Title Row
       </button>
-      <!-- <button
-        class="btn btn-primary w-100"
-        (click)="saveWNLData('yourUniqueId')"
-      >
-        💾 Save WNL
-      </button> -->
     </div>
 
     <!-- Existing A-Scan Section -->
@@ -382,7 +465,11 @@
         💾 Save A-Scan
       </button> -->
     </div>
-    <div class="medicine-prescription card shadow-sm p-4" #prescriptionSection [style.border-radius.em]="1">
+    <div
+      class="medicine-prescription card shadow-sm p-4"
+      #prescriptionSection
+      [style.border-radius.em]="1"
+    >
       <app-prescription-table
         [prescriptionData]="prescriptionData"
         (prescriptionUpdated)="onPrescriptionUpdate($event)"
@@ -558,12 +645,8 @@
 </div>
 <div class="print-save-button" (click)="save()">
   <button class="save-button">Save</button>
-  <button class="save-button" (click)="save('print')">
-   Print 
-  </button>
+  <button class="save-button" (click)="save('print')">Print</button>
 </div>
-
-
 
 <div #admitPatientModal class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
@@ -691,7 +774,6 @@
     </div>
   </div>
 </div>
-
 
 <div #templateModal class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">

@@ -4,4 +4,9 @@ export const OPTHAL_ROUTES = [
         title: 'Opthal Dashboard',
         path: '/opthal-dashboard',
       },
+      {
+        id: 2,
+        title: 'Templates',
+        path: '/template-dashboard',
+      },
 ]
