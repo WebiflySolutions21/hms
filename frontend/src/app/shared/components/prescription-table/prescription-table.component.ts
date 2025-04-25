@@ -65,6 +65,7 @@ export class PrescriptionTableComponent {
     this.medicineHistory = JSON.parse(localStorage.getItem('prescriptionData'));
     this.medicineTypes = JSON.parse(localStorage.getItem('medicineTypes'));
     this.intakeTimes = JSON.parse(localStorage.getItem('medicinePeriods'));
+    this.addRow()
   }
 
   addRow() {

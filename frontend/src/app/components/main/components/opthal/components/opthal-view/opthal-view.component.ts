@@ -117,6 +117,66 @@ export class OpthalViewComponent {
       },
     ];
   }
+// In your component class
+allSectionsVisible = true;
+
+sectionVisibility = {
+  diagnosis: true,
+  visionRefraction: true,
+  visualAquity: true,
+  autoRefraction: true,
+  cycloAutoRefraction: true,
+  glassPrescription: true,
+  wnl: true,
+  aScan: true,
+  prescription: true,
+  surgery: true
+};
+
+sections = [
+  { id: 'diagnosis', label: 'Diagnosis', visible: true },
+  { id: 'visionRefraction', label: 'Vision Refraction', visible: true },
+  { id: 'visualAquity', label: 'Visual Aquity', visible: true },
+  { id: 'autoRefraction', label: 'Auto Refraction', visible: true },
+  { id: 'cycloAutoRefraction', label: 'Cyclo Refraction', visible: true },
+  { id: 'glassPrescription', label: 'Glass Prescription', visible: true },
+  { id: 'wnl', label: 'WNL', visible: true },
+  { id: 'aScan', label: 'A-Scan', visible: true },
+  { id: 'prescription', label: 'Prescription', visible: true },
+  { id: 'surgery', label: 'Surgery', visible: true }
+];
+
+// In your component class
+toggleSection(section: any) {
+  section.visible = !section.visible;
+  this.sectionVisibility[section.id] = section.visible;
+  this.updateAllVisibleState();
+}
+
+toggleAllSections() {
+  this.allSectionsVisible = !this.allSectionsVisible;
+  this.sections.forEach(section => {
+    section.visible = this.allSectionsVisible;
+    this.sectionVisibility[section.id] = this.allSectionsVisible;
+  });
+}
+
+private updateAllVisibleState() {
+  this.allSectionsVisible = this.sections.every(s => s.visible);
+}
+
+getFormVisibility(title: string): boolean {
+  const mapping: {[key: string]: string} = {
+    'Vision Refraction 👁️': 'visionRefraction',
+    'Visual Aquity 👁️': 'visualAquity',
+    'Auto Refraction 👁️': 'autoRefraction',
+    'Cyclo Auto Refraction 👁️': 'cycloAutoRefraction',
+    "Today's Glass Prescription 👁️": 'glassPrescription'
+  };
+  
+  const visibilityId = mapping[title];
+  return visibilityId ? this.sectionVisibility[visibilityId] : true;
+}
 
   ngOnInit() {
     this.loadAScanData(); // Load on init
@@ -460,6 +520,28 @@ export class OpthalViewComponent {
   // }
 
   save(arg?) {
+
+    //FOR VISIBILITY
+    const visibleForms = this.forms.filter(form => 
+      this.getFormVisibility(form.title)
+    ).map(({ title, form }) => ({
+      title,
+      data: form.value
+    }));
+  
+    // Prepare the payload with only visible sections
+    // const payload = {
+    //   sectionForms: visibleForms,
+    //   followupDate: this.followupDate || null,
+    //   followupDay: this.followupDay || null,
+    //   isAdmitted: this.isAdmitted ? this.isAdmitted : false,
+    //   referDoctor: this.selectedDoctor || null,
+    //   prescriptionData: this.sectionVisibility.prescription ? this.prescriptionData : [],
+    //   selectedCheckboxes: this.sectionVisibility.diagnosis ? this.selectedCheckboxes : [],
+    //   aScan: this.sectionVisibility.aScan ? this.aScanForm.value : null,
+    //   wnl: this.sectionVisibility.wnl ? this.wnlForm.value : null,
+    //   surgery: this.sectionVisibility.surgery ? this.surgeryForm.value : null,
+    // };
     let sectionFormData = this.forms.map(({ title, form }) => {
       console.log(`${title} Data:`, form.value);
       return {
