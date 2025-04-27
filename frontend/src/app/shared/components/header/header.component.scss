@@ -6,10 +6,6 @@
   @include flex-container(center, space-between, row);
   padding: 0.8em 1.5em;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
 
   .hosp {
     display: flex;
