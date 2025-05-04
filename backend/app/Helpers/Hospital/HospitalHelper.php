@@ -21,7 +21,7 @@ class HospitalHelper extends BaseHelper
 
     public function get_hospital_list()
     {
-        return Hospital::select(['status', 'registration_no', 'name', 'mobile', 'address', 'registration_date'])->get();
+        return Hospital::select(['id', 'status', 'registration_no', 'name', 'mobile', 'address', 'registration_date'])->get();
     }
 
     public function update_hospital(array $data): void
@@ -30,8 +30,7 @@ class HospitalHelper extends BaseHelper
             $hospital = Hospital::find($data['id']);
             $hospital->update($data);
             $hospital->save();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->addError('Hospital Registration No. already exists.');
         }
 
