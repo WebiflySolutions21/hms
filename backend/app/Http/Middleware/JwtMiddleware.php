@@ -38,7 +38,7 @@ class JwtMiddleware
 
             Auth::login($user);
         } catch (\Exception $e) {
-            return ResponseHelper::errorResponse($e->getMessage(), Response::HTTP_UNAUTHORIZED);
+            return ResponseHelper::errorResponse('Error Validating Token', Response::HTTP_UNAUTHORIZED);
         }
 
         return $next($request);
