@@ -11,6 +11,7 @@ class PermissionsSeeder
         // Create permissions
         $permissions = [
             'test_permission',
+            'manage-hospitals'
         ];
 
         foreach ($permissions as $permission) {

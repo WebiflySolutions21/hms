@@ -30,7 +30,7 @@ class JwtMiddleware
 
         try {
             $credentials = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-            $user = User::find($credentials->sub);
+            $user = User::where(['username' => $credentials->username])->first();
 
             if (!$user) {
                 return ResponseHelper::errorResponse('User not found', Response::HTTP_UNAUTHORIZED);
@@ -38,7 +38,7 @@ class JwtMiddleware
 
             Auth::login($user);
         } catch (\Exception $e) {
-            return ResponseHelper::errorResponse('Invalid token', Response::HTTP_UNAUTHORIZED);
+            return ResponseHelper::errorResponse($e->getMessage(), Response::HTTP_UNAUTHORIZED);
         }
 
         return $next($request);
