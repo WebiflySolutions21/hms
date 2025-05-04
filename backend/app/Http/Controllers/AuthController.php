@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Auth\AuthHelper;
 use App\Helpers\ResponseHelper;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function login()
+    public function login(): JsonResponse
     {
         $IsInvalidRequest = $this->validateRequest([
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required',
         ]);
         if ($IsInvalidRequest) {
@@ -24,9 +25,10 @@ class AuthController extends Controller
         }
         return ResponseHelper::successResponse(['token' => $token]);
 
+
     }
 
-    public function signup()
+    public function signup(): JsonResponse
     {
         $IsInvalidRequest = $this->validateRequest([
             'name' => 'required',
@@ -41,7 +43,7 @@ class AuthController extends Controller
         return ResponseHelper::successResponse(['token' => $token]);
     }
 
-    public function test(Request $request)
+    public function test(Request $request): JsonResponse
     {
         return response()->json(['message' => 'Test done!']);
     }
