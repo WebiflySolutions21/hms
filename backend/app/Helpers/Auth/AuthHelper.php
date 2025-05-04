@@ -13,9 +13,8 @@ class AuthHelper extends BaseHelper
     private function generateToken(User $user)
     {
         $payload = [
-            'sub' => $user->id,
             'name' => $user->name,
-            'role' => 'user',
+            'role' => $user->roles->pluck('name')->toArray(),
             'iat' => time(),
             'exp' => time() + env('JWT_EXPIRATION_TIME', 86400),
         ];
@@ -25,7 +24,7 @@ class AuthHelper extends BaseHelper
 
     public function handleLoginRequest(array $credentials): ?string
     {
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('username', $credentials['username'])->first();
         if (!$user) {
             $this->addError('User not found');
             return null;
