@@ -8,7 +8,7 @@
             (click)="sortData(col.key)"
             class="sortable-column"
           >
-            {{ col.title }}
+            {{ col.title  }}
             <span class="sort-icon">
               <i
                 class="fas"
@@ -66,12 +66,17 @@
           *ngFor="let row of filteredData; let i = index"
           [ngClass]="{ 'admitted-row': row.isAdmitted }"
         >
-          <td
-            *ngFor="let col of tableColumns"
-            [ngClass]="{ 'admitted-text': row.isAdmitted }"
-          >
+        <td *ngFor="let col of tableColumns" [ngClass]="{ 'admitted-text': row.isAdmitted }">
+          <ng-container *ngIf="col?.key === 'status'; else normalCell">
+            <span [ngClass]="{ 'text-success': row[col?.key] === 'active' }">
+              {{ row[col?.key] | titlecase }}
+            </span>
+          </ng-container>
+          <ng-template #normalCell>
             {{ row[col?.key] }}
-          </td>
+          </ng-template>
+        </td>
+        
           <td *ngIf="actions.length" class="btns">
             <!-- Display the first 3 buttons -->
             <ng-container *ngFor="let action of actions.slice(0, 4)">

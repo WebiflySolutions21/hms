@@ -1,4 +1,10 @@
 export const LOGIN_ROUTES = [
+  {
+    id:20,
+    title:"Signup",
+    path:"/signup",
+    identification:"signup"
+  },
     {
         id:9,
         title:"Super Admin",
