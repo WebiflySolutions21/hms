@@ -24,6 +24,11 @@ const routes: Routes = [
       import('./components/login/login.module').then((m) => m.LoginModule),
   },
   {
+    path: 'signup',
+    loadChildren: () =>
+      import('./components/signup/signup.module').then((m) => m.SignupModule),
+  },
+  {
     path: 'token-status',
     component:TokenStatusComponent
   },

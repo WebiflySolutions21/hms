@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
 import { Input } from '@angular/core';
 
 @Component({
@@ -60,6 +60,8 @@ export class PrescriptionTableComponent {
   ];
   selectedPrescripitionFillData:any
   @Input() prescriptionData = [];
+  showVoiceInput = true
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.medicineHistory = JSON.parse(localStorage.getItem('prescriptionData'));
@@ -109,6 +111,68 @@ export class PrescriptionTableComponent {
     }
 
     this.emitPrescriptionData();
+  }
+  searchTerm:any
+  toggleVoiceInput(): void {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Your browser does not support voice input.');
+      return;
+    }
+
+    this.recognition = new (window as any).webkitSpeechRecognition();
+    this.recognition.lang = 'en-US';
+    this.recognition.interimResults = true; // Enable real-time updates
+    this.recognition.maxAlternatives = 1;
+
+    // Start Recording
+    this.recognition.onstart = () => {
+      this.isRecording = true;
+      console.log('Recording started');
+    };
+
+    // Handle Real-Time Results
+    this.recognition.onresult = (event: any) => {
+      const spokenText = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join(' ');
+      this.searchTerm = spokenText;
+      console.log('Recognized Text:', spokenText);
+
+      // Reset the idle timeout when receiving results
+      clearTimeout(this.idleTimeout);
+      this.idleTimeout = setTimeout(() => {
+        this.stopVoiceInput();
+        console.log('Recording stopped automatically due to inactivity.');
+      }, 1500); // Stop recording after 1.5 seconds of silence
+    };
+
+    // Handle Errors
+    this.recognition.onerror = (event: any) => {
+      console.error('Speech Recognition Error:', event.error);
+      this.stopVoiceInput();
+    };
+
+    // Stop Recording
+    this.recognition.onend = () => {
+      this.stopVoiceInput();
+      console.log('Recording ended');
+    };
+
+    // Start voice recognition
+    this.recognition.start();
+  }
+
+  stopVoiceInput(): void {
+    if (this.recognition) {
+      this.recognition.stop();
+      this.isRecording = false;
+      console.log('Recording stopped');
+
+      // Simulate Enter key press to save data
+      // Use a more specific selector by dropdown ID to target the correct input field
+      this.cdr.detectChanges(); // Force Angular to update the view
+    }
+    clearTimeout(this.idleTimeout);
   }
 
   removeRow(index: number) {

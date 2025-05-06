@@ -3,21 +3,15 @@
         <div class="title">Hospital Registration Details</div>
 
         <div class="table-data">
-            <!-- <div *ngFor="let category of tableCategories"> -->
-              <!-- Table Title -->
-      
-              <!-- Display Table -->
               <app-table
                 [tableData]="filteredTableData"
                 [tableColumns]="tableColumns"
                 [actions]="[
-                  {label:'Forms',action:'configView',class:'btn btn-primary'},
-                  { label: 'Delete', action: 'delete',class:'btn btn-danger' },
-                  { label: 'Revoke', action: 'revoke',class : 'btn btn-warning' }
+                  {label:'Forms',action:'configView',class:'btn btn-warning'},
+                  { label: 'Edit', action: 'edit',class:'btn btn-primary' },
                 ]"
                 (actionClicked)="handleAction($event)"
               ></app-table>
-            <!-- </div> -->
           </div>
     </div>
 </div>
@@ -29,3 +23,47 @@
   (confirm)="handleConfirm()"
   (cancel)="handleCancel()"
 ></app-confirmation-dialog>
+<div *ngIf="showEditModal">
+  <div class="modal-backdrop show"></div>
+  <div class="modal show d-block" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Hospital</h5>
+          <button type="button" class="btn-close" (click)="showEditModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Hospital Name</label>
+            <input type="text" class="form-control" [(ngModel)]="editFormData.name" name="name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mobile Number</label>
+            <input type="text" class="form-control" [(ngModel)]="editFormData.mobile" name="mobile" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Hospital Registration Number</label>
+            <input type="text" class="form-control" [(ngModel)]="editFormData.registration_no" name="registration_no" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-control" [(ngModel)]="editFormData.address" name="address" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="editFormData.status" name="status">
+              <option value="active">Active</option>
+              <option value="revoked">Revoked</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="showEditModal = false">Cancel</button>
+          <button class="btn btn-primary" (click)="saveEdit()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
