@@ -13,7 +13,7 @@ class RolesPermissionsSeeder
         // Create roles permissions
         $roles_permissions = [
             'tester' => ['test_permission'],
-            'super-admin' => ['manage-hospitals'],
+            'super-admin' => ['manage-hospitals', 'manage-forms'],
         ];
 
         foreach ($roles_permissions as $role => $permissions) {
