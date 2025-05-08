@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Form\FormHelper;
 use App\Helpers\ResponseHelper;
+use App\Models\Form;
 
 class FormController extends Controller
 {
@@ -57,12 +58,21 @@ class FormController extends Controller
         );
 
     }
-//    public function update_status()
-//    {
-//        $isInvalidRequest = $this->validateRequest([
-//            'id' => 'required|exists:forms,id',
-//            'status' => 'required|in:active,inactive'
-//            'hosi'
-//        ]);
-//    }
+
+    public function update_status()
+    {
+        $isInvalidRequest = $this->validateRequest([
+            'form_id' => 'required|exists:forms,id',
+            'status' => 'required|in:active,inactive',
+            'hospital_id' => 'required|exists:hospitals,id',
+            'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical',
+        ]);
+        if ($isInvalidRequest) {
+            return $isInvalidRequest;
+        }
+        new FormHelper()->update_form_status_for_hospital($this->validatedData);
+        return ResponseHelper::successResponse(
+            ['message' => 'Form status updated successfully!']
+        );
+    }
 }
