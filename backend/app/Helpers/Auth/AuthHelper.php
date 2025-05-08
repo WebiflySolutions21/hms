@@ -13,7 +13,7 @@ class AuthHelper extends BaseHelper
     private function generateToken(User $user)
     {
         $payload = [
-            'name' => $user->name,
+            'username' => $user->username,
             'role' => $user->roles->pluck('name')->toArray(),
             'iat' => time(),
             'exp' => time() + env('JWT_EXPIRATION_TIME', 86400),
