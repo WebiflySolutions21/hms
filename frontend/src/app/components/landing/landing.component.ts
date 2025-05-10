@@ -39,6 +39,11 @@ export class LandingComponent {
     this.router.navigate([`/${route}`]);
   }
   navigateUser(data: any) {
+    console.log(data);
+    if(data.identification == "signup"){
+      this.router.navigate([`/signup`]);
+      return
+    }
     this.router.navigate([`/login`], {
       queryParams: { userId: data?.identification },
     });

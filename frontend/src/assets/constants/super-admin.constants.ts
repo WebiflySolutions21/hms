@@ -122,7 +122,7 @@ export const SUPER_ADMIN_ROUTES = [
   ];
 export const SUPER_ADMIN_TABLE_COLUMNS = [
     { key: 'id', title: 'ID' },
-    { key: 'regDate', title: 'Registration Date', filterType: 'date' },
+    { key: 'registration_date', title: 'Registration Date', filterType: 'date' },
     {
       key: 'name',
       title: 'Hospital Name',
@@ -142,8 +142,14 @@ export const SUPER_ADMIN_TABLE_COLUMNS = [
       type: 'number',
     },
     {
-      key:'hospRegNo',
+      key:'registration_no',
       title:'Hospital Registration No',
+      filterType: 'search',
+      type: 'text',
+    },
+    {
+      key:'status',
+      title:'Status',
       filterType: 'search',
       type: 'text',
     }

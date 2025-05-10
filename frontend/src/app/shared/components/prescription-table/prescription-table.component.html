@@ -58,6 +58,15 @@
             [(ngModel)]="row.content"
             placeholder="Enter Content"
           />
+          <button
+class="mic-button"
+[class.recording]="isRecording"
+(click)="toggleVoiceInput()"
+title="Speak"
+*ngIf="showVoiceInput"
+>
+<i class="fa fa-microphone"></i>
+</button>
         </td>
         <td>
           <input
