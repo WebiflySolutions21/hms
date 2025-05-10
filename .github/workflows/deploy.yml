@@ -30,7 +30,7 @@ jobs:
         run: |
           cd frontend
           npm ci
-          npm run build:prod
+          npm run build:dev
 
       - name: 🛠️ Setup PHP and Install Dependencies Locally
         uses: shivammathur/setup-php@v2
