@@ -13,17 +13,29 @@ export class TokenInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    // Add authorization token to the headers if available
-    const userInfo=JSON.parse(localStorage.getItem("userInfo") || '')
-    const token = userInfo?.token;
-    console.log(token)
-    if (token) {
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
+
+    const userInfoStr = localStorage.getItem("userInfo");
+
+    if (userInfoStr) {
+      try {
+        const userInfo = JSON.parse(userInfoStr);
+        const token = userInfo?.token;
+
+        if (token) {
+          request = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`
+            }
+          });
         }
-      });
+      } catch (e) {
+        console.error('Invalid userInfo JSON in localStorage', e);
+        // Optionally remove corrupted data
+        localStorage.removeItem("userInfo");
+      }
     }
+
     return next.handle(request);
   }
 }
+
