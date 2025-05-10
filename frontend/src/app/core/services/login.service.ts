@@ -9,6 +9,7 @@ export class LoginService {
   constructor(private httpClient:HttpClient) { }
 
   login(payload:any){
+    console.log("api called",environment.API_HOST)
     return this.httpClient.post(`${environment.API_HOST}/login`,payload)
   }
   decodeJWT(token: string): any {
