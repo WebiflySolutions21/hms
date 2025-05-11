@@ -10,5 +10,4 @@ export const FORM_BUILDER_AVAILABLE_TYPES = [
     { value: 'file', label: 'File Upload' },
     { value: 'time', label: 'Time' },
     { value: 'template', label: 'Template' },
-
-  ];
+];

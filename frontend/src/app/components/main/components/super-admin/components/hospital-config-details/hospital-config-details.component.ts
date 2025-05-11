@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormService } from 'src/app/core/services/form.service';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { LOGIN_TYPE_LANDING_PAGE } from '@assets/constants/app.constants';
+import { SUPER_ADMIN_LOGIN_TYPES } from '@assets/constants/super-admin.constants';
+import { HospitalService } from 'src/app/core/services';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-hospital-config-details',
@@ -11,38 +15,61 @@ import { Location } from '@angular/common';
 export class HospitalConfigDetailsComponent implements OnInit {
   hospitalId: number;
   hospitalName: string;
-
+  selectedCheckboxes: any = [];
+  formDetails: any;
   forms: any[] = [];
   filteredForms: any[] = [];
   selectedForm: any = null;
   displayedColumns: string[] = ['srNo', 'title', 'status', 'actions'];
   isLoading = true;
-
+  dropdownList: any[] = [];
+  selectedItems: any[] = [];
+  dropdownSettings: any = {};
+  loginTypes = SUPER_ADMIN_LOGIN_TYPES;
+  initialSelections:any;
   constructor(
     private formService: FormService,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private hospitalService: HospitalService,
+    private toastrService: ToastrService
   ) {}
 
   ngOnInit() {
+    this.dropdownList = LOGIN_TYPE_LANDING_PAGE;
+    
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'item_id',
+      textField: 'item_text',
+      allowSearchFilter: true,
+    };
     this.route.queryParams.subscribe((params) => {
       this.hospitalId = +params['id'];
       this.hospitalName = decodeURIComponent(params['name']);
-
-      if (this.hospitalId && this.hospitalName) {
-        this.loadForms();
-      } else {
-        // Handle invalid/missing params
-        this.location.back();
-      }
     });
+    this.getAllFormsData();
+  }
+
+  getAllFormsData() {
+    this.formService.getForms(this.hospitalId).subscribe(
+      (res: any) => {
+        if (res && res.success) {
+          this.formService.setAllFormsData(res.forms);
+          this.loadForms();
+        }
+      },
+      (err) => {
+        console.error('Error fetching forms:', err);
+      }
+    );
   }
 
   loadForms() {
     this.isLoading = true;
     try {
       this.forms = this.formService.getAllForms();
-      this.filterFormsForHospital();
+      console.log('Forms:', this.forms);
     } catch (error) {
       console.error('Error loading forms:', error);
     } finally {
@@ -50,42 +77,51 @@ export class HospitalConfigDetailsComponent implements OnInit {
     }
   }
 
-  filterFormsForHospital() {
-    this.filteredForms = this.forms
-      .filter((form) => form.formVisibility) // Only show forms with visibility config
-      .map((form, index) => ({
-        srNo: index + 1,
-        ...form,
-        isActive: this.isFormConfiguredForHospital(form),
-        lastUpdated: this.getFormLastUpdated(form),
-      }));
-  }
-
   getFormLastUpdated(form: any): string {
     return form.updatedAt
-      ? new Date(form.updatedAt).toLocaleDateString()
+      ? new Date(form?.json?.updatedAt).toLocaleDateString()
       : 'Not available';
   }
 
-  isFormConfiguredForHospital(form: any): boolean {
-    return form.formVisibility.some((visibility: any) =>
-      visibility.hospitaList?.some(
-        (hospital: any) => hospital.id === this.hospitalId
-      )
-    );
+  updateStatus(message?) {
+    let payload = {
+      form_id: this.formDetails.id,
+      hospital_id: this.hospitalId,
+      status: this.formDetails.status,
+      visibility: this.selectedCheckboxes[0].loginTypes || [],
+    };
+
+    this.hospitalService.updateFormsStatus(payload).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.toastrService.success(
+            message ? message : 'Visibility Updated Successfully',
+            'Success'
+          );
+          this.getAllFormsData();
+        }
+      },
+      error: (err: any) => {
+        this.toastrService.error(
+          'Failed to update status',
+          err.error.errorMessage
+        );
+      },
+    });
   }
 
-  toggleFormVisibility(form: any) {
+  visibiliClicked(form: any) {
+    this.formDetails = form;
+    console.log(JSON.parse(form.visibility));
+    this.loginTypes = JSON.parse(form.visibility);
+  }
 
-    if (form.isActive) {
-      this.addHospitalToFormVisibility(form);
-    } else {
-      this.removeHospitalFromFormVisibility(form);
-    }
-
-    form.updatedAt = new Date().toISOString();
-    this.formService.saveForm(form);
-    this.filterFormsForHospital();
+  toggleFormVisibility(form: any, event: any) {
+    this.formDetails = form;
+    this.formDetails.status = event ? 'active' : 'inactive';
+    this.updateStatus(
+      event ? 'Form Activated Successfully' : 'Form Deactivated Successfully'
+    );
   }
 
   addHospitalToFormVisibility(form: any) {
@@ -126,6 +162,8 @@ export class HospitalConfigDetailsComponent implements OnInit {
 
   showFormDetails(form: any) {
     this.selectedForm = form;
+
+    console.log(form);
   }
 
   closeFormDetails() {
@@ -134,5 +172,33 @@ export class HospitalConfigDetailsComponent implements OnInit {
 
   goBack() {
     this.location.back();
+  }
+
+  onSelectionChanged(selectedOptions) {
+    if (selectedOptions.length) {
+      selectedOptions.forEach((option) => {
+        let existingLabelIndex = this.selectedCheckboxes.findIndex(
+          (item) => Object.keys(item)[0] === option.key
+        );
+        console.log(option);
+        // Prepare a dynamic list of options without duplicates
+        const dynamicOptions = option.options.map((opt) => opt.value);
+
+        if (existingLabelIndex !== -1) {
+          // Replace existing data with the new data
+          this.selectedCheckboxes[existingLabelIndex] = {
+            [option.key]: dynamicOptions,
+          };
+        } else {
+          // Create a new label object with the dynamic options
+          let newOption = {
+            [option.key]: dynamicOptions,
+          };
+          this.selectedCheckboxes.push(newOption);
+        }
+      });
+
+      console.log(this.selectedCheckboxes);
+    }
   }
 }

@@ -18,43 +18,62 @@
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
-                <tr>
-                  <th width="80px">Sr.No</th>
+                <tr class="text-center">
+                  <th>Sr.No</th>
                   <th>Form Name</th>
-                  <th width="120px">Status</th>
-                  <th width="150px">Last Updated</th>
-                  <th width="200px">Actions</th>
+                  <th>Visibility</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  *ngFor="let form of filteredForms"
-                  [class.table-primary]="form.isActive"
+                  *ngFor="let form of forms; let i = index"
+                  [class.table-primary]="form"
+                  class="text-center"
                 >
-                  <td>{{ form.srNo }}</td>
+                  <td>{{ i + 1 }}</td>
                   <td>
                     <a
                       href="javascript:void(0)"
                       (click)="showFormDetails(form)"
                       class="text-decoration-none"
                     >
-                      <strong>{{ form.title }}</strong>
+                      <strong>{{ form.name }}</strong>
                       <small class="d-block text-muted">{{
-                        form.description || "No description"
+                        form?.json?.description || "No description"
                       }}</small>
                     </a>
                   </td>
                   <td>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#exampleModal"
+                      (click)="visibiliClicked(form)"
+                    >
+                      Visibility
+                    </button>
+                  </td>
+                  <td>
                     <span
                       class="badge"
-                      [ngClass]="form.isActive ? 'bg-success' : 'bg-secondary'"
+                      [ngClass]="
+                        form.status === 'active' ? 'bg-success' : 'bg-secondary'
+                      "
                     >
-                      {{ form.isActive ? "Active" : "Inactive" }}
+                      {{ form.status | titlecase }}
                     </span>
                   </td>
-                  <td>{{ form.lastUpdated }}</td>
                   <td>
-                    <div class="d-flex gap-2">
+                    {{ form?.json?.updatedAt | date : "dd MMMM yyyy hh:mm a" }}
+                  </td>
+                  <td>
+                    <div
+                      class="d-flex justify-content-center align-items-center gap-2"
+                    >
                       <button
                         class="btn btn-sm btn-outline-primary"
                         (click)="showFormDetails(form)"
@@ -66,13 +85,15 @@
                           class="form-check-input"
                           type="checkbox"
                           id="toggle-{{ form.id }}"
-                          [(ngModel)]="form.isActive"
-                          (change)="toggleFormVisibility(form)"
+                          [checked]="form.status === 'active'"
+                          (change)="toggleFormVisibility(form,$event.target.checked);
+                          "
                         />
                         <label
                           class="form-check-label"
                           for="toggle-{{ form.id }}"
-                        ></label>
+                        >
+                        </label>
                       </div>
                     </div>
                   </td>
@@ -81,7 +102,7 @@
             </table>
           </div>
 
-          <div *ngIf="filteredForms.length === 0" class="alert alert-info mt-3">
+          <div *ngIf="forms.length === 0" class="alert alert-info mt-3">
             No forms found with visibility configuration. All forms are
             currently inactive for this hospital.
           </div>
@@ -118,34 +139,17 @@
                     <strong>Description:</strong>
                     {{ selectedForm.description || "Not provided" }}
                   </p>
-                  <p><strong>Version:</strong> {{ selectedForm.version }}</p>
+                  <p>
+                    <strong>Version:</strong> {{ selectedForm?.json?.version }}
+                  </p>
                   <p>
                     <strong>Created:</strong>
-                    {{ selectedForm.createdAt | date : "medium" }}
+                    {{ selectedForm?.json?.createdAt | date : "medium" }}
                   </p>
                   <p>
                     <strong>Last Updated:</strong>
-                    {{ selectedForm.updatedAt | date : "medium" }}
+                    {{ selectedForm?.json?.updatedAt | date : "medium" }}
                   </p>
-                </div>
-                <div class="col-md-6">
-                  <h6><i class="bi bi-eye me-2"></i>Visibility Status</h6>
-                  <div
-                    class="alert"
-                    [ngClass]="
-                      isFormConfiguredForHospital(selectedForm)
-                        ? 'alert-success'
-                        : 'alert-warning'
-                    "
-                  >
-                    This form is currently
-                    <strong>{{
-                      isFormConfiguredForHospital(selectedForm)
-                        ? "VISIBLE"
-                        : "NOT VISIBLE"
-                    }}</strong>
-                    for {{ hospitalName }}.
-                  </div>
                 </div>
               </div>
 
@@ -154,28 +158,19 @@
                   <i class="bi bi-shield-lock me-2"></i>Access Configuration
                 </h6>
                 <div
-                  *ngIf="selectedForm.formVisibility?.length; else noVisibility"
+                  *ngIf="selectedForm.visibility?.length; else noVisibility"
                 >
                   <div
-                    *ngFor="let visibility of selectedForm.formVisibility"
+                    *ngFor="let visibility of selectedForm.visibility"
                     class="mb-3 p-3 border rounded"
                   >
-                    <div *ngIf="visibility.hospitaList?.length" class="mb-2">
-                      <h6 class="d-inline-block me-2">🏥 Hospitals:</h6>
-                      <span
-                        *ngFor="let hospital of visibility.hospitaList"
-                        class="badge bg-primary me-1"
-                      >
-                        {{ hospital.name }} (ID: {{ hospital.id }})
-                      </span>
-                    </div>
-                    <div *ngIf="visibility.loginTypes?.length" class="mb-2">
+                    <div *ngIf="visibility" class="mb-2">
                       <h6 class="d-inline-block me-2">👥 Login Types:</h6>
                       <span
-                        *ngFor="let loginType of visibility.loginTypes"
+                        *ngFor="let loginType of visibility"
                         class="badge bg-secondary me-1"
                       >
-                        {{ loginType.name }} (ID: {{ loginType.id }})
+                        {{ loginType}}
                       </span>
                     </div>
                     <div>
@@ -204,7 +199,7 @@
                   <i class="bi bi-layout-text-sidebar me-2"></i>Form Sections
                 </h6>
                 <div
-                  *ngFor="let section of selectedForm.sections"
+                  *ngFor="let section of selectedForm?.json?.sections"
                   class="mb-4 border-bottom pb-3"
                 >
                   <h5>{{ section.title }}</h5>
@@ -259,6 +254,47 @@
         </div>
       </div>
       <div *ngIf="selectedForm" class="modal-backdrop fade show"></div>
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="exampleModal"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">
+          Select Form Visibility
+        </h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <app-multi-select-dropdown
+        [label]="'Visibility Login Types'"
+          [key]="'loginTypes'"
+          [options]="loginTypes"
+          [dropdownId]="1"
+          [initialSelections]="initialSelections"
+          
+          (selectionChanged)="onSelectionChanged($event)"
+        ></app-multi-select-dropdown>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" (click)="updateStatus()" data-bs-dismiss="modal">Save changes</button>
+      </div>
     </div>
   </div>
 </div>

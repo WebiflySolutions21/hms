@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HospitalConfigDetailsRoutingModule } from './hospital-config-details-routing.module';
 import { HospitalConfigDetailsComponent } from './hospital-config-details.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     HospitalConfigDetailsRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    SharedModule
   ]
 })
 export class HospitalConfigDetailsModule { }
