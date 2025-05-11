@@ -30,8 +30,11 @@ jobs:
         run: |
           cd frontend
           npm ci
-          npm run build:dev
-
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            npm run build:prod
+          else
+            npm run build:dev
+          fi
       - name: 🛠️ Setup PHP and Install Dependencies Locally
         uses: shivammathur/setup-php@v2
         with:
