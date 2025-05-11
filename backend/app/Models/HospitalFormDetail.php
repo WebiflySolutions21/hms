@@ -44,10 +44,10 @@ class HospitalFormDetail extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array<string, string>
+     * @var array
      */
     protected $casts = [
-        'visibility' => 'array', // Stores as JSON in the database, but treats as array in your app
+        'visibility' => 'array',
     ];
 
 }
