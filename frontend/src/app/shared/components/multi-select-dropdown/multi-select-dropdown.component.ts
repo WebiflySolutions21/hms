@@ -50,8 +50,7 @@ export class MultiSelectDropdownComponent implements OnInit {
 // In multi-select-dropdown.component.ts
 ngOnInit() {
   this.dropdownStateService.setActiveDropdown(null);
-  this.filteredOptions = [...this.options];
-  
+  this.filteredOptions = [...this.options]
   // Set initial selections if provided
   if (this.initialSelections && this.initialSelections.length) {
     // Filter out any initial selections that don't exist in current options

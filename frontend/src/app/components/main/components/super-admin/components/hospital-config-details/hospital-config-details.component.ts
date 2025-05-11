@@ -112,8 +112,7 @@ export class HospitalConfigDetailsComponent implements OnInit {
 
   visibiliClicked(form: any) {
     this.formDetails = form;
-    console.log(JSON.parse(form.visibility));
-    this.loginTypes = JSON.parse(form.visibility);
+    this.loginTypes = form.visibility;
   }
 
   toggleFormVisibility(form: any, event: any) {
