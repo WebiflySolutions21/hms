@@ -17,7 +17,7 @@ class SuperAdminHelper extends BaseHelper
                 'forms.id',
                 'forms.name',
                 'forms.json',
-                DB::raw('COALESCE(hospital_form_details.visibility, NULL) as visibility'),
+                'hospital_form_details.visibility',
                 DB::raw('COALESCE(hospital_form_details.status, "inactive") as status')
             )
             ->leftJoin('hospitals_forms_details as hospital_form_details', function ($join) use ($hospital_id) {
@@ -25,6 +25,10 @@ class SuperAdminHelper extends BaseHelper
                     ->where('hospital_form_details.hospital_id', $hospital_id);
             })
             ->where('forms.is_deleted', 0)
-            ->get();
+            ->get()
+            ->map(function ($record) {
+                $record->visibility = json_decode($record->visibility, true);
+                return $record;
+            });
     }
 }
