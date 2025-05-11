@@ -12,7 +12,7 @@ class FormController extends Controller
     {
         $isInvalidRequest = $this->validateRequest([
             'name' => 'required|unique:forms|min:3',
-            'json' => 'required|json',
+            'json' => 'required|array',
         ]);
         if ($isInvalidRequest) {
             return $isInvalidRequest;
@@ -28,7 +28,7 @@ class FormController extends Controller
         $isInvalidRequest = $this->validateRequest([
             'id' => 'required|exists:forms,id',
             'name' => 'required|min:3',
-            'json' => 'required|json',
+            'json' => 'required|array',
         ]);
         if ($isInvalidRequest) {
             return $isInvalidRequest;
