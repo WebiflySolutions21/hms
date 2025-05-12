@@ -167,23 +167,12 @@
                     <div *ngIf="visibility" class="mb-2">
                       <h6 class="d-inline-block me-2">👥 Login Types:</h6>
                       <span
-                        *ngFor="let loginType of visibility"
                         class="badge bg-secondary me-1"
                       >
-                        {{ loginType}}
+                        {{ visibility}}
                       </span>
                     </div>
                     <div>
-                      <span
-                        class="badge"
-                        [ngClass]="
-                          visibility.isPrintable ? 'bg-success' : 'bg-danger'
-                        "
-                      >
-                        {{
-                          visibility.isPrintable ? "Printable" : "Not Printable"
-                        }}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -279,13 +268,28 @@
         ></button>
       </div>
       <div class="modal-body">
-        <app-multi-select-dropdown
+        <div class="current-visible">
+          <div class="visibility-text">Currently Visible to below logins</div>
+        <div class="loginTypeText" *ngFor="let data of formDetails?.visibility ">{{data}}</div>
+
+        </div>
+         <app-multi-select-dropdown
+         [isSuperAdmin]="true"
+          [label]="'Visibility Login Types'"
+          [key]="loginTypes"
+          [showCheckBox]="false"
+          [showVoiceInput]="false"
+          [options]="loginTypes"
+          [dropdownId]="21"
+          (selectionChanged)="onSelectionChanged($event)"
+        ></app-multi-select-dropdown>
+        <!-- <app-multi-select-dropdown
         [label]="'Visibility Login Types'"
           [key]="'loginTypes'"
           [options]="loginTypes"
           [dropdownId]="1"
           (selectionChanged)="onSelectionChanged($event)"
-        ></app-multi-select-dropdown>
+        ></app-multi-select-dropdown> -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">

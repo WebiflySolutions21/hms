@@ -14,6 +14,8 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class HospitalConfigDetailsComponent implements OnInit {
   hospitalId: number;
+  selectedLogins: string[] = []; // <- stores ['doctor', 'staff']
+
   hospitalName: string;
   selectedCheckboxes: any = [];
   formDetails: any;
@@ -37,6 +39,9 @@ export class HospitalConfigDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.dropdownList = LOGIN_TYPE_LANDING_PAGE;
+
+    console.log(this.loginTypes)
+  this.loginTypes = SUPER_ADMIN_LOGIN_TYPES;
     
     this.dropdownSettings = {
       singleSelection: false,
@@ -57,6 +62,8 @@ export class HospitalConfigDetailsComponent implements OnInit {
         if (res && res.success) {
           this.formService.setAllFormsData(res.forms);
           this.loadForms();
+  this.loginTypes = SUPER_ADMIN_LOGIN_TYPES;
+
         }
       },
       (err) => {
@@ -81,6 +88,12 @@ export class HospitalConfigDetailsComponent implements OnInit {
     return form.updatedAt
       ? new Date(form?.json?.updatedAt).toLocaleDateString()
       : 'Not available';
+  }
+
+  updateStatuses() {
+    // Send selectedLogins as payload
+    console.log('Selected Values:', this.selectedLogins);
+    // Add your API or processing logic here
   }
 
   updateStatus(message?) {
@@ -172,6 +185,7 @@ export class HospitalConfigDetailsComponent implements OnInit {
   goBack() {
     this.location.back();
   }
+
 
   onSelectionChanged(selectedOptions) {
     if (selectedOptions.length) {

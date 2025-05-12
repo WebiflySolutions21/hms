@@ -70,6 +70,7 @@ export class PrescriptionViewComponent {
     let data = JSON.parse(localStorage.getItem("view"))
     let templateData = JSON.parse(localStorage.getItem("view_template"))
     this.dropdowns = data.filter((data)=> data.type === 'Doctor' || data.type === 'Both')
+    console.log(this.dropdowns)
 
     this.eventEmitterService.on("open-template-modal",(data)=>{
       this.titleData = templateData.filter((data)=>data.visibility ==='Doctor' || data.visibility==='Both')

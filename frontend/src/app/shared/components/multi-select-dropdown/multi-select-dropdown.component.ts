@@ -28,6 +28,7 @@ export class MultiSelectDropdownComponent implements OnInit {
   @Input() options: OptionsFormat[] = [];
   @Input() label: string = '';
   @Input() key:string=''
+  @Input() isSuperAdmin: boolean = false; // Flag to indicate if the component is used in Super Admin
   @Input() initialSelections: OptionsFormat[] = [];
   @Input() dropdownId: string = ''; // Unique ID for each dropdown
   @Input() showCheckBox: boolean = false; // Show checkbox for each option

@@ -41,6 +41,7 @@
 
   <div
     class="dropdown-menu show"
+    *ngIf="dropdownOpen || isSuperAdmin"
   >
     <div class="dropdown-options">
       <!-- <div *ngIf="filteredOptions.length === 0" class="no-options">
