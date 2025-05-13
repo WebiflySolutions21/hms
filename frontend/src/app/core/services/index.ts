@@ -12,6 +12,7 @@ import {ChatService} from "./chat.service"
 import { PrintService } from './print.service';
 import {SignupService} from "./signup.service"
 import { HospitalService } from './hospital.service';
+import {LoaderService} from "./loader.service"
 
 export * from "./event-emitter.service"
 export * from './agent.service';
@@ -27,6 +28,7 @@ export * from "./chat.service"
 export * from "./print.service"
 export * from "./signup.service"
 export * from "./hospital.service"
+export * from "./loader.service"
 
 
 export const services=[
@@ -43,5 +45,6 @@ export const services=[
     ChatService,
     PrintService,
     SignupService,
-    HospitalService
+    HospitalService,
+    LoaderService
 ]

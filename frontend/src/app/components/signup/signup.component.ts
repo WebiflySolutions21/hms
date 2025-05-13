@@ -3,15 +3,20 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SIGNUP_FIELDS } from '@assets/constants/login-fields.constants';
 import { ToastrService } from 'ngx-toastr';
-import { AuthenticationService, SignupService, UserService } from 'src/app/core/services';
+import {
+  AuthenticationService,
+  LoaderService,
+  SignupService,
+  UserService,
+} from 'src/app/core/services';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.scss']
+  styleUrls: ['./signup.component.scss'],
 })
 export class SignupComponent {
-fields = SIGNUP_FIELDS;
+  fields = SIGNUP_FIELDS;
   loginForm: any;
   userId: string | null = '';
 
@@ -20,9 +25,10 @@ fields = SIGNUP_FIELDS;
     private fb: FormBuilder,
     private router: Router,
     private signupService: SignupService,
-    private authenticationService:AuthenticationService,
-    private userService:UserService,
-    private route:ActivatedRoute
+    private authenticationService: AuthenticationService,
+    private userService: UserService,
+    private route: ActivatedRoute,
+    public loader: LoaderService
   ) {
     this.loginForm = FormGroup;
   }
@@ -34,9 +40,9 @@ fields = SIGNUP_FIELDS;
       name: ['', Validators.required],
     });
 
-    this.route.queryParamMap.subscribe(params => {
+    this.route.queryParamMap.subscribe((params) => {
       this.userId = params.get('userId');
-      console.log(this.userId)
+      console.log(this.userId);
     });
   }
 
@@ -44,7 +50,7 @@ fields = SIGNUP_FIELDS;
     this.router.navigate(['/main/agent']);
   }
 
-  signup(){
+  signup() {
     // this.router.navigate(['/auth/signup']);
     //redirect to signup page
   }
@@ -58,39 +64,42 @@ fields = SIGNUP_FIELDS;
 
     // }
     // return
-
+    this.loader.show();
     let payload = {
       username: this.loginForm.controls.username.value,
       password: this.loginForm.controls.password.value,
-      name:this.loginForm.controls.name.value,
+      name: this.loginForm.controls.name.value,
     };
     this.signupService.signup(payload).subscribe(
       (res: any) => {
         if (res && res?.success) {
           if (res['token']) {
             let jwtDecode = this.signupService.decodeJWT(res['token']);
-            console.log("decoded JWT", jwtDecode);
+            console.log('decoded JWT', jwtDecode);
 
-            if(jwtDecode && jwtDecode.role.length > 0){
-              this.router.navigate([`/main/${jwtDecode.role[0]}/${jwtDecode.role[0]}-dashboard`]);
-            }else{
+            if (jwtDecode && jwtDecode.role.length > 0) {
+              this.router.navigate([
+                `/main/${jwtDecode.role[0]}/${jwtDecode.role[0]}-dashboard`,
+              ]);
+            } else {
               this.router.navigate(['/patient-dashboard']);
             }
 
-            this.authenticationService.setAuthenticationToken(res["token"])
+            this.authenticationService.setAuthenticationToken(res['token']);
             this.userService.setUserInfo({
-              token:res["token"],
-              info:this.authenticationService.parseJWT(res["token"])
-            })
+              token: res['token'],
+              info: this.authenticationService.parseJWT(res['token']),
+            });
           }
           this.toastrService.success('You Logged In Successfully', 'Success');
+          this.loader.hide();
           // this.router.navigate(['/main/agent']);
         }
         console.log(res);
       },
       (err) => {
         this.toastrService.error('Error In Signup', err.error.errorMessage);
-        console.log(err);
+        this.loader.hide();
       }
     );
   }

@@ -15,7 +15,7 @@ import {
   FormSection,
 } from '@assets/constants/form.model';
 import { ActivatedRoute } from '@angular/router';
-import { FormService } from 'src/app/core/services';
+import { FormService, LoaderService } from 'src/app/core/services';
 import {
   SUPER_ADMIN_LOGIN_TYPES,
   SUPER_ADMIN_TABLE_DATA,
@@ -75,14 +75,18 @@ export class FormBuilderComponent {
   selectedReferenceFormId: string = '';
   selectedReferenceFieldId: string = '';
   currentFieldForReference: any | null = null;
+  loaderMessage;
   constructor(
     private formService: FormService,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
-    private toastrService:ToastrService
+    private toastrService: ToastrService,
+    public loader: LoaderService
   ) {}
   // Add to FormBuilderComponent
   ngOnInit() {
+    this.loaderMessage = 'Loading Data';
+    this.loader.show();
     this.getAllFormsData();
     this.route.params.subscribe((params) => {
       const formId = params['id'];
@@ -97,14 +101,18 @@ export class FormBuilderComponent {
   getAllFormsData() {
     this.formService.getForms().subscribe(
       (res: any) => {
-        console.log('res', res);
-
         if (res && res.success) {
           this.formService.setAllFormsData(res.forms);
           this.availableForms = res.forms;
+          this.loader.hide();
         }
       },
       (err) => {
+        this.loader.hide();
+        this.toastrService.error(
+          'Error in Fetching Forms',
+          err.error.errorMessage
+        );
         console.error('Error fetching forms:', err);
       }
     );
@@ -250,8 +258,6 @@ export class FormBuilderComponent {
     field.isReference = false;
     field.label = field.label.replace('[Ref] ', '');
   }
-
-
 
   onSelectionChanged(selectedOptions) {
     if (selectedOptions.length) {
@@ -474,6 +480,8 @@ export class FormBuilderComponent {
 
   createForm() {
     // this.handleRegisterSetup();
+    this.loaderMessage = 'Submitting Form';
+    this.loader.show();
     let payload = {
       json: { ...this.formConfig },
       name: this.formConfig.formName,
@@ -486,18 +494,26 @@ export class FormBuilderComponent {
         if (res && res.success) {
           this.initializeForm();
           this.getAllFormsData();
+          this.loader.show();
+
           this.toastrService.success('Form Created successfully', 'success');
         }
       },
       error: (err: any) => {
-        this.toastrService.success('Failed to create form', err?.error?.errorMessage);
+        this.loader.hide();
+
+        this.toastrService.success(
+          'Failed to create form',
+          err?.error?.errorMessage
+        );
       },
     });
   }
 
   updateForm() {
     if (!this.originalFormId) return;
-
+    this.loaderMessage = 'Updating Form'
+    this.loader.show()
     this.formConfig.id = this.originalFormId;
     let payload = {
       json: { ...this.formConfig },
@@ -507,12 +523,19 @@ export class FormBuilderComponent {
     this.formService.updateForm(payload).subscribe({
       next: (res: any) => {
         if (res && res.success) {
+    this.loader.hide()
+
           this.getAllFormsData();
           this.toastrService.success('Form updated successfully', 'success');
         }
       },
       error: (err: any) => {
-        this.toastrService.success('Failed to update form', err?.error?.errorMessage);
+    this.loader.hide()
+
+        this.toastrService.error(
+          'Failed to update form',
+          err?.error?.errorMessage
+        );
       },
     });
 

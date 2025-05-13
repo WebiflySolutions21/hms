@@ -867,3 +867,7 @@
     </div>
   </div>
 </div>
+
+<app-loader *ngIf="loader.loaderState$ | async"
+  [message]="loaderMessage"
+></app-loader>
