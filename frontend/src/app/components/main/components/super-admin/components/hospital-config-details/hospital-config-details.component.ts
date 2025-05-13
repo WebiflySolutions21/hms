@@ -101,7 +101,7 @@ export class HospitalConfigDetailsComponent implements OnInit {
       form_id: this.formDetails.id,
       hospital_id: this.hospitalId,
       status: this.formDetails.status,
-      visibility: this.selectedCheckboxes[0].loginTypes || [],
+      visibility: this.selectedCheckboxes[0]?.loginTypes || [],
     };
 
     this.hospitalService.updateFormsStatus(payload).subscribe({

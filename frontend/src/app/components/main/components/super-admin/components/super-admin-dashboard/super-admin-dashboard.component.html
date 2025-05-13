@@ -67,3 +67,6 @@
 </div>
 
 
+<app-loader *ngIf="loader.loaderState$ | async"
+  [message]="'Getting Hospital Registration Details...'"
+></app-loader>
