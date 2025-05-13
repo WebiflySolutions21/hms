@@ -68,7 +68,6 @@ export class LoginComponent implements OnInit {
       username: this.loginForm.controls.username.value,
       password: this.loginForm.controls.password.value,
     };
-        console.log("api called",environment.API_HOST)
     
     this.loginService.login(payload).subscribe(
       (res: any) => {
