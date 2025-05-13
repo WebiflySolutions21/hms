@@ -5,7 +5,7 @@ import {
   SUPER_ADMIN_TABLE_DATA,
 } from '@assets/constants/super-admin.constants';
 import { ToastrService } from 'ngx-toastr';
-import { HospitalService } from 'src/app/core/services';
+import { HospitalService, LoaderService } from 'src/app/core/services';
 
 @Component({
   selector: 'app-super-admin-dashboard',
@@ -28,11 +28,13 @@ showEditModal: boolean = false;
   constructor(
     private router: Router,
     private hospitalService: HospitalService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    public loader:LoaderService
   ) {}
 
   ngOnInit() {
     this.getHospitalList();
+    this.loader.show()
   }
 
   getHospitalList() {
@@ -40,8 +42,12 @@ showEditModal: boolean = false;
       (res: any) => {
         this.tableData = res;
         this.filteredTableData = this.tableData;
+        this.loader.hide()
+
       },
       (err: any) => {
+        this.loader.hide()
+
         this.toastrService.error(
           'Error In Hospital Registration',
           err?.error?.errorMessage

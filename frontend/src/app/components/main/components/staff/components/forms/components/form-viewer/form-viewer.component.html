@@ -9,8 +9,8 @@
     <!-- Form Header -->
     <div class="forms-data">
       <div class="heading-section text-center mb-4">
-        <h2 class="form-title">{{ form?.title }}</h2>
-        <p class="form-desc">{{ form?.description }}</p>
+        <h2 class="form-title">{{ form?.json.title }}</h2>
+        <p class="form-desc">{{ form?.json.description }}</p>
       </div>
 
       <!-- Dynamic Form -->
@@ -23,7 +23,7 @@
             novalidate
             enctype="multipart/form-data"
           >
-            <div *ngFor="let section of form.sections" class="mb-5">
+            <div *ngFor="let section of form.json.sections" class="mb-5">
               <h5 class="section-title border-bottom pb-2 mb-4">
                 {{ section.title }}
               </h5>

@@ -1,10 +1,7 @@
-// form-builder.component.ts
 import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Input,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -18,12 +15,14 @@ import {
   FormSection,
 } from '@assets/constants/form.model';
 import { ActivatedRoute } from '@angular/router';
-import { FormService } from 'src/app/core/services';
+import { FormService, LoaderService } from 'src/app/core/services';
 import {
   SUPER_ADMIN_LOGIN_TYPES,
   SUPER_ADMIN_TABLE_DATA,
 } from '@assets/constants/super-admin.constants';
 import { FORM_BUILDER_AVAILABLE_TYPES } from '@assets/constants/form-builder.constants';
+import { ToastrService } from 'ngx-toastr';
+
 @Component({
   selector: 'app-form-builder',
   templateUrl: './form-builder.component.html',
@@ -36,6 +35,7 @@ export class FormBuilderComponent {
   enableRegister = false;
   registerButtonText = 'View Register';
   showRegisterPrompt = false;
+  formDetails: any;
   hospitalList = SUPER_ADMIN_TABLE_DATA.map((hospital) => ({
     id: hospital.id,
     name: hospital.name,
@@ -64,7 +64,7 @@ export class FormBuilderComponent {
   @ViewChild('importModal') importModalRef!: ElementRef;
   availableFieldTypes = FORM_BUILDER_AVAILABLE_TYPES;
   isEditMode = false;
-  availableForms: FormConfig[] = [];
+  availableForms: any;
   modal: any;
   selectedCheckboxes = [];
   // Add these properties to your component
@@ -75,13 +75,19 @@ export class FormBuilderComponent {
   selectedReferenceFormId: string = '';
   selectedReferenceFieldId: string = '';
   currentFieldForReference: any | null = null;
+  loaderMessage;
   constructor(
     private formService: FormService,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastrService: ToastrService,
+    public loader: LoaderService
   ) {}
   // Add to FormBuilderComponent
   ngOnInit() {
+    this.loaderMessage = 'Loading Data';
+    this.loader.show();
+    this.getAllFormsData();
     this.route.params.subscribe((params) => {
       const formId = params['id'];
       if (formId) {
@@ -92,141 +98,40 @@ export class FormBuilderComponent {
     });
   }
 
-  // Add to FormBuilderComponent class
-
-  // Method to check if a field is a reference
-  isReferenceField(field: FormFieldConfig): boolean {
-    return !!field.referencesField;
-  }
-
-  // Method to get all forms that can be referenced
-  getReferenceableForms(): FormConfig[] {
-    console.log();
-    let data2 = this.formService.getAllForms();
-    console.log('data2', data2);
-
-    let data = this.formService
-      .getAllForms()
-      .filter((form) => form.id !== this.formConfig.id);
-    console.log('data', data);
-    return data;
-  }
-
-  // Method to get all fields from a specific form that can be referenced
-  getReferenceableFields(formId: string): FormFieldConfig[] {
-    const form = this.formService.getFormById(formId);
-    if (!form) return [];
-
-    // Filter out fields that are themselves references to avoid circular references
-    return form.sections.flatMap((section) =>
-      section.fields.filter((field) => !field.isReference)
+  getAllFormsData() {
+    this.formService.getForms().subscribe(
+      (res: any) => {
+        if (res && res.success) {
+          this.formService.setAllFormsData(res.forms);
+          this.availableForms = res.forms;
+          this.loader.hide();
+        }
+      },
+      (err) => {
+        this.loader.hide();
+        this.toastrService.error(
+          'Error in Fetching Forms',
+          err.error.errorMessage
+        );
+        console.error('Error fetching forms:', err);
+      }
     );
   }
 
-  // Add these new methods
-showReferencePicker(field: FormFieldConfig) {
-  this.currentFieldForReference = field;
-  this.selectedReferenceFormId = '';
-  this.selectedReferenceFieldId = '';
-  this.referenceModal.show();
-}
-
-insertReference() {
-  if (!this.currentFieldForReference || !this.selectedReferenceFieldId) return;
-
-  const referencedField = this.getReferencedField(
-    this.selectedReferenceFormId,
-    this.selectedReferenceFieldId
-  );
-
-  if (referencedField) {
-    const referenceTag = `{{${referencedField.label.replace(/\s+/g, '_')}}}`;
-    
-    if (!this.currentFieldForReference.templateString) {
-      this.currentFieldForReference.templateString = '';
-    }
-    
-    this.currentFieldForReference.templateString += referenceTag;
-    
-    // Store the reference relationship
-    if (!this.currentFieldForReference.references) {
-      this.currentFieldForReference.references = [];
-    }
-    
-    this.currentFieldForReference.references.push({
-      formId: this.selectedReferenceFormId,
-      fieldId: this.selectedReferenceFieldId,
-      tag: referenceTag
-    });
-  }
-
-  this.referenceModal.hide();
-}
-
-getReferencedField(formId: string, fieldId: string): FormFieldConfig | null {
-  const form = this.formService.getFormById(formId);
-  if (!form) return null;
-
-  for (const section of form.sections) {
-    const field = section.fields.find(f => f.id === fieldId);
-    if (field) return field;
-  }
-  return null;
-}
-
-previewTemplate(templateString: string): string {
-  if (!templateString) return '';
-  
-  // This is a simple preview - in a real implementation, you'd want to 
-  // actually replace the references with values from the referenced forms
-  return templateString.replace(/\{\{([^}]+)\}\}/g, (match, p1) => {
-    return `[${p1.replace(/_/g, ' ')}]`;
-  });
-}
-resolveTemplate(field: any): string {
-  if (!field.templateString) return '';
-  
-  let result = field.templateString;
-  
-  // Replace each reference with its actual value
-  if (field.references) {
-    for (const ref of field.references) {
-      const value = this.getReferencedValue(ref.formId, ref.fieldId);
-      result = result.replace(ref.tag, value);
-    }
-  }
-  
-  return result;
-}
-getReferencedValue(formId: string, fieldId: string): string {
-  // Implement logic to get the actual value from the referenced form/field
-  // This might involve looking up form data from a service
-  return '[Resolved Value]'; // Placeholder
-}
-  // Method to update a field to reference another field
-  setFieldReference(field: FormFieldConfig, formId: string, fieldId: string) {
-    field.referencesField = { formId, fieldId };
-    field.isReference = true;
-
-    // Optionally copy some properties from the referenced field
-    const referencedForm = this.formService.getFormById(formId);
-    if (referencedForm) {
-      const referencedField = referencedForm.sections
-        .flatMap((s) => s.fields)
-        .find((f) => f.id === fieldId);
-
-      if (referencedField) {
-        field.label = `[Ref] ${referencedField.label}`;
-        field.type = referencedField.type;
-      }
-    }
-  }
-
-  // Method to clear a field reference
-  clearFieldReference(field: FormFieldConfig) {
-    field.referencesField = undefined;
-    field.isReference = false;
-    field.label = field.label.replace('[Ref] ', '');
+  initializeForm() {
+    this.formConfig = {
+      id: this.formService.generateId(),
+      title: null,
+      formName: null,
+      sections: [],
+      description: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: 1,
+    };
+    this.isExistingForm = false;
+    this.originalFormId = null;
+    this.isEditMode = false;
   }
 
   ngAfterViewInit() {
@@ -247,78 +152,111 @@ getReferencedValue(formId: string, fieldId: string): string {
   }
 
   openImportModal() {
-    this.availableForms = this.formService.getAllForms();
     this.modal.show();
   }
+
   // Update your importForm method
   importForm(form: any) {
-    // First reset the form
     this.initializeForm();
-
-    // Then load the imported form data
-    this.formConfig = JSON.parse(JSON.stringify(form));
+    this.formConfig = form.json;
     this.originalFormId = form.id;
     this.isExistingForm = this.formService.formExists(form.id);
     this.isEditMode = true;
     this.modal.hide();
+  }
 
-    // Process formVisibility to set initial selections
-    if (form.formVisibility) {
-      this.processFormVisibility(form.formVisibility);
+  // Method to check if a field is a reference
+  isReferenceField(field: FormFieldConfig): boolean {
+    return !!field.referencesField;
+  }
+
+  // Method to get all forms that can be referenced
+  getReferenceableForms(): FormConfig[] {
+    let data = this.formService
+      .getAllForms()
+      .filter((form) => form.id !== this.formConfig.id);
+    // console.log('data', data);
+    return data;
+  }
+
+  // Method to get all fields from a specific form that can be referenced
+  getReferenceableFields(formId: any): any[] {
+    const form = this.formService.getFormById(formId);
+    if (!form) return [];
+
+    // Filter out fields that are themselves references to avoid circular references
+    return form.json.sections.flatMap((section) =>
+      section.fields.filter((field) => !field.isReference)
+    );
+  }
+
+  // Add these new methods
+  showReferencePicker(field: FormFieldConfig) {
+    this.currentFieldForReference = field;
+    this.selectedReferenceFormId = '';
+    this.selectedReferenceFieldId = '';
+    this.referenceModal.show();
+  }
+
+  insertReference() {
+    if (!this.currentFieldForReference || !this.selectedReferenceFieldId)
+      return;
+
+    const referencedField = this.getReferencedField(
+      this.selectedReferenceFormId,
+      this.selectedReferenceFieldId
+    );
+
+    if (referencedField) {
+      const referenceTag = `{{${referencedField.label.replace(/\s+/g, '_')}}}`;
+
+      if (!this.currentFieldForReference.templateString) {
+        this.currentFieldForReference.templateString = '';
+      }
+
+      this.currentFieldForReference.templateString += referenceTag;
+
+      // Store the reference relationship
+      if (!this.currentFieldForReference.references) {
+        this.currentFieldForReference.references = [];
+      }
+
+      this.currentFieldForReference.references.push({
+        formId: this.selectedReferenceFormId,
+        fieldId: this.selectedReferenceFieldId,
+        tag: referenceTag,
+      });
     }
+
+    this.referenceModal.hide();
   }
 
-  private processFormVisibility(formVisibility: any[]) {
-    this.selectedCheckboxes = [...formVisibility];
+  getReferencedField(formId: string, fieldId: string): FormFieldConfig | null {
+    const form = this.formService.getFormById(formId);
+    if (!form) return null;
 
-    this.dropdowns.forEach((dropdown) => {
-      // Find matching visibility item
-      const visibilityItem = formVisibility.find((item) =>
-        Object.keys(item).includes(dropdown.key)
-      );
-
-      if (visibilityItem) {
-        // Map the visibility data to initial selections format
-        dropdown.initialSelections = visibilityItem[dropdown.key].map(
-          (item: any) => ({
-            name: item.name,
-            value: item.id?.toString() || item.value || '',
-            dropdownId: dropdown.dropdownId,
-            key: dropdown.key,
-          })
-        );
-      } else {
-        dropdown.initialSelections = [];
-      }
-    });
-
-    // Force change detection to update the dropdowns
-    this.cdr.detectChanges();
+    for (const section of form.sections) {
+      const field = section.fields.find((f) => f.id === fieldId);
+      if (field) return field;
+    }
+    return null;
   }
 
-  // Add this new method to process formVisibility into initial selections
-  setInitialSelectionsFromFormVisibility(formVisibility: any[]) {
-    if (!formVisibility || !formVisibility.length) return;
+  previewTemplate(templateString: string): string {
+    if (!templateString) return '';
 
-    formVisibility.forEach((visibilityItem) => {
-      const key = Object.keys(visibilityItem).find((k) => k !== 'isPrintable');
-      if (key) {
-        const dropdownConfig = this.dropdowns.find((d) => d.key === key);
-        if (dropdownConfig) {
-          // Map the visibility data to match the dropdown options format
-          const initialSelections = visibilityItem[key].map((item: any) => ({
-            name: item.name,
-            value: item.id.toString(),
-            dropdownId: dropdownConfig.dropdownId,
-            key: key,
-          }));
-          console.log('initialSelections', initialSelections);
-          // Set initialSelections for the dropdown
-          dropdownConfig.initialSelections = initialSelections;
-        }
-      }
+    // This is a simple preview - in a real implementation, you'd want to
+    // actually replace the references with values from the referenced forms
+    return templateString.replace(/\{\{([^}]+)\}\}/g, (match, p1) => {
+      return `[${p1.replace(/_/g, ' ')}]`;
     });
-    console.log(this.dropdowns);
+  }
+
+  // Method to clear a field reference
+  clearFieldReference(field: FormFieldConfig) {
+    field.referencesField = undefined;
+    field.isReference = false;
+    field.label = field.label.replace('[Ref] ', '');
   }
 
   onSelectionChanged(selectedOptions) {
@@ -388,54 +326,33 @@ getReferencedValue(formId: string, fieldId: string): string {
     alert('New form created successfully!');
   }
 
-  countFields(form: FormConfig): number {
-    return form.sections.reduce(
+  countFields(form: any): number {
+    console.log(form);
+    return form?.parsedJson?.sections?.reduce(
       (total, section) => total + section.fields.length,
       0
     );
   }
 
-  // Modify your initializeForm method
-  initializeForm() {
-    this.formConfig = {
-      id: this.formService.generateId(),
-      title: 'New Form',
-      sections: [],
-      description: 'This is a new form',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      version: 1,
-    };
-    this.isExistingForm = false;
-    this.originalFormId = null;
-    this.isEditMode = false;
-  }
-
   importAsCopy(form: any) {
     // Create a new copy with new ID
-    this.formConfig = this.formService.cloneForm(form);
+    console.log('importAsCopy', form);
+    this.formDetails = form;
+    this.formConfig = this.formService.cloneForm(form.json);
     this.isExistingForm = false;
     this.originalFormId = null;
     this.isEditMode = true;
     this.modal.hide();
-
-    // Process formVisibility to set initial selections
-    if (form.formVisibility) {
-      this.processFormVisibility(form.formVisibility);
-    }
   }
 
   importForUpdate(form: any) {
-    this.formConfig = JSON.parse(JSON.stringify(form));
+    console.log('importForUpdate', form);
+    this.formConfig = form?.json;
+    this.formDetails = form;
     this.isExistingForm = true;
     this.originalFormId = form.id;
     this.isEditMode = true;
     this.modal.hide();
-
-    // Process formVisibility to set initial selections
-    if (form.formVisibility) {
-      this.processFormVisibility(form.formVisibility);
-    }
   }
 
   // Update your loadForm method
@@ -527,21 +444,20 @@ getReferencedValue(formId: string, fieldId: string): string {
 
   getSafeReferencesField(field: FormFieldConfig) {
     if (!field.referencesField) {
-      field.referencesField = { formId: '', fieldId: ''};
+      field.referencesField = { formId: '', fieldId: '' };
     }
-    console.log(field)
+    console.log(field);
     return field.referencesField;
   }
-// Handle form selection change
-onFormSelectChange(field: any) {
-  // Clear fieldId when form changes 
-  if (field.referencesField) {
-    field.referencesField.fieldId = '';
-
+  // Handle form selection change
+  onFormSelectChange(field: any) {
+    // Clear fieldId when form changes
+    if (field.referencesField) {
+      field.referencesField.fieldId = '';
+    }
+    // Trigger change detection
+    this.cdr.detectChanges();
   }
-  // Trigger change detection
-  this.cdr.detectChanges();
-}
 
   getFieldLabel(formId, fieldId) {
     return this.formService.getFieldLabel(formId, fieldId);
@@ -563,32 +479,65 @@ onFormSelectChange(field: any) {
   }
 
   createForm() {
-    this.formConfig.id = this.formService.generateId();
-    this.formConfig.createdAt = new Date();
-    this.formConfig.version = 1;
-
+    // this.handleRegisterSetup();
+    this.loaderMessage = 'Submitting Form';
+    this.loader.show();
     let payload = {
-      ...this.formConfig,
-      formVisibility: this.selectedCheckboxes,
+      json: { ...this.formConfig },
+      name: this.formConfig.formName,
+      create_Register: true,
     };
-    console.log(payload);
-    this.formService.saveForm(payload);
+    // console.log(payload);
+    // return;
+    this.formService.saveForm(payload).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.initializeForm();
+          this.getAllFormsData();
+          this.loader.show();
 
-    // Always show register prompt for new forms
-    this.handleRegisterSetup();
+          this.toastrService.success('Form Created successfully', 'success');
+        }
+      },
+      error: (err: any) => {
+        this.loader.hide();
 
-    this.initializeForm();
+        this.toastrService.success(
+          'Failed to create form',
+          err?.error?.errorMessage
+        );
+      },
+    });
   }
 
   updateForm() {
     if (!this.originalFormId) return;
-
+    this.loaderMessage = 'Updating Form'
+    this.loader.show()
     this.formConfig.id = this.originalFormId;
     let payload = {
-      ...this.formConfig,
-      formVisibility: this.selectedCheckboxes,
+      json: { ...this.formConfig },
+      name: this.formDetails.name,
+      id: this.formDetails.id,
     };
-    this.formService.saveForm(payload);
+    this.formService.updateForm(payload).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+    this.loader.hide()
+
+          this.getAllFormsData();
+          this.toastrService.success('Form updated successfully', 'success');
+        }
+      },
+      error: (err: any) => {
+    this.loader.hide()
+
+        this.toastrService.error(
+          'Failed to update form',
+          err?.error?.errorMessage
+        );
+      },
+    });
 
     if (
       !this.formService.formHasRegister(this.originalFormId) ||

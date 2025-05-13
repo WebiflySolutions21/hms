@@ -28,3 +28,7 @@
           </div>
     </div>
 </div>
+
+<app-loader *ngIf="loader.loaderState$ | async"
+  [message]="'Registering you.Good things take time'"
+></app-loader>

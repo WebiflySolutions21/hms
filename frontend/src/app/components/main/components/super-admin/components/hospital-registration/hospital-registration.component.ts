@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HospitalService } from 'src/app/core/services';
+import { HospitalService, LoaderService } from 'src/app/core/services';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-hospital-registration',
   templateUrl: './hospital-registration.component.html',
@@ -46,7 +47,9 @@ export class HospitalRegistrationComponent {
   constructor(
     private fb: FormBuilder,
     private hospitalService: HospitalService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    public loader:LoaderService,
+    private router: Router
   ) {
     const formGroupConfig = {};
     this.formFields.forEach((field) => {
@@ -56,26 +59,20 @@ export class HospitalRegistrationComponent {
   }
 
   submit() {
-    console.log('Form Submitted:', this.registrationForm.value);
-
+    this.loader.show()
+    console.log("inside submit")
     let payload = { ...this.registrationForm.value };
-    console.log('payload', payload);
     this.hospitalService.registerHospital(payload).subscribe(
       (res) => {
-        console.log('Response:', res);
         this.toastrService.success('Hospital Registered Successfully', 'Success');
+        this.router.navigate(['main/super-admin/super-admin-dashboard']);
+        this.loader.hide()
       },
       (err) => {
-        console.error('Error:', err);
         this.toastrService.error('Error In Hospital Registration', err?.error?.errorMessage);
+        this.loader.hide()
+
       }
     );
-
-    // if (this.registrationForm.valid) {
-    //   console.log('Form Submitted:', this.registrationForm.value);
-    //   // API call can go here
-    // } else {
-    //   this.registrationForm.markAllAsTouched();
-    // }
   }
 }

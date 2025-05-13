@@ -29,3 +29,7 @@
     </div>
   </div>
 </div>
+
+<app-loader *ngIf="loaderService.loaderState$ | async"
+  [message]="'Logging you in'"
+></app-loader>
