@@ -1,0 +1,73 @@
+<div class="patient-component">
+    <div class="patient-wrapper">
+     <!-- appointment-card.component.html -->
+<div class="appointment-card">
+  <div class="card-header">
+    <h2>Next Appointment</h2>
+    <div class="hospital-info">
+      <div class="hospital-name">{{hospitalName}}</div>
+      <div class="hospital-contact-details">
+        <div class="hospital-address">
+          <mat-icon>location_on</mat-icon>
+          <span>{{hospitalAddress}}</span>
+        </div>
+        <div class="hospital-contact">
+          <mat-icon>phone</mat-icon>
+          <span>{{hospitalContact}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="patient-info">
+    <div class="info-row">
+      <span class="label">Patient:</span>
+      <span class="value">{{patientName}} ({{age}} {{gender}})</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="label">Doctor:</span>
+      <span class="value">{{doctorName}}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="label">Specialty:</span>
+      <span class="value">{{doctorType}}</span>
+    </div>
+  </div>
+
+  <div class="appointment-time">
+    <div class="date">{{appointmentDate | date:'fullDate'}}</div>
+    <div class="time">{{appointmentTime}}</div>
+  </div>
+
+  <div class="card-actions">
+    <button mat-stroked-button color="primary" class="action-button">
+      <mat-icon>notifications</mat-icon>
+      Set Reminder
+    </button>
+    <button mat-stroked-button class="action-button">
+      <mat-icon>schedule</mat-icon>
+      Reschedule
+    </button>
+  </div>
+</div>
+    <div class="table-data">
+      <div *ngFor="let category of tableCategories">
+        <!-- Table Title -->
+
+        <!-- Display Table -->
+        <app-table
+          [tableData]="filteredTableData[category]"
+          [tableColumns]="tableColumns[category]"
+          [actions]="[
+            { label: 'Reports', action: 'reports' },
+            { label: 'Bills', action: 'bills' },
+          ]"
+          (actionClicked)="handleAction($event)"
+          [showSearch]="true"
+        ></app-table>
+      </div>
+    </div>
+    </div>
+</div>

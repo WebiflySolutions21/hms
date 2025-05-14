@@ -1,0 +1,108 @@
+<!-- appointment-booking.component.html -->
+<form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="appointment-form">
+  <div class="form-section">
+    <h2>Hospital & Doctor Information</h2>
+    
+    <div class="form-group">
+      <label>Search Hospital</label>
+      <input type="text" (input)="filterHospitals($event.target.value)" placeholder="Search by name or district">
+      <select formControlName="hospital" (change)="onHospitalSelect()">
+        <option value="">Select Hospital</option>
+        <option *ngFor="let hospital of filteredHospitals" [ngValue]="hospital">
+          {{hospital.name}} - {{hospital.district}}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="appointmentForm.get('hospital')?.value">
+      <label>Search Doctor</label>
+      <input type="text" (input)="filterDoctors($event.target.value)" placeholder="Search by name or specialty">
+      <select formControlName="doctor" (change)="onDoctorSelect()">
+        <option value="">Select Doctor</option>
+        <option *ngFor="let doctor of filteredDoctors" [ngValue]="doctor">
+          {{doctor.name}} - {{doctor.specialty}}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="showDoctorLeaveMessage" class="leave-message">
+      <mat-icon>warning</mat-icon> Some dates may show as unavailable when doctor is on leave
+    </div>
+
+    <div class="form-row" *ngIf="appointmentForm.get('doctor')?.value && availableSlots.length">
+      <div class="form-group">
+        <label>Available Dates</label>
+        <select formControlName="appointmentDate">
+          <option value="">Select Date</option>
+          <option *ngFor="let slot of availableSlots" [ngValue]="slot.date" [disabled]="slot.isOnLeave">
+            {{slot.date | date:'fullDate'}} {{slot.isOnLeave ? '(On Leave)' : ''}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="appointmentForm.get('appointmentDate')?.value">
+        <label>Available Time Slots</label>
+        <select formControlName="appointmentTime">
+          <option value="">Select Time</option>
+          <option *ngFor="let time of getAvailableTimes()" [ngValue]="time">
+            {{time}}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Reason for Appointment</label>
+      <textarea formControlName="reason" rows="3" placeholder="Briefly describe your reason for appointment"></textarea>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Patient Information</h2>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name*</label>
+        <input type="text" formControlName="name" placeholder="Patient's full name">
+      </div>
+      
+      <div class="form-group">
+        <label>Mobile Number*</label>
+        <input type="tel" formControlName="mobile" placeholder="10-digit mobile number">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Address*</label>
+      <textarea formControlName="address" rows="2" placeholder="Full address"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>WhatsApp Number (if different)</label>
+        <input type="tel" formControlName="whatsapp" placeholder="Optional WhatsApp number">
+      </div>
+      
+      <div class="form-group">
+        <label>District*</label>
+        <input type="text" formControlName="district" placeholder="District">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Pincode*</label>
+        <input type="text" formControlName="pincode" placeholder="6-digit pincode">
+      </div>
+      
+      <div class="form-group">
+        <label>Referred By (if any)</label>
+        <input type="text" formControlName="referredBy" placeholder="Doctor or person who referred you">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="!appointmentForm.valid">Book Appointment</button>
+  </div>
+</form>

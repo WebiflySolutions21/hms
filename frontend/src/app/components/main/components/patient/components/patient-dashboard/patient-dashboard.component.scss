@@ -1,0 +1,107 @@
+/* appointment-card.component.scss */
+
+.appointment-card {
+  font-family: 'Roboto', sans-serif;
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 16px;
+
+  .card-header {
+    background:#3c4d93;
+    color: white;
+    padding: 16px 20px;
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.4rem;
+      font-weight: 500;
+    }
+
+    .hospital-info {
+      .hospital-name {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .hospital-contact-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 0.9rem;
+        opacity: 0.9;
+
+        mat-icon {
+          font-size: 16px;
+          height: 16px;
+          width: 16px;
+          margin-right: 8px;
+          position: relative;
+          top: 2px;
+        }
+      }
+    }
+  }
+
+  .patient-info {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+
+    .info-row {
+      display: flex;
+      margin-bottom: 12px;
+
+      .label {
+        font-weight: 500;
+        color: #555;
+        min-width: 80px;
+      }
+
+      .value {
+        color: #333;
+      }
+    }
+  }
+
+  .appointment-time {
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+
+    .date {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: blue;
+    }
+
+    .time {
+      font-size: 1.1rem;
+      color: #555;
+      margin-top: 4px;
+    }
+  }
+
+  .card-actions {
+    display: flex;
+    padding: 12px;
+    gap: 8px;
+
+    .action-button {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+    }
+  }
+}
