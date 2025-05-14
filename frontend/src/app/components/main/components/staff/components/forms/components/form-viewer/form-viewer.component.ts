@@ -15,18 +15,19 @@ export class FormViewerComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private formService: FormService
+    private formService: FormService,
   ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     const stored = localStorage.getItem('dynamicForms');
     if (stored) {
-      const forms = JSON.parse(stored);
-      this.form = forms.find((f: any) => f.id === id);
-  
+      const forms = this.formService.getAllForms();
+      console.log(forms)
+      this.form = forms.find((f: any) => f.id == id);
+      console.log(this.form)
       if (this.form) {
-        this.form.sections.forEach((section) => {
+        this.form.json.sections.forEach((section) => {
           section.fields.forEach((field) => {
             if (field.referencesField) {
               // Set up a way to watch for changes to referenced fields

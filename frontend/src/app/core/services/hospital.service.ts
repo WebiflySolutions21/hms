@@ -19,5 +19,9 @@ constructor(private httpClient:HttpClient) { }
   editHospital(payload:any){
     return this.httpClient.put(`${environment.API_HOST}/hospital/update`,payload)
   }
+
+  updateFormsStatus(payload:any){
+    return this.httpClient.put(`${environment.API_HOST}/form/update/status`,payload)
+  }
   
 }

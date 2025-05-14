@@ -2,7 +2,11 @@
   <div class="dropdown-header">
     <div class="label">{{ label }}</div>
     <label class="toggle-switch" *ngIf="showCheckBox">
-      <input type="checkbox" [(ngModel)]="isPrintEnabled" (change)="emitSelectionChanged()"/>
+      <input
+        type="checkbox"
+        [(ngModel)]="isPrintEnabled"
+        (change)="emitSelectionChanged()"
+      />
       <span class="slider"></span>
     </label>
   </div>
@@ -24,21 +28,20 @@
       placeholder="Select or type..."
     />
     <!-- Mic Button with Visual Indicator -->
-<button
-class="mic-button"
-[class.recording]="isRecording"
-(click)="toggleVoiceInput()"
-title="Speak"
-*ngIf="showVoiceInput"
->
-<i class="fa fa-microphone"></i>
-</button>
-
+    <button
+      class="mic-button"
+      [class.recording]="isRecording"
+      (click)="toggleVoiceInput()"
+      title="Speak"
+      *ngIf="showVoiceInput"
+    >
+      <i class="fa fa-microphone"></i>
+    </button>
   </div>
 
   <div
     class="dropdown-menu show"
-    *ngIf="dropdownOpen && filteredOptions.length"
+    *ngIf="dropdownOpen || isSuperAdmin"
   >
     <div class="dropdown-options">
       <!-- <div *ngIf="filteredOptions.length === 0" class="no-options">

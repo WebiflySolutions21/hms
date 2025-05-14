@@ -97,6 +97,7 @@ export class DoctorConfigComponent {
     };
     this.editingIndex = null;
   }
+  
   deleteForm(form: any) {
     const index = this.data.indexOf(form);
     if (index > -1) {
