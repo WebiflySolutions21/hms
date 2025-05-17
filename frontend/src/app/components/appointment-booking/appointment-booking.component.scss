@@ -1,100 +1,122 @@
-// appointment-booking.component.scss
-@import '@angular/material/theming';
+@import "mixins";
 
-.appointment-form {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 24px;
-  background: white;
+label{
+  @include font(14,1vw,16,hbold,#000);
+}
+input{
+  @include font(14,1vw,16,helvetica,#000);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.heading{
+  @include font(14,1vw,16,hbold,#000);
+
+}
+
+/* Steps Progress Bar */
+.steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.steps::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #e9ecef;
+  z-index: 1;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+  border: 3px solid white;
+}
+
+.step.active .step-circle {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Custom Select Styling */
+.custom-select .ng-select-container {
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: 1px solid #ced4da;
+  min-height: 48px;
+  align-items: center;
+}
 
-  .form-section {
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #eee;
+.custom-select .ng-select-container:hover {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+}
 
-    h2 {
-      color: mat-color($mat-blue, 700);
-      margin-bottom: 16px;
-      font-size: 1.2rem;
-    }
-  }
+.custom-select.is-invalid .ng-select-container {
+  border-color: #dc3545;
+}
 
-  .form-group {
-    margin-bottom: 16px;
+/* Gradient Background */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+}
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #555;
-    }
+/* Custom Badge */
+.badge.bg-primary-light {
+  background-color: rgba(13, 110, 253, 0.1);
+}
 
-    input, select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
+/* Input Group Icons */
+.input-group-text {
+  background-color: #f8f9fa;
+}
 
-      &:focus {
-        border-color: mat-color($mat-blue, 500);
-        outline: none;
-      }
-    }
+/* Custom Alert */
+.alert {
+  border-radius: 8px;
+  border-left: 4px solid;
+}
 
-    textarea {
-      min-height: 80px;
-    }
-  }
+.alert-danger {
+  border-left-color: #dc3545;
+}
 
-  .form-row {
-    display: flex;
-    gap: 16px;
+.alert-success {
+  border-left-color: #198754;
+}
 
-    .form-group {
-      flex: 1;
-    }
-  }
-
-  .leave-message {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: mat-color($mat-orange, 800);
-    background-color: mat-color($mat-orange, 50);
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-
-    mat-icon {
-      font-size: 18px;
-    }
-  }
-
-  .form-actions {
-    text-align: right;
-
-    button {
-      background: mat-color($mat-blue, 700);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-
-      &:hover {
-        background: mat-color($mat-blue, 800);
-      }
-
-      &:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-      }
-    }
-  }
+/* Card Shadow */
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
 }

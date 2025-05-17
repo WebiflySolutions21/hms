@@ -1,108 +1,264 @@
-<!-- appointment-booking.component.html -->
-<form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="appointment-form">
-  <div class="form-section">
-    <h2>Hospital & Doctor Information</h2>
+<div class="container py-5">
+  <div class="card shadow-lg rounded-4 border-0 overflow-hidden">
+    <!-- Card Header with Gradient Background -->
+    <div class="card-header bg-gradient-primary text-white py-4 px-5">
+      <h3 class="mb-0 fw-bold"><i class="bi bi-calendar2-check me-2"></i> Book Your Appointment</h3>
+      <p class="mb-0 opacity-75">Complete your booking in just a few simple steps</p>
+    </div>
     
-    <div class="form-group">
-      <label>Search Hospital</label>
-      <input type="text" (input)="filterHospitals($event.target.value)" placeholder="Search by name or district">
-      <select formControlName="hospital" (change)="onHospitalSelect()">
-        <option value="">Select Hospital</option>
-        <option *ngFor="let hospital of filteredHospitals" [ngValue]="hospital">
-          {{hospital.name}} - {{hospital.district}}
-        </option>
-      </select>
-    </div>
-
-    <div class="form-group" *ngIf="appointmentForm.get('hospital')?.value">
-      <label>Search Doctor</label>
-      <input type="text" (input)="filterDoctors($event.target.value)" placeholder="Search by name or specialty">
-      <select formControlName="doctor" (change)="onDoctorSelect()">
-        <option value="">Select Doctor</option>
-        <option *ngFor="let doctor of filteredDoctors" [ngValue]="doctor">
-          {{doctor.name}} - {{doctor.specialty}}
-        </option>
-      </select>
-    </div>
-
-    <div *ngIf="showDoctorLeaveMessage" class="leave-message">
-      <mat-icon>warning</mat-icon> Some dates may show as unavailable when doctor is on leave
-    </div>
-
-    <div class="form-row" *ngIf="appointmentForm.get('doctor')?.value && availableSlots.length">
-      <div class="form-group">
-        <label>Available Dates</label>
-        <select formControlName="appointmentDate">
-          <option value="">Select Date</option>
-          <option *ngFor="let slot of availableSlots" [ngValue]="slot.date" [disabled]="slot.isOnLeave">
-            {{slot.date | date:'fullDate'}} {{slot.isOnLeave ? '(On Leave)' : ''}}
-          </option>
-        </select>
+    <div class="card-body px-5 py-4">
+      <!-- Progress Steps -->
+      <div class="steps mb-5">
+        <div class="step active">
+          <div class="step-circle">1</div>
+          <div class="step-label">Hospital & Doctor</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">2</div>
+          <div class="step-label">Date & Time</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">3</div>
+          <div class="step-label">Patient Details</div>
+        </div>
+        <div class="step">
+          <div class="step-circle">4</div>
+          <div class="step-label">Confirmation</div>
+        </div>
       </div>
 
-      <div class="form-group" *ngIf="appointmentForm.get('appointmentDate')?.value">
-        <label>Available Time Slots</label>
-        <select formControlName="appointmentTime">
-          <option value="">Select Time</option>
-          <option *ngFor="let time of getAvailableTimes()" [ngValue]="time">
-            {{time}}
-          </option>
-        </select>
+      <!-- Hospital Selection -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex align-items-center">
+          <i class="bi bi-hospital me-2 text-primary"></i> Select Hospital
+        </label>
+        <ng-select 
+          [items]="hospitalList"
+          bindLabel="name"
+          bindValue="id"
+          [(ngModel)]="selectedHospital"
+          (change)="onHospitalChange()"
+          placeholder="Search or select hospital..."
+          [searchable]="true"
+          class="custom-select"
+          [class.is-invalid]="showErrors && !selectedHospital">
+          <ng-template ng-label-tmp let-item="item">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-hospital me-2 text-primary"></i>
+              <span>{{item.name}}</span>
+            </div>
+          </ng-template>
+        </ng-select>
+        <div *ngIf="showErrors && !selectedHospital" class="invalid-feedback d-block">
+          Please select a hospital
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Reason for Appointment</label>
-      <textarea formControlName="reason" rows="3" placeholder="Briefly describe your reason for appointment"></textarea>
+      <!-- Doctor Selection -->
+      <div class="mb-4" *ngIf="filteredDoctors.length">
+        <label class="form-label fw-semibold d-flex align-items-center">
+          <i class="bi bi-person-badge me-2 text-primary"></i> Select Doctor
+        </label>
+        <ng-select 
+          [items]="filteredDoctors"
+          bindLabel="name"
+          bindValue="id"
+          [(ngModel)]="selectedDoctor"
+          (change)="onDoctorChange()"
+          placeholder="Search or select doctor..."
+          [searchable]="true"
+          class="custom-select"
+          [class.is-invalid]="showErrors && !selectedDoctor">
+          <ng-template ng-label-tmp let-item="item">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-person-badge me-2 text-primary"></i>
+              <span>{{item.name}} - {{item.specialization}}</span>
+            </div>
+          </ng-template>
+        </ng-select>
+        <div *ngIf="showErrors && !selectedDoctor" class="invalid-feedback d-block">
+          Please select a doctor
+        </div>
+      </div>
+
+      <!-- Doctor Availability -->
+      <div class="mb-4" *ngIf="doctorAvailability">
+        <label class="form-label fw-semibold d-flex align-items-center">
+          <i class="bi bi-clock-history me-2 text-primary"></i> Availability
+        </label>
+        <div *ngIf="doctorAvailability.onLeave" class="alert alert-danger mb-0 d-flex align-items-center">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <div>
+            <strong>Doctor is currently on leave</strong>
+            <p class="mb-0 small">Please select another doctor or check back later</p>
+          </div>
+        </div>
+        <div *ngIf="!doctorAvailability.onLeave" class="alert alert-success mb-0">
+          <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Doctor is available</strong>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Available Dates:</strong></p>
+              <div class="d-flex flex-wrap gap-2">
+                <span *ngFor="let date of doctorAvailability.dates" class="badge bg-primary-light text-primary rounded-pill">{{date}}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Available Time Slots:</strong></p>
+              <p class="mb-0">{{ doctorAvailability.time }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointment Date & Time -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold d-flex align-items-center">
+            <i class="bi bi-calendar-date me-2 text-primary"></i> Appointment Date
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+            <input type="date" class="form-control" [(ngModel)]="appointment.date" 
+                   [class.is-invalid]="showErrors && !appointment.date">
+          </div>
+          <div *ngIf="showErrors && !appointment.date" class="invalid-feedback d-block">
+            Please select a date
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold d-flex align-items-center">
+            <i class="bi bi-clock me-2 text-primary"></i> Appointment Time
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-clock-fill"></i></span>
+            <input type="time" class="form-control" [(ngModel)]="appointment.time" 
+                   [class.is-invalid]="showErrors && !appointment.time">
+          </div>
+          <div *ngIf="showErrors && !appointment.time" class="invalid-feedback d-block">
+            Please select a time
+          </div>
+        </div>
+      </div>
+
+      <!-- Reason for Visit -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-flex align-items-center">
+          <i class="bi bi-card-text me-2 text-primary"></i> Reason for Visit
+        </label>
+        <textarea class="form-control" rows="3" placeholder="Please describe the reason for your visit..." 
+                  [(ngModel)]="appointment.reason" [class.is-invalid]="showErrors && !appointment.reason"></textarea>
+        <div *ngIf="showErrors && !appointment.reason" class="invalid-feedback d-block">
+          Please provide a reason for your visit
+        </div>
+      </div>
+
+      <!-- Patient Details Section -->
+      <div class="border-top pt-4 mt-4">
+        <h5 class="mb-4 text-secondary d-flex align-items-center">
+          <i class="bi bi-person-lines-fill me-2"></i> Patient Details
+        </h5>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Patient Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.name" 
+                     placeholder="Enter full name" [class.is-invalid]="showErrors && !patient.name">
+            </div>
+            <div *ngIf="showErrors && !patient.name" class="invalid-feedback d-block">
+              Patient name is required
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Mobile Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-phone-fill"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.mobile" 
+                     placeholder="10-digit mobile number" [class.is-invalid]="showErrors && !patient.mobile">
+            </div>
+            <div *ngIf="showErrors && !patient.mobile" class="invalid-feedback d-block">
+              Valid mobile number is required
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Contact Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.contact" 
+                     placeholder="Optional contact number">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">WhatsApp Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-whatsapp"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.whatsapp" 
+                     placeholder="Optional WhatsApp number">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+            <textarea class="form-control" rows="2" [(ngModel)]="patient.address" 
+                      placeholder="Full address" [class.is-invalid]="showErrors && !patient.address"></textarea>
+          </div>
+          <div *ngIf="showErrors && !patient.address" class="invalid-feedback d-block">
+            Address is required
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label">District</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-pin-map-fill"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.district" 
+                     [class.is-invalid]="showErrors && !patient.district">
+            </div>
+            <div *ngIf="showErrors && !patient.district" class="invalid-feedback d-block">
+              District is required
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Pincode</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-mailbox"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.pincode" 
+                     [class.is-invalid]="showErrors && !patient.pincode">
+            </div>
+            <div *ngIf="showErrors && !patient.pincode" class="invalid-feedback d-block">
+              Pincode is required
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Referred By</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person-plus-fill"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="patient.referredBy" 
+                     placeholder="Optional">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+        <button class="btn btn-outline-secondary px-4" (click)="resetForm()">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </button>
+        <button class="btn btn-primary px-4" (click)="submitAppointment()">
+          <i class="bi bi-check-circle me-2"></i>Confirm Appointment
+        </button>
+      </div>
     </div>
   </div>
-
-  <div class="form-section">
-    <h2>Patient Information</h2>
-    
-    <div class="form-row">
-      <div class="form-group">
-        <label>Full Name*</label>
-        <input type="text" formControlName="name" placeholder="Patient's full name">
-      </div>
-      
-      <div class="form-group">
-        <label>Mobile Number*</label>
-        <input type="tel" formControlName="mobile" placeholder="10-digit mobile number">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Address*</label>
-      <textarea formControlName="address" rows="2" placeholder="Full address"></textarea>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>WhatsApp Number (if different)</label>
-        <input type="tel" formControlName="whatsapp" placeholder="Optional WhatsApp number">
-      </div>
-      
-      <div class="form-group">
-        <label>District*</label>
-        <input type="text" formControlName="district" placeholder="District">
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Pincode*</label>
-        <input type="text" formControlName="pincode" placeholder="6-digit pincode">
-      </div>
-      
-      <div class="form-group">
-        <label>Referred By (if any)</label>
-        <input type="text" formControlName="referredBy" placeholder="Doctor or person who referred you">
-      </div>
-    </div>
-  </div>
-
-  <div class="form-actions">
-    <button type="submit" [disabled]="!appointmentForm.valid">Book Appointment</button>
-  </div>
-</form>
+</div>

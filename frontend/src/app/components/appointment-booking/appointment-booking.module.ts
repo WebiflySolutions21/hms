@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AppointmentBookingRoutingModule } from './appointment-booking-routing.module';
 import { AppointmentBookingComponent } from './appointment-booking.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     AppointmentBookingRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgSelectModule
   ]
 })
 export class AppointmentBookingModule { }
