@@ -65,7 +65,7 @@ export class FormService {
   getFormById(id: string | number): any | undefined {
     const forms = this.getAllForms();
     const numericId = Number(id); // convert to number
-    console.log('formIdge', numericId);
+    // console.log('formIdge', numericId);
     return forms.find((form) => form.id === numericId);
   }
 

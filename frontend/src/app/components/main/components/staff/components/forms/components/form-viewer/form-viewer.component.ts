@@ -15,61 +15,57 @@ export class FormViewerComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private formService: FormService,
+    private formService: FormService
   ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    const stored = localStorage.getItem('dynamicForms');
-    if (stored) {
-      const forms = this.formService.getAllForms();
-      console.log(forms)
-      this.form = forms.find((f: any) => f.id == id);
-      console.log(this.form)
-      if (this.form) {
-        this.form.json.sections.forEach((section) => {
-          section.fields.forEach((field) => {
-            if (field.referencesField) {
-              // Set up a way to watch for changes to referenced fields
-              // this.watchReferencedField(field);
-              this.formValues[field.id]=this.getReferencedValue(field)
-            } else if (field.type === 'template') {
-              // For template fields, we need to watch all referenced fields
-              this.watchTemplateFieldReferences(field);
-            } else {
-              this.setDefaultDateTimeValues(field);
-            }
-          });
+    const forms = this.formService.getAllForms();
+    console.log('forms', forms);
+    console.log(forms);
+    this.form = forms.find((f: any) => f.id == id);
+    console.log(this.form);
+    if (this.form) {
+      this.form.json.sections.forEach((section) => {
+        section.fields.forEach((field) => {
+          if (field.referencesField) {
+            // Set up a way to watch for changes to referenced fields
+            // this.watchReferencedField(field);
+            console.log(field)
+            this.formValues[field.id] = this.getReferencedValue(field);
+          } else if (field.type === 'template') {
+            // For template fields, we need to watch all referenced fields
+            this.watchTemplateFieldReferences(field);
+          } else {
+            this.setDefaultDateTimeValues(field);
+          }
         });
-      }
+      });
     }
 
     // Load existing submission if available
     const submissionKey = `form_submission_${id}_patient_${this.patientId}`;
     const savedSubmission = localStorage.getItem(submissionKey);
     if (savedSubmission) {
+      console.log('savedSubmission', savedSubmission);
       const { submission } = JSON.parse(savedSubmission);
       this.formValues = { ...submission };
+      console.log('this.formValues', this.formValues);
+      //formVaulues = submittionkey {
+      //     "field-1746947354368": "Hadley Kirk",
+      //     "field-1746947363641": 38,
+      //     "field-1746947374119": "Male",
+      //     "field-1746947407196": null,
+      //     "field-1746947426379": null,
+      //     "field-1746957814853": "Mollitia et dolorem "
+      // }
     }
   }
-  private watchReferencedField(field: any) {
-    // In a real app, you might use observables or a state management solution
-    // For this example, we'll check periodically (you might want a better approach)
-    const intervalId = setInterval(() => {
-      const newValue = this.getReferencedValue(field);
-      if (newValue !== this.formValues[field.id]) {
-        this.formValues[field.id] = newValue;
-      }
-    }, 1000);
-  
-    // Store the interval ID so we can clean up later
-    field._watchInterval = intervalId;
-  }
-  
+
   private watchTemplateFieldReferences(field: any) {
     if (!field.references) return;
-  
-    field.references.forEach(ref => {
+
+    field.references.forEach((ref) => {
       const intervalId = setInterval(() => {
         const currentRendered = this.resolveTemplate(field);
         const newRendered = this.resolveTemplate(field);
@@ -78,20 +74,21 @@ export class FormViewerComponent implements OnInit {
           this.formValues[field.id] = newRendered;
         }
       }, 1000);
-  
+
       // Store the interval ID
       ref._watchInterval = intervalId;
     });
   }
+
   ngOnDestroy() {
     if (this.form) {
-      this.form.sections.forEach(section => {
-        section.fields.forEach(field => {
+      this.form.sections.forEach((section) => {
+        section.fields.forEach((field) => {
           if (field._watchInterval) {
             clearInterval(field._watchInterval);
           }
           if (field.references) {
-            field.references.forEach(ref => {
+            field.references.forEach((ref) => {
               if (ref._watchInterval) {
                 clearInterval(ref._watchInterval);
               }
@@ -101,22 +98,23 @@ export class FormViewerComponent implements OnInit {
       });
     }
   }
+  
   // Add this new method to set default date/time values
   private setDefaultDateTimeValues(field: any) {
     if (!this.formValues[field.id]) {
       const now = new Date();
-      
+
       switch (field.type) {
         case 'date':
           // Format as YYYY-MM-DD
           this.formValues[field.id] = now.toISOString().split('T')[0];
           break;
-          
+
         case 'time':
           // Format as HH:MM
           this.formValues[field.id] = now.toTimeString().substring(0, 5);
           break;
-          
+
         case 'datetime-local':
           // Format as YYYY-MM-DDTHH:MM
           const datePart = now.toISOString().split('T')[0];
@@ -176,13 +174,19 @@ export class FormViewerComponent implements OnInit {
       // Direct field reference
       const submissionKey = `form_submission_${field.referencesField.formId}_patient_${this.patientId}`;
       const savedSubmission = localStorage.getItem(submissionKey);
-  
+
       if (savedSubmission) {
         const { submission } = JSON.parse(savedSubmission);
+        console.log("field",field)
+        console.log("submission",submission)
+        console.log("field.id",field.id)
+        console.log("field.referencesField",field.referencesField)
+
+        console.log("field.referencesField.fieldId",field.referencesField.fieldId)
         return submission[field.referencesField.fieldId];
       }
     }
-    
+
     return null;
   }
 
@@ -203,9 +207,9 @@ export class FormViewerComponent implements OnInit {
 
   resolveTemplate(field: any, forValue = false): string {
     if (!field.templateString) return '';
-    
+
     let result = field.templateString;
-    
+
     // Replace each reference with its actual value
     if (field.references) {
       for (const ref of field.references) {
@@ -213,22 +217,22 @@ export class FormViewerComponent implements OnInit {
         result = result.replace(ref.tag, value || '');
       }
     }
-    
+
     // If we're resolving for the form value, return just the text without HTML
     if (forValue) {
       return result.replace(/<[^>]*>/g, '');
     }
-    
+
     return result;
   }
-  
+
   getReferencedValueFromTag(tag: string): string {
     // Extract the field name from the tag (e.g., "{{first_name}}" becomes "first_name")
     const fieldName = tag.replace(/\{\{|\}\}/g, '').replace(/_/g, ' ');
-    
+
     // Find the referenced field in any form
     const allForms = JSON.parse(localStorage.getItem('dynamicForms')) || [];
-    
+
     for (const form of allForms) {
       for (const section of form.sections) {
         for (const field of section.fields) {
@@ -236,7 +240,7 @@ export class FormViewerComponent implements OnInit {
             // Get the latest value for this field
             const submissionKey = `form_submission_${form.id}_patient_${this.patientId}`;
             const savedSubmission = localStorage.getItem(submissionKey);
-            
+
             if (savedSubmission) {
               const { submission } = JSON.parse(savedSubmission);
               return submission[field.id] || '';
@@ -245,18 +249,18 @@ export class FormViewerComponent implements OnInit {
         }
       }
     }
-    
+
     return '';
   }
 
   async submitForm() {
     // Prepare form data for submission
     const formData = new FormData();
-  
+
     // Add regular fields and resolve template fields
     for (const key in this.formValues) {
       const value = this.formValues[key];
-  
+
       if (value instanceof File) {
         // Single file
         formData.append(key, value);
@@ -270,10 +274,12 @@ export class FormViewerComponent implements OnInit {
         formData.append(key, JSON.stringify(value));
       }
     }
-  
+
+    console.log('submit this.form', this.form);
+
     // Also include resolved template fields
     if (this.form) {
-      for (const section of this.form.sections) {
+      for (const section of this.form.json.sections) {
         for (const field of section.fields) {
           if (field.type === 'template') {
             const resolvedValue = this.resolveTemplate(field, true);
@@ -282,16 +288,16 @@ export class FormViewerComponent implements OnInit {
         }
       }
     }
-  
+
     // Rest of your submission logic remains the same...
     formData.append('formId', this.form.id);
     formData.append('patientId', this.patientId);
-  
+
     try {
       const submissionKey = `form_submission_${this.form.id}_patient_${this.patientId}`;
       const submissionWithoutFiles: { [key: string]: any } = {};
-  
       // Include template fields in localStorage submission
+      console.log('this.formValues', this.formValues);
       for (const key in this.formValues) {
         if (
           !(this.formValues[key] instanceof File) &&
@@ -300,18 +306,21 @@ export class FormViewerComponent implements OnInit {
           submissionWithoutFiles[key] = this.formValues[key];
         }
       }
-  
+      console.log('second this.form', this.form);
       // Add resolved template values
       if (this.form) {
-        for (const section of this.form.sections) {
+        for (const section of this.form.json.sections) {
           for (const field of section.fields) {
             if (field.type === 'template') {
-              submissionWithoutFiles[field.id] = this.resolveTemplate(field, true);
+              submissionWithoutFiles[field.id] = this.resolveTemplate(
+                field,
+                true
+              );
             }
           }
         }
       }
-  
+
       localStorage.setItem(
         submissionKey,
         JSON.stringify({
@@ -320,7 +329,7 @@ export class FormViewerComponent implements OnInit {
           submission: submissionWithoutFiles,
         })
       );
-  
+
       alert('Form submitted successfully!');
     } catch (error) {
       console.error('Error submitting form:', error);
