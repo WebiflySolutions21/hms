@@ -4,56 +4,82 @@ import { MainComponent } from './main.component';
 
 const routes: Routes = [
   {
-    path:'',
-    component:MainComponent,
-    children:[
+    path: '',
+    component: MainComponent,
+    children: [
       {
-        path:'admin',
-        loadChildren: () => import('./components/admin/admin.module').then(m => m.AdminModule) 
+        path: 'admin',
+        loadChildren: () =>
+          import('./components/admin/admin.module').then((m) => m.AdminModule),
       },
       {
-        path:'doctor',
-        loadChildren: () => import('./components/doctor/doctor.module').then(m => m.DoctorModule) 
+        path: 'doctor',
+        loadChildren: () =>
+          import('./components/doctor/doctor.module').then(
+            (m) => m.DoctorModule
+          ),
       },
       {
-        path:'reception',
-        loadChildren: () => import('./components/reception/reception.module').then(m => m.ReceptionModule) 
+        path: 'reception',
+        loadChildren: () =>
+          import('./components/reception/reception.module').then(
+            (m) => m.ReceptionModule
+          ),
       },
       {
-        path:'staff',
-        loadChildren: () => import('./components/staff/staff.module').then(m => m.StaffModule) 
+        path: 'staff',
+        loadChildren: () =>
+          import('./components/staff/staff.module').then((m) => m.StaffModule),
       },
       {
-        path:'patient',
-        loadChildren: () => import('./components/patient/patient.module').then(m => m.PatientModule) 
+        path: 'patient',
+        loadChildren: () =>
+          import('./components/patient/patient.module').then(
+            (m) => m.PatientModule
+          ),
       },
-     
+
       {
-        path:'medical',
-        loadChildren: () => import('./components/medical/medical.module').then(m => m.MedicalModule) 
-      },
-      {
-        path:'lab',
-        loadChildren: () => import('./components/lab/lab.module').then(m => m.LabModule) 
-      },
-      {
-        path:'shift-admin',
-        loadChildren: () => import('./components/shift-admin/shift-admin.module').then(m => m.ShiftAdminModule) 
+        path: 'medical',
+        loadChildren: () =>
+          import('./components/medical/medical.module').then(
+            (m) => m.MedicalModule
+          ),
       },
       {
-        path:'super-admin',
-        loadChildren: () => import('./components/super-admin/super-admin.module').then(m => m.SuperAdminModule) 
+        path: 'lab',
+        loadChildren: () =>
+          import('./components/lab/lab.module').then((m) => m.LabModule),
       },
       {
-        path:'opthal',
-        loadChildren: () => import('./components/opthal/opthal.module').then(m => m.OpthalModule) 
-      }
-    ]
-  }
+        path: 'shift-admin',
+        loadChildren: () =>
+          import('./components/shift-admin/shift-admin.module').then(
+            (m) => m.ShiftAdminModule
+          ),
+      },
+      {
+        path: 'super-admin',
+        loadChildren: () =>
+          import('./components/super-admin/super-admin.module').then(
+            (m) => m.SuperAdminModule
+          ),
+      },
+      {
+        path: 'opthal',
+        loadChildren: () =>
+          import('./components/opthal/opthal.module').then(
+            (m) => m.OpthalModule
+          ),
+      },
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class MainRoutingModule { }
+export class MainRoutingModule {}
+
+

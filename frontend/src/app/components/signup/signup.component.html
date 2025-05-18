@@ -1,34 +1,40 @@
 <div class="signup-component">
-    <div class="signup-wrapper">
-        <div class="login-form-container">
-            <div class="header">SignUp</div>
-            <!-- <div class="login-icon">
-              <img src="assets/images/agent-login/login.svg" alt="Login Icon">
-            </div> -->
-            <div class="input-fields">
-              <form [formGroup]="loginForm">
-                <div class="inputs" *ngFor="let field of fields">
-                  <img [src]="field?.src" [alt]="field?.title" class="input-icon">
-                  <input
-                    [type]="field?.type"
-                    [placeholder]="field?.placeholder"
-                    [formControlName]="field?.formControlName"
-                    class="input-field"
-                  />
-                </div>
-              </form>
-            </div>
-            <div
-              class="submit-button"
-              [class.disabled]="!loginForm?.valid"
-              (click)="signupUser()"
-            >
-              <div class="submit-button-text">Signup</div>
-            </div>
+  <div class="signup-wrapper">
+    <div class="signup-form-container">
+      <div class="header">CREATE ACCOUNT</div>
+      
+      <div class="input-fields">
+        <form [formGroup]="loginForm">
+          <div class="inputs" *ngFor="let field of fields">
+            <img [src]="field?.src" [alt]="field?.title" class="input-icon">
+            <input
+              [type]="field?.type"
+              [placeholder]="field?.placeholder"
+              [formControlName]="field?.formControlName"
+              class="input-field"
+            />
           </div>
+        </form>
+      </div>
+      
+      <div class="terms-conditions">
+        <input type="checkbox" id="terms" formControlName="terms">
+        <label for="terms">I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a></label>
+      </div>
+      
+      <small>Already have an account? <span (click)="login()">Login</span></small>
+
+      <div
+        class="submit-button"
+        [class.disabled]="!loginForm?.valid"
+        (click)="signupUser()"
+      >
+        <div class="submit-button-text">Sign Up</div>
+      </div>
     </div>
+  </div>
 </div>
 
 <app-loader *ngIf="loader.loaderState$ | async"
-  [message]="'Registering you.Good things take time'"
+  [message]="'Registering you. Good things take time'"
 ></app-loader>

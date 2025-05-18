@@ -1,62 +1,75 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
 @import "mixins";
+
+// Color variables
+$primary-color: #4361ee;
+$secondary-color: #3f37c9;
+$success-color: #4cc9f0;
+$text-color: #2b2d42;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
 .login-component {
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #f1f1f1, #e9dfc4);
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 
   .login-wrapper {
-    height: 100%;
     width: 100%;
-    @include flex-container(center, center, column);
+    max-width: 1200px;
+    display: flex;
+    justify-content: center;
 
     .login-form-container {
-      width: 30%;
-      min-width: 320px;
-      padding: 2rem 3rem;
+      width: 100%;
+      max-width: 400px;
+      padding: 3rem;
       border-radius: 1.5rem;
-      background: #ffffff;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background: $white;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: $transition;
+      animation: fadeIn 0.6s ease;
 
       &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
       }
 
       .header {
-        @include font(28, 6.5vw, 33, hbold, #333);
+        font-size: 2rem;
+        font-weight: 700;
+        color: $primary-color;
         text-align: center;
-        margin-bottom: 1rem;
-        text-transform: uppercase;
+        margin-bottom: 2rem;
         letter-spacing: 1px;
-      }
-
-      .login-icon {
-        @include flex-container(center, center, column);
-        margin: 1rem 0;
-
-        img {
-          height: 80px;
-          width: 80px;
+        position: relative;
+        
+        &::after {
+          content: '';
+          display: block;
+          width: 60px;
+          height: 4px;
+          background: linear-gradient(to right, $primary-color, $success-color);
+          margin: 0.5rem auto 0;
+          border-radius: 2px;
         }
       }
 
       .input-fields {
-        width: 100%;
         margin-bottom: 1.5rem;
 
         .inputs {
           position: relative;
-          width: 100%;
-          margin: 0.8rem 0;
-          border-radius: 1.2rem;
+          margin-bottom: 1.5rem;
+          border-radius: 0.75rem;
           overflow: hidden;
-          transition: box-shadow 0.3s ease;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
           &:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
           }
 
           .input-icon {
@@ -64,56 +77,210 @@
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            height: 24px;
-            width: 24px;
-            opacity: 0.7;
+            height: 20px;
+            width: 20px;
+            opacity: 0.6;
+            transition: $transition;
           }
 
           .input-field {
             width: 100%;
-            border: 2px solid #ddd;
+            border: none;
             outline: none;
-            border-radius: 1.2rem;
-            padding: 0.8rem 1rem 0.8rem 3.5rem;
-            background: #f9f9f9;
-            transition: border-color 0.3s ease;
-            @include font(16, 3.5vw, 19, hbold, #333);
+            padding: 1rem 1rem 1rem 3rem;
+            background: $light-gray;
+            font-size: 0.95rem;
+            color: $text-color;
+            transition: $transition;
 
             &:focus {
-              border-color: #4caf50;
-              background: #fff;
+              background: $white;
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+
+              ~ .input-icon {
+                opacity: 1;
+                transform: translateY(-50%) scale(1.1);
+              }
             }
 
-            ::placeholder {
-              @include font(14, 3vw, 17, helvetica, #aaa);
+            &::placeholder {
+              color: #adb5bd;
+              font-weight: 400;
             }
+          }
+        }
+      }
+
+      small {
+        display: block;
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+
+        span {
+          color: $primary-color;
+          font-weight: 600;
+          cursor: pointer;
+          transition: $transition;
+
+          &:hover {
+            color: $secondary-color;
+            text-decoration: underline;
           }
         }
       }
 
       .submit-button {
         width: 100%;
-        @include flex-container(center, center, column);
-        background: #4caf50;
+        padding: 1rem;
         margin-top: 1.5rem;
+        background: linear-gradient(to right, $primary-color, $secondary-color);
+        color: $white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
         cursor: pointer;
-        border-radius: 1.2rem;
-        transition: background 0.3s ease, transform 0.2s ease;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        transition: $transition;
+        box-shadow: 0 4px 15px rgba($primary-color, 0.3);
+        position: relative;
+        overflow: hidden;
 
         &:hover {
-          background: #43a047;
-          transform: translateY(-3px);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba($primary-color, 0.4);
         }
 
-        .submit-button-text {
-          padding: 0.8rem 0;
-          @include font(16, 3.5vw, 19, hbold, #ffffff);
+        &:active {
+          transform: translateY(0);
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba($white, 0.2),
+            transparent
+          );
+          transition: 0.5s;
+        }
+
+        &:hover::before {
+          left: 100%;
         }
 
         &.disabled {
+          background: #ced4da;
+          box-shadow: none;
           pointer-events: none;
-          opacity: 0.5;
+        }
+      }
+    }
+
+    // Role selection styles
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 2rem;
+      background: $white;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      animation: fadeIn 0.6s ease;
+
+      h3 {
+        color: $primary-color;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        position: relative;
+
+        &::after {
+          content: '';
+          display: block;
+          width: 80px;
+          height: 3px;
+          background: linear-gradient(to right, $primary-color, $success-color);
+          margin: 0.5rem auto 0;
+          border-radius: 2px;
+        }
+      }
+
+      .role-card {
+        border: none;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        transition: $transition;
+        background: $light-gray;
+        height: 100%;
+        cursor: pointer;
+
+        .card-body {
+          padding: 1.5rem;
+          transition: $transition;
+
+          i {
+            color: $primary-color;
+            margin-bottom: 1rem;
+            transition: $transition;
+          }
+
+          h5 {
+            color: $text-color;
+            font-weight: 600;
+            margin-bottom: 0;
+          }
+        }
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba($primary-color, 0.15);
+
+          .card-body {
+            background: rgba($primary-color, 0.03);
+
+            i {
+              transform: scale(1.1);
+              color: $secondary-color;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .login-component {
+    padding: 1rem;
+
+    .login-wrapper {
+      .login-form-container {
+        padding: 2rem;
+      }
+
+      .container {
+        padding: 1.5rem;
+
+        .role-card {
+          margin-bottom: 1rem;
         }
       }
     }

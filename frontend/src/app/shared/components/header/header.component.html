@@ -17,6 +17,25 @@
     >
       {{ data?.title }}
     </div>
+    <div class="dropdown ms-auto" *ngIf="jwtDecodedData?.role?.length > 1">
+      <button
+        class="btn btn-outline-primary dropdown-toggle"
+        type="button"
+        id="roleDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="fas fa-user-tag me-2 text-white"></i> {{ selectedRole | titlecase }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="roleDropdown">
+        <li *ngFor="let role of jwtDecodedData.role">
+          <a class="dropdown-item" (click)="switchRole(role)">
+            <i [class]="getIcon(role) + ' me-2'"></i>{{ role | titlecase }}
+          </a>
+        </li>
+      </ul>
+    </div>
+
     <!-- Doctor Details -->
     <!-- Doctor Details -->
     <div class="doctor-container" *ngIf="loginDetails">

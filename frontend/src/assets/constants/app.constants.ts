@@ -1,74 +1,80 @@
 export const LOGIN_ROUTES = [
   {
-    id:20,
+    id:1,
     title:"Signup",
     path:"/signup",
     identification:"signup"
   },
-    {
-        id:9,
-        title:"Super Admin",
-        path:"/super-admin",
-        identification:"super-admin"
-    },
-    {
-        id:1,
-        title:"Admin Login",
-        path:"/admin",
-        identification:"admin"
+  {
+    id:2,
+    title:"Login",
+    path:"/login",
+    identification:"login"
+  },
+  //   {
+  //       id:9,
+  //       title:"Super Admin",
+  //       path:"/super-admin",
+  //       identification:"super-admin"
+  //   },
+  //   {
+  //       id:1,
+  //       title:"Admin Login",
+  //       path:"/admin",
+  //       identification:"admin"
 
-    },
-    {
-        id:2,
-        title:"Reception Login",
-        path:"/reception",
-        identification:"reception"
+  //   },
+  //   {
+  //       id:2,
+  //       title:"Reception Login",
+  //       path:"/reception",
+  //       identification:"reception"
         
-    },
-    {
-        id:3,
-        title:"Staff Login",
-        path:"/staff",
-        identification:"staff"
+  //   },
+  //   {
+  //       id:3,
+  //       title:"Staff Login",
+  //       path:"/staff",
+  //       identification:"staff"
         
-    },
-    {
-        id:4,
-        title:"Doctor Login",
-        path:"/doctor",
-        identification:"doctor"
+  //   },
+  //   {
+  //       id:4,
+  //       title:"Doctor Login",
+  //       path:"/doctor",
+  //       identification:"doctor"
         
-    },
-    {
-        id:5,
-        title:"Opthalmologist Login",
-        path:"/opthalmologist",
-        identification:"opthal"
+  //   },
+  //   {
+  //       id:5,
+  //       title:"Opthalmologist Login",
+  //       path:"/opthalmologist",
+  //       identification:"opthal"
         
-    },
-    {
-        id:6,
-        title:"Medical Login",
-        path:"/medical",
-        identification:"medical"
-    },
-    {
-        id:7,
-        title:"Lab Login",
-        path:"/lab",
-        identification:"lab"
-    },{
-        id:8,
-        title:"Book Appointment",
-        path:"/appointment",
-        identification:"appointment"
-    },
-    {
-        id:8,
-        title:"Shift",
-        path:"/shift-admin",
-        identification:"shift"
-    },
+  //   },
+  //   {
+  //       id:6,
+  //       title:"Medical Login",
+  //       path:"/medical",
+  //       identification:"medical"
+  //   },
+  //   {
+  //       id:7,
+  //       title:"Lab Login",
+  //       path:"/lab",
+  //       identification:"lab"
+  //   },{
+  //       id:8,
+  //       title:"Book Appointment",
+  //       path:"/appointment",
+  //       identification:"appointment"
+  //   },
+  //   {
+  //       id:8,
+  //       title:"Shift",
+  //       path:"/shift-admin",
+  //       identification:"shift"
+  //   },
 ]
 
 export const LOGIN_TYPE_LANDING_PAGE=[

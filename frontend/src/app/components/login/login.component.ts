@@ -19,6 +19,19 @@ export class LoginComponent implements OnInit {
   fields = LOGIN_FIELDS;
   loginForm: any;
   userId: string | null = '';
+  roleIconMap: { [key: string]: string } = {
+    admin: 'fas fa-user-shield',
+    'super-admin': 'fas fa-crown',
+    staff: 'fas fa-users',
+    reception: 'fas fa-concierge-bell',
+    doctor: 'fas fa-user-md',
+    lab: 'fas fa-vials',
+    medical: 'fas fa-pills',
+  };
+
+  roleOptions: any;
+
+  showLoginOptions: boolean = false;
 
   constructor(
     private toastrService: ToastrService,
@@ -50,19 +63,16 @@ export class LoginComponent implements OnInit {
   }
 
   signup() {
-    // this.router.navigate(['/auth/signup']);
+    this.router.navigate(['/signup']);
     //redirect to signup page
   }
 
-  loginUser() {
-    console.log(this.loginForm.value);
-    // if(this.userId !="shift"){
-    //   this.router.navigate([`/main/${this.userId}/${this.userId}-dashboard`])
-    // } else{
-    //   this.router.navigate([`/main/${this.userId}-admin`])
+  selectLoginRole(role: string) {
+    localStorage.setItem('selectedRole', role);
+    this.router.navigate([`/main/${role}/${role}-dashboard`]);
+  }
 
-    // }
-    // return
+  loginUser() {
     this.loaderService.show();
     let payload = {
       username: this.loginForm.controls.username.value,
@@ -73,26 +83,42 @@ export class LoginComponent implements OnInit {
         if (res && res?.success) {
           if (res['token']) {
             let jwtDecode = this.loginService.decodeJWT(res['token']);
-            console.log('decoded JWT', jwtDecode);
+            this.authenticationService.setJwtDecodedData(jwtDecode);
+            this.roleOptions = jwtDecode.role.map((role: string) => ({
+              name: role,
+              icon: this.roleIconMap[role] || 'fas fa-user', // fallback icon
+            }));
 
-            // if(jwtDecode && jwtDecode.role.length > 0){
-            //   this.router.navigate([`/main/${jwtDecode.role[0]}/${jwtDecode.role[0]}-dashboard`]);
-            //   this.router.navigate([`/main/${jwtDecode.role[0]}/${jwtDecode.role[0]}-dashboard`]);
-
-            // }else{
-            //   this.router.navigate(['/patient-dashboard']);
-            // }
             this.authenticationService.setAuthenticationToken(res['token']);
             this.userService.setUserInfo({
               token: res['token'],
               info: this.authenticationService.parseJWT(res['token']),
             });
+
+            if (
+              jwtDecode &&
+              jwtDecode.role.length &&
+              jwtDecode.role.length == 1
+            ) {
+              this.router.navigate([
+                `/main/${jwtDecode.role[0]}/${jwtDecode.role[0]}-dashboard`,
+              ]);
+            } else if (
+              jwtDecode &&
+              jwtDecode.role.length &&
+              jwtDecode.role.length > 1
+            ) {
+              this.roleOptions = jwtDecode.role.map((role: string) => ({
+                name: role,
+                icon: this.roleIconMap[role] || 'fas fa-user',
+              }));
+              this.showLoginOptions = true;
+            } else {
+              this.router.navigate(['main/patient/patient-dashboard']);
+            }
+            this.toastrService.success('You Logged In Successfully', 'Success');
+            this.loaderService.hide();
           }
-          this.toastrService.success('You Logged In Successfully', 'Success');
-          this.router.navigate([
-            `/main/${this.userId}/${this.userId}-dashboard`,
-          ]);
-          this.loaderService.hide();
         }
         console.log(res);
       },

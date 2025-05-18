@@ -1,53 +1,201 @@
 @import "mixins";
+
+// Color variables
+$primary-color: #4361ee;
+$secondary-color: #3f37c9;
+$success-color: #4cc9f0;
+$light-gray: #f8f9fa;
+$white: #ffffff;
+$text-color: #2b2d42;
+$transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
 .hospital-registration-component {
-  width: 100%;
-  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  animation: fadeIn 0.6s ease;
+
   .hospital-registration-wrapper {
     width: 100%;
-    height: 100%;
-    .title {
-      width: 100%;
-      text-align: center;
-      @include font(24, 1vw, 28, hbold, #000);
-      margin-top: 2em;
-    }
+    max-width: 800px;
+
     .registration-card {
-      @include top-box-shadow();
-      border-radius: 0.75rem;
+      border: none;
+      border-radius: 1rem;
       overflow: hidden;
-      width: 80%;
-      margin: 2rem auto;
-      background: #ffffff;
-    
-      .card-header {
-        @include font(16, 2vw, 20, hbold, #fff);
-        padding: 1rem 1.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      transition: $transition;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
       }
-    
-      .card-body {
+
+      .card-header {
+        background: linear-gradient(135deg, $primary-color, $secondary-color) !important;
         padding: 1.5rem;
-    
-        .form-label {
-          @include font(14, 2vw, 16, hbold, #333);
+        border-bottom: none;
+        position: relative;
+        overflow: hidden;
+
+        h5 {
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          position: relative;
+          z-index: 1;
         }
-    
-        input,
-        select,
-        textarea {
-          @include font(14, 2vw, 16, regular, #000);
-          border-radius: 0.375rem;
-          transition: border-color 0.2s ease-in-out;
-    
-          &:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 100px;
+          height: 100px;
+          background: rgba($white, 0.1);
+          border-radius: 50%;
+          transform: translate(30%, -30%);
+        }
+      }
+
+      .card-body {
+        padding: 2.5rem;
+
+        form {
+          .mb-3 {
+            margin-bottom: 1.5rem !important;
+
+            .form-label {
+              font-weight: 500;
+              color: $text-color;
+              margin-bottom: 0.5rem;
+              display: block;
+            }
+
+            .form-control,
+            .form-select {
+              width: 100%;
+              padding: 0.75rem 1rem;
+              border: 1px solid #dee2e6;
+              border-radius: 0.75rem;
+              font-size: 1rem;
+              transition: $transition;
+              background-color: $light-gray;
+
+              &:focus {
+                outline: none;
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+                background-color: $white;
+              }
+
+              &::placeholder {
+                color: #adb5bd;
+              }
+            }
+
+            textarea.form-control {
+              min-height: 100px;
+              resize: vertical;
+            }
+
+            .form-select {
+              appearance: none;
+              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234361ee' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+              background-repeat: no-repeat;
+              background-position: right 1rem center;
+              background-size: 16px 12px;
+            }
+          }
+
+          .text-center {
+            margin-top: 2rem;
+
+            .btn-success {
+              background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+              border: none;
+              padding: 0.75rem 2.5rem;
+              font-size: 1rem;
+              font-weight: 500;
+              border-radius: 0.75rem;
+              box-shadow: 0 4px 15px rgba($success-color, 0.3);
+              position: relative;
+              overflow: hidden;
+              transition: $transition;
+              letter-spacing: 0.5px;
+
+              &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba($success-color, 0.4);
+              }
+
+              &:active {
+                transform: translateY(0);
+              }
+
+              &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                  90deg,
+                  transparent,
+                  rgba($white, 0.2),
+                  transparent
+                );
+                transition: 0.5s;
+              }
+
+              &:hover::before {
+                left: 100%;
+              }
+            }
           }
         }
-    
-        .btn {
-          @include font(14, 2vw, 16, hbold, #fff);
-          padding: 0.5rem 1.5rem;
-          border-radius: 0.375rem;
+      }
+    }
+  }
+}
+
+// Form validation styles
+.ng-invalid.ng-touched {
+  .form-control,
+  .form-select {
+    border-color: #dc3545 !important;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .hospital-registration-component {
+    padding: 1rem;
+
+    .hospital-registration-wrapper {
+      .registration-card {
+        .card-body {
+          padding: 1.5rem;
         }
       }
     }

@@ -50,8 +50,8 @@ export class SignupComponent {
     this.router.navigate(['/main/agent']);
   }
 
-  signup() {
-    // this.router.navigate(['/auth/signup']);
+  login() {
+    this.router.navigate(['/login']);
     //redirect to signup page
   }
 
