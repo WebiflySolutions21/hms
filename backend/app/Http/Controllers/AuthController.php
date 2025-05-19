@@ -21,7 +21,7 @@ class AuthController extends Controller
         $authHelper = new AuthHelper();
         $token = $authHelper->handleLoginRequest($this->validatedData);
         if ($authHelper->hasErrors()) {
-            return ResponseHelper::errorResponse($authHelper->getFirstError());
+            return ResponseHelper::errorResponse($authHelper->getErrorMessage());
         }
         return ResponseHelper::successResponse(['token' => $token]);
 

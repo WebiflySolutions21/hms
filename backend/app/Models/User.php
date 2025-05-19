@@ -62,4 +62,11 @@ class User extends Authenticatable
     {
         return $this->hasManyThrough(Permission::class, Role::class, 'users_roles', 'roles_permissions');
     }
+
+    public function assignRole(Role $role){
+        $userRole = new UserRole();
+        $userRole->role_id = $role->id;
+        $userRole->user_id = $this->id;
+        $userRole->save();
+    }
 }
