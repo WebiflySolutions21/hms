@@ -17,7 +17,7 @@ class FormController extends Controller
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
-        new FormHelper()->create_new_form($this->validatedData);
+        new FormHelper()->createNewForm($this->validatedData);
         return ResponseHelper::successResponse(
             ['message' => 'Form created successfully!']
         );
@@ -34,7 +34,7 @@ class FormController extends Controller
             return $isInvalidRequest;
         }
         $formHelper = new FormHelper();
-        $formHelper->update_form($this->validatedData);
+        $formHelper->updateForm($this->validatedData);
         if ($formHelper->hasErrors()) {
             return ResponseHelper::errorResponse($formHelper->getFirstError());
         }
@@ -52,14 +52,14 @@ class FormController extends Controller
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
-        new FormHelper()->delete_form($this->validatedData['id']);
+        new FormHelper()->deleteForm($this->validatedData['id']);
         return ResponseHelper::successResponse(
             ['message' => 'Form deleted successfully!']
         );
 
     }
 
-    public function update_status()
+    public function updateStatus()
     {
         $isInvalidRequest = $this->validateRequest([
             'form_id' => 'required|exists:forms,id',
@@ -70,7 +70,7 @@ class FormController extends Controller
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
-        new FormHelper()->update_form_status_for_hospital($this->validatedData);
+        new FormHelper()->updateFormStatusForHospital($this->validatedData);
         return ResponseHelper::successResponse(
             ['message' => 'Form status updated successfully!']
         );

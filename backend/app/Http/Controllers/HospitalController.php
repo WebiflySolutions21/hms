@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class HospitalController extends Controller
 {
 
-    public function create_hospital()
+    public function createHospital()
     {
         $IsInvalidRequest = $this->validateRequest([
             'name' => 'required|min:3',
@@ -22,19 +22,19 @@ class HospitalController extends Controller
             return $IsInvalidRequest;
         }
         $hospitalHelper = new HospitalHelper();
-        $hospitalHelper->create_new_hospital($this->validatedData);
+        $hospitalHelper->createNewHospital($this->validatedData);
         return ResponseHelper::successResponse(
             ['message' => 'Hospital created successfully!']
         );
 
     }
 
-    public function get_all_hospitals()
+    public function getAllHospitals()
     {
-        return new HospitalHelper()->get_hospital_list();
+        return new HospitalHelper()->getHospitalList();
     }
 
-    public function update_hospital()
+    public function updateHospital()
     {
         $isInvalidRequest = $this->validateRequest([
             'id' => 'required|exists:hospitals,id',
@@ -48,7 +48,7 @@ class HospitalController extends Controller
             return $isInvalidRequest;
         }
         $hospitalHelper = new HospitalHelper();
-        $hospitalHelper->update_hospital($this->validatedData);
+        $hospitalHelper->updateHospital($this->validatedData);
         if ($hospitalHelper->hasErrors()) {
             return ResponseHelper::errorResponse($hospitalHelper->getFirstError());
         }

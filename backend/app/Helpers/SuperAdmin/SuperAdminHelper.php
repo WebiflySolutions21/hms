@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class SuperAdminHelper extends BaseHelper
 {
 
-    public function get_form_list_by_hospital_id($hospital_id): Collection
+    public function getFormListByHospitalId($hospital_id): Collection
     {
         return Form::query()
             ->select(

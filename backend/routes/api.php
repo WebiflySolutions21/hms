@@ -22,9 +22,9 @@ Route::post('/signup', [AuthController::class, 'signup']);
 
 //Hospital
 Route::middleware([JwtMiddleware::class])->group(function () {
-    Route::post('/hospital/create', [HospitalController::class, 'create_hospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
-    Route::get('/hospital/list', [HospitalController::class, 'get_all_hospitals'])->middleware([CheckPermissions::class . ':manage-hospitals']);
-    Route::put('/hospital/update', [HospitalController::class, 'update_hospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
+    Route::post('/hospital/create', [HospitalController::class, 'createHospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
+    Route::get('/hospital/list', [HospitalController::class, 'getAllHospitals'])->middleware([CheckPermissions::class . ':manage-hospitals']);
+    Route::put('/hospital/update', [HospitalController::class, 'updateHospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
 });
 
 //Forms
@@ -32,7 +32,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/form/create', [FormController::class, 'create'])->middleware([CheckPermissions::class . ':manage-forms']);
     Route::put('/form/update', [FormController::class, 'update'])->middleware([CheckPermissions::class . ':manage-forms']);
     Route::delete('/form/delete', [FormController::class, 'delete'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::put('form/update/status', [FormController::class, 'update_status'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::get('/form/list', [SuperAdminController::class, 'get_form_list_for_hospital'])->middleware([CheckPermissions::class . ':manage-forms']);
+    Route::put('form/update/status', [FormController::class, 'updateStatus'])->middleware([CheckPermissions::class . ':manage-forms']);
+    Route::get('/form/list', [SuperAdminController::class, 'getFormListForHospital'])->middleware([CheckPermissions::class . ':manage-forms']);
 });
 

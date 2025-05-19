@@ -8,7 +8,7 @@ use App\Models\HospitalFormDetail;
 
 class FormHelper extends BaseHelper
 {
-    public function create_new_form(array $data): void
+    public function createNewForm(array $data): void
     {
         Form::create([
             'name' => $data['name'],
@@ -16,7 +16,7 @@ class FormHelper extends BaseHelper
         ]);
     }
 
-    public function update_form(array $data): void
+    public function updateForm(array $data): void
     {
         try {
             $form = Form::find($data['id']);
@@ -27,14 +27,14 @@ class FormHelper extends BaseHelper
         }
     }
 
-    public function delete_form(int $id): void
+    public function deleteForm(int $id): void
     {
         $form = Form::find($id);
         $form->is_deleted = true;
         $form->save();
     }
 
-    public function update_form_status_for_hospital(array $data): void
+    public function updateFormStatusForHospital(array $data): void
     {
         HospitalFormDetail::updateOrCreate(
             [
