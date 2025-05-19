@@ -2,14 +2,17 @@
 
 namespace App\Helpers\SuperAdmin;
 
+use App\Constants\RoleConstants;
 use App\Helpers\BaseHelper;
+use App\Models\Admin;
 use App\Models\Form;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SuperAdminHelper extends BaseHelper
 {
-
     public function getFormListByHospitalId($hospital_id): Collection
     {
         return Form::query()
@@ -30,5 +33,24 @@ class SuperAdminHelper extends BaseHelper
                 $record->visibility = json_decode($record->visibility, true);
                 return $record;
             });
+    }
+
+    public function createAdmin(array $data): void
+    {
+        $user = User::where('username', $data['username'])->first();
+        $admin = new Admin();
+        $admin->user_id = $user->id;
+        $admin->hospital_id = $data['hospital_id'];
+        $admin->details = $data['details'] ?? null;
+        $admin->save();
+
+        $role = Role::where('name', RoleConstants::ADMIN)->first();
+        $user->assignRole($role);
+
+    }
+
+    public function getUsernameList(string $match)
+    {
+        return User::where('username', 'like', "%$match%")->limit(10)->pluck('username');
     }
 }

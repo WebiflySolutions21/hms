@@ -1,5 +1,6 @@
 <?php
 
+use App\Constants\PermissionConstants;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\FormController;
@@ -11,9 +12,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello From Himanshu Sangwan!']);
-});
-Route::middleware([JwtMiddleware::class])->group(function () {
-    Route::post('test-permission', [AuthController::class, 'test'])->middleware([CheckPermissions::class . ':test_permission']);
 });
 
 //Upload File
@@ -27,17 +25,26 @@ Route::post('/signup', [AuthController::class, 'signup']);
 
 //Hospital
 Route::middleware([JwtMiddleware::class])->group(function () {
-    Route::post('/hospital/create', [HospitalController::class, 'createHospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
-    Route::get('/hospital/list', [HospitalController::class, 'getAllHospitals'])->middleware([CheckPermissions::class . ':manage-hospitals']);
-    Route::put('/hospital/update', [HospitalController::class, 'updateHospital'])->middleware([CheckPermissions::class . ':manage-hospitals']);
+    Route::post('/hospital/create', [HospitalController::class, 'createHospital'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_HOSPITALS]);
+    Route::get('/hospital/list', [HospitalController::class, 'getAllHospitals'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_HOSPITALS]);
+    Route::put('/hospital/update', [HospitalController::class, 'updateHospital'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_HOSPITALS]);
 });
 
 //Forms
 Route::middleware([JwtMiddleware::class])->group(function () {
-    Route::post('/form/create', [FormController::class, 'create'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::put('/form/update', [FormController::class, 'update'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::delete('/form/delete', [FormController::class, 'delete'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::put('form/update/status', [FormController::class, 'updateStatus'])->middleware([CheckPermissions::class . ':manage-forms']);
-    Route::get('/form/list', [SuperAdminController::class, 'getFormListForHospital'])->middleware([CheckPermissions::class . ':manage-forms']);
+    Route::post('/form/create', [FormController::class, 'create'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_FORMS]);
+    Route::put('/form/update', [FormController::class, 'update'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_FORMS]);
+    Route::delete('/form/delete', [FormController::class, 'delete'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_FORMS]);
+    Route::put('form/update/status', [FormController::class, 'updateStatus'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_FORMS]);
+    Route::get('/form/list', [SuperAdminController::class, 'getFormListForHospital'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_FORMS]);
+});
+
+//Create Admin
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::post('/admin/create', [SuperAdminController::class, 'createAdmin'])->middleware([CheckPermissions::class . ':' . PermissionConstants::MANAGE_ADMINS]);
+});
+//Get Username List
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::get('/get-username-list', [SuperAdminController::class, 'getUsernameList'])->middleware([CheckPermissions::class . ':' . PermissionConstants::GET_USERNAME_LIST]);
 });
 

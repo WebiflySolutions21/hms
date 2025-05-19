@@ -2,20 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Constants\PermissionConstants;
 use App\Models\Permission;
 
 class PermissionsSeeder
 {
     public function run(): void
     {
-        // Create permissions
-        $permissions = [
-            'test_permission',
-            'manage-hospitals',
-            'manage-forms'
-        ];
-
-        foreach ($permissions as $permission) {
+        foreach (PermissionConstants::PERMISSIONS as $permission) {
             Permission::updateOrCreate(
                 ['name' => $permission]
             );

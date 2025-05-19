@@ -50,7 +50,7 @@ class HospitalController extends Controller
         $hospitalHelper = new HospitalHelper();
         $hospitalHelper->updateHospital($this->validatedData);
         if ($hospitalHelper->hasErrors()) {
-            return ResponseHelper::errorResponse($hospitalHelper->getFirstError());
+            return ResponseHelper::errorResponse($hospitalHelper->getErrorMessage());
         }
         return ResponseHelper::successResponse(
             ['message' => 'Hospital updated successfully!']

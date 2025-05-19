@@ -36,7 +36,7 @@ class FormController extends Controller
         $formHelper = new FormHelper();
         $formHelper->updateForm($this->validatedData);
         if ($formHelper->hasErrors()) {
-            return ResponseHelper::errorResponse($formHelper->getFirstError());
+            return ResponseHelper::errorResponse($formHelper->getErrorMessage());
         }
         return ResponseHelper::successResponse(
             ['message' => 'Form updated successfully!']
