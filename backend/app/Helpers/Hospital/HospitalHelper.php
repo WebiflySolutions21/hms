@@ -8,7 +8,7 @@ use App\Models\Hospital;
 class HospitalHelper extends BaseHelper
 {
 
-    public function create_new_hospital(array $data): void
+    public function createNewHospital(array $data): void
     {
         Hospital::create([
             'name' => $data['name'],
@@ -19,12 +19,12 @@ class HospitalHelper extends BaseHelper
         ]);
     }
 
-    public function get_hospital_list()
+    public function getHospitalList()
     {
         return Hospital::select(['id', 'status', 'registration_no', 'name', 'mobile', 'address', 'registration_date'])->get();
     }
 
-    public function update_hospital(array $data): void
+    public function updateHospital(array $data): void
     {
         try {
             $hospital = Hospital::find($data['id']);

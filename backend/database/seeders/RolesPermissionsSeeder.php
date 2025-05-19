@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Constants\RolePermissionConstants;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RolePermission;
@@ -10,13 +11,8 @@ class RolesPermissionsSeeder
 {
     public function run(): void
     {
-        // Create roles permissions
-        $roles_permissions = [
-            'tester' => ['test_permission'],
-            'super-admin' => ['manage-hospitals', 'manage-forms'],
-        ];
 
-        foreach ($roles_permissions as $role => $permissions) {
+        foreach (RolePermissionConstants::RolesPermissions as $role => $permissions) {
             $role_id = Role::where('name', $role)->first()->id;
             foreach ($permissions as $permission) {
                 $permission_id = Permission::where('name', $permission)->first()->id;
