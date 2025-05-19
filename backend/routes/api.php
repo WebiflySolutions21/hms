@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\SuperAdminController;
@@ -14,6 +15,10 @@ Route::get('/test', function () {
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('test-permission', [AuthController::class, 'test'])->middleware([CheckPermissions::class . ':test_permission']);
 });
+
+//Upload File
+Route::get('upload/get_token', [FileUploadController::class, 'get_token'])->middleware([JwtMiddleware::class]);
+
 //Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/signup', [AuthController::class, 'signup']);
