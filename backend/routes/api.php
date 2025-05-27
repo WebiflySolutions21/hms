@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\HospitalController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Middleware\CheckPermissions;
 use App\Http\Middleware\JwtMiddleware;
@@ -46,5 +47,10 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 //Get Username List
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/get-username-list', [SuperAdminController::class, 'getUsernameList'])->middleware([CheckPermissions::class . ':' . PermissionConstants::GET_USERNAME_LIST]);
+});
+
+//Admin
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::post('/admin/assign/role', [RoleController::class, 'assignRoleToUser'])->middleware([CheckPermissions::class . ':' . PermissionConstants::ASSIGN_ROLE_TO_USER]);
 });
 
