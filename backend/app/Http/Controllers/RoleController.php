@@ -7,6 +7,7 @@ use App\Helpers\Admin\RoleHelper;
 use App\Helpers\ResponseHelper;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
@@ -45,5 +46,12 @@ class RoleController extends Controller
         }
         DB::commit();
         return ResponseHelper::successResponse(['message' => 'Role assigned successfully']);
+    }
+
+    public function getUserDetails()
+    {
+        $user = Auth::user();
+        $details = new RoleHelper()->getUserDetails($user);
+        return ResponseHelper::successResponse($details);
     }
 }

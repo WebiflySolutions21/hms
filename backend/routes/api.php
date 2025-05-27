@@ -15,8 +15,12 @@ Route::get('/test', function () {
     return response()->json(['message' => 'Hello From Himanshu Sangwan!']);
 });
 
+Route::middleware([JwtMiddleware::class])->group(function () {
 //Upload File
-Route::get('upload/get_token', [FileUploadController::class, 'get_token'])->middleware([JwtMiddleware::class]);
+    Route::get('upload/get_token', [FileUploadController::class, 'get_token']);
+//get user details
+    Route::get('/user/details', [RoleController::class, 'getUserDetails']);
+});
 
 //Auth
 Route::post('/login', [AuthController::class, 'login']);
