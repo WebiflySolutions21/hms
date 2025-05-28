@@ -4,6 +4,7 @@ use App\Constants\PermissionConstants;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\HospitalConfigController;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SuperAdminController;
@@ -56,5 +57,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 //Admin
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/admin/assign/role', [RoleController::class, 'assignRoleToUser'])->middleware([CheckPermissions::class . ':' . PermissionConstants::ASSIGN_ROLE_TO_USER]);
+    Route::post('config/set', [HospitalConfigController::class, 'set'])->middleware([CheckPermissions::class . ':' . PermissionConstants::SET_HOSPITAL_CONFIG]);
+    Route::get('config/get', [HospitalConfigController::class, 'get']);
 });
 

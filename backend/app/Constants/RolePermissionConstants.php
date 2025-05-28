@@ -15,6 +15,7 @@ class RolePermissionConstants
         RoleConstants::ADMIN => [
             PermissionConstants::GET_USERNAME_LIST,
             PermissionConstants::ASSIGN_ROLE_TO_USER,
+            PermissionConstants::SET_HOSPITAL_CONFIG
         ]
     ];
 }
