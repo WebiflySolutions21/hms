@@ -1,167 +1,251 @@
+# Hospital Configuration API Documentation
 
-# Hospital Configuration API 
+This document describes the API endpoints, request/response formats, and validation logic for setting and retrieving
+hospital configuration data.
 
-This document explains how Angular developers can interact with the Hospital Configuration API. It includes how to create and manage default configs, update nested paths, fetch values for constants, and use them effectively in Angular applications.
+## Overview
+
+The Hospital Configuration API enables frontend applications to dynamically store and retrieve nested configuration
+settings for individual hospitals. These settings can control UI elements, theme preferences, feature flags, and more.
+
+The configuration is stored in a structured format using:
+
+* `config_key`: a namespace for the settings (e.g., `branding`, `ui`)
+* `path`: a dot-notated string that refers to a nested location in the config tree (e.g., `theme.colors.primary`)
+* `value`: the data to store (e.g., color codes, feature flags)
 
 ---
 
-## 🚀 Features
+## Endpoints
 
-- **Set Default State** for a hospital
-- **Update Specific Keys** using `path`
-- **Fetch Specific Config Sections**
-- **Auto-create Nested Paths** with JSON
-- **Use Configs as Constants in Angular**
+### 1. **Set Configuration**
 
----
+**URL:** `/config/set`
+**Method:** `POST`
+**Middleware:** Requires permission: `SET_HOSPITAL_CONFIG`
 
-## 🧩 API Endpoints
+#### Request Body
 
-### `POST /config/set` admin role required
-
-Used to set or update configuration values.
-
-#### Request Body:
 ```json
 {
   "hospital_id": 1,
-  "config_key": "defaultConfig",
-  "path": "settings.theme",
+  "config_key": "branding",
+  "path": "theme.colors",
+  // optional unless auto_create_paths is true
   "value": {
-    "color": "blue",
-    "font": "Arial"
+    "primary": "#00f",
+    "secondary": "#0f0"
   },
   "auto_create_paths": true
+  // optional, default false
 }
-````
+```
 
-* `hospital_id` (integer): Required. Must exist in `hospitals` table.
-* `config_key` (string): Alphabetic only. E.g., `"defaultConfig"`
-* `path` (string, optional): Nested dot-notation. E.g., `"settings.theme"`
-* `value` (object): Configuration object or primitive.
-* `auto_create_paths` (boolean, optional): If `true`, will create nested paths automatically to store data on backend.
+#### Validation Rules
 
----
+| Field               | Type    | Required    | Notes                                       |
+|---------------------|---------|-------------|---------------------------------------------|
+| hospital\_id        | integer | Yes         | Must exist in `hospitals` table             |
+| config\_key         | string  | Yes         | Must contain only letters                   |
+| path                | string  | Conditional | Required if `auto_create_paths` is not true |
+| value               | array   | Yes         | Must be a JSON object                       |
+| auto\_create\_paths | boolean | No          | Enables automatic key-path splitting        |
 
-### `GET /config/get`
+#### Behavior
 
-Used to fetch a full or partial configuration.
+* **`auto_create_paths = true`**:
 
-#### Request Parameters:
+    * The system recursively flattens your nested object.
+    * Each inner key becomes its own stored path.
+    * For example, a value like:
+
+      ```json
+      {
+        "theme": {
+          "colors": {
+            "primary": "#00f",
+            "accent": "#0f0"
+          }
+        }
+      }
+      ```
+
+      becomes:
+
+        * `theme.colors.primary`
+        * `theme.colors.accent`
+
+* **`auto_create_paths = false`**:
+
+    * The `path` field is mandatory.
+    * The entire `value` object is saved directly under the provided path.
+    * This is useful when only one specific part of the config needs to be updated.
+
+#### Success Response
 
 ```json
 {
-  "hospital_id": 1,
-  "config_key": "defaultConfig",
-  "path": "settings.theme"
+  "success": true,
+  "message": "Hospital configurations updated successfully"
 }
 ```
 
-Returns nested config if path exists, otherwise returns entire config for the key.
+#### Error Response (Validation)
+
+```json
+{
+  "success": false,
+  "errorMessage": " The hospital_id field is required."
+}
+```
+
+#### Error Response (Missing Path)
+
+```json
+{
+  "success": false,
+  "errorMessage": "Path is required when auto_create_paths is false."
+}
+```
 
 ---
 
+### 2. **Get Configuration**
 
-## ⚙️ Angular Integration
+**URL:** `/config/get`
+**Method:** `GET`
 
-### Step 1: Fetch Config on App Init
+#### Request Query Parameters
 
-Create a service to fetch and store the config:
+```http
+/config/get?hospital_id=1&config_key=branding&path=theme.colors
+```
 
-```ts
-@Injectable({ providedIn: 'root' })
-export class ConfigService {
-  private config: any = {};
+#### Validation Rules
 
-  constructor(private http: HttpClient) {}
+| Field        | Type    | Required | Notes                                            |
+|--------------|---------|----------|--------------------------------------------------|
+| hospital\_id | integer | Yes      | Must exist in `hospitals` table                  |
+| config\_key  | string  | Yes      | Only letters allowed                             |
+| path         | string  | No       | If provided, fetches only config under this path |
 
-  loadConfig(hospitalId: number): Promise<void> {
-    return this.http.get<any>('/api/config/get', {
-      params: {
-        hospital_id: hospitalId,
-        config_key: 'defaultConfig'
+#### Behavior
+
+* **When `path` is specified**:
+
+    * Returns only the value stored exactly under that path.
+    * For example, if path is `theme.colors.primary`, it may return:
+
+      ```json
+      {
+        "config": "#00f"
       }
-    }).toPromise().then(response => {
-      this.config = response.config || {};
-    });
-  }
+      ```
 
-  get(path: string): any {
-    return path.split('.').reduce((acc, part) => acc?.[part], this.config);
+* **When `path` is omitted**:
+
+    * Returns the full nested tree under the given `config_key`.
+
+#### Success Response (Full Tree)
+
+```json
+{
+  "success": true,
+  "config": {
+    "theme": {
+      "colors": {
+        "primary": "#00f",
+        "secondary": "#0f0"
+      }
+    }
   }
 }
 ```
 
-### Step 2: Use Constants in Angular Components
+#### Success Response (Path Exact Value)
 
-```ts
-constructor(private configService: ConfigService) {}
-
-ngOnInit() {
-  const themeColor = this.configService.get('settings.theme.color');
-  console.log('Theme Color:', themeColor);
+```json
+{
+  "success": true,
+  "config": "#00f"
 }
 ```
 
-### Step 3: Define Constants for Reuse
+#### Error Response (Validation)
 
-Create a constants file:
-
-```ts
-export const CONFIG_PATHS = {
-  THEME_COLOR: 'settings.theme.color',
-  NOTIFICATIONS_EMAIL: 'settings.notifications.email',
-  FONT: 'settings.theme.font'
-};
+```json
+{
+  "success": false,
+  "errorMessage": "The config_key format is invalid."
+}
 ```
 
-Then use:
+#### Error Response (No Data)
 
-```ts
-const color = this.configService.get(CONFIG_PATHS.THEME_COLOR);
+```json
+{
+  "success": false,
+  "errorMessage": "No configuration found for the given parameters"
+}
 ```
 
 ---
 
-## 🌱 Example Usage
+## Notes for Frontend Developers
 
-### 1. **Set Default Config**
+* **`config_key`** groups related settings. Think of it like a config namespace.
+* **`path`** allows targeting of a specific setting, or whole branches of settings.
+* **`auto_create_paths = true`** is ideal when you want to save complex, deeply nested config objects (e.g., entire
+  themes, UI states, layout structures). You don’t need to worry about breaking it up into individual key-paths; the
+  backend handles it.
+* **Without `auto_create_paths`**, use `path` for precise control and updates to small parts of config.
+* All data is automatically cast from JSON arrays/objects.
+* Returned `config` value is either a tree or single value, depending on your query.
 
-```ts
-const defaultConfig = {
-  settings: {
-    theme: { color: "blue", font: "Arial" },
-    notifications: { email: true, sms: false }
+---
+
+## Example Use Cases
+
+### Save UI Theme Config (with nesting)
+
+```json
+POST /config/set
+{
+  "hospital_id": 2,
+  "config_key": "branding",
+  "auto_create_paths": true,
+  "value": {
+    "theme": {
+      "colors": {
+        "primary": "#ff0000",
+        "accent": "#333333"
+      },
+      "font": "Roboto"
+    }
   }
-};
-
-http.post('/api/config/set', {
-  hospital_id: 1,
-  config_key: 'defaultConfig',
-  value: defaultConfig,
-  auto_create_paths: true
-});
+}
 ```
 
-### 2. **Update Specific Value**
+### Save Single Config Path
 
-```ts
-http.post('/api/config/set', {
-  hospital_id: 1,
-  config_key: 'defaultConfig',
-  path: 'settings.theme.color',
-  value: 'red'
-});
+```json
+POST /config/set
+{
+  "hospital_id": 2,
+  "config_key": "branding",
+  "path": "theme.colors.primary",
+  "value": "#ff0000"
+}
 ```
 
-### 3. **Fetch Part of Config**
+### Get Full Branding Config
 
-```ts
-http.get('/api/config/get', {
-  params: {
-    hospital_id: 1,
-    config_key: 'defaultConfig',
-    path: 'settings.theme'
-  }
-});
+```http
+GET /config/get?hospital_id=2&config_key=branding
+```
+
+### Get Exact Value of Theme Primary Color
+
+```http
+GET /config/get?hospital_id=2&config_key=branding&path=theme.colors.primary
 ```
