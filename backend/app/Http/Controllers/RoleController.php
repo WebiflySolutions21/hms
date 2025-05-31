@@ -32,17 +32,17 @@ class RoleController extends Controller
             return ResponseHelper::errorResponse('User already has this role');
         }
 
-        $role_helper = new RoleHelper();
+        $roleHelper = new RoleHelper();
         try {
             DB::beginTransaction();
-            $role_helper->assignRoleToUser($user, $role, $this->validatedData);
+            $roleHelper->assignRoleToUser($user, $role, $this->validatedData);
 
         } catch (\Exception $exception) {
             DB::rollBack();
             return ResponseHelper::errorResponse($exception->getMessage());
         }
-        if ($role_helper->hasErrors()) {
-            return ResponseHelper::errorResponse($role_helper->getErrorMessage());
+        if ($roleHelper->hasErrors()) {
+            return ResponseHelper::errorResponse($roleHelper->getErrorMessage());
         }
         DB::commit();
         return ResponseHelper::successResponse(['message' => 'Role assigned successfully']);

@@ -4,6 +4,7 @@ namespace App\Helpers\Admin;
 
 use App\Constants\RoleConstants;
 use App\Helpers\BaseHelper;
+use App\Models\Admin;
 use App\Models\Doctor;
 use App\Models\Hospital;
 use App\Models\LabTechnician;
@@ -12,7 +13,6 @@ use App\Models\Receptionist;
 use App\Models\Role;
 use App\Models\Staff;
 use App\Models\User;
-use App\Models\Admin;
 
 class RoleHelper extends BaseHelper
 {
@@ -39,11 +39,11 @@ class RoleHelper extends BaseHelper
 
     public function getUserDetails(User $user): array
     {
-        $user_roles = $user->roles()->get();
-        $user_details['name'] = $user->name;
-        $user_details['email'] = $user->email;
-        $user_details['username'] = $user->username;
-        foreach ($user_roles as $user_role) {
+        $userRoles = $user->roles()->get();
+        $userDetails['name'] = $user->name;
+        $userDetails['email'] = $user->email;
+        $userDetails['username'] = $user->username;
+        foreach ($userRoles as $user_role) {
             $model = match ($user_role->name) {
                 RoleConstants::DOCTOR => Doctor::where('user_id', $user->id)->first(),
                 RoleConstants::LAB_TECHNICIAN => LabTechnician::where('user_id', $user->id)->first(),
@@ -53,7 +53,7 @@ class RoleHelper extends BaseHelper
                 RoleConstants::ADMIN => Admin::where('user_id', $user->id)->first()
             };
             $hospital = Hospital::where('id', $model->hospital_id)->first();
-            $user_details['roles'][] = [
+            $userDetails['roles'][] = [
                 'name' => $user_role->name,
                 'details' => $model->details,
                 'hospital' => [
@@ -63,7 +63,7 @@ class RoleHelper extends BaseHelper
                 ]
             ];
         }
-        return $user_details;
+        return $userDetails;
 
     }
 }
