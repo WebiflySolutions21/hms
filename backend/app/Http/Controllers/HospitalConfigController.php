@@ -19,11 +19,12 @@ class HospitalConfigController extends Controller
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
-        $hospitalConfigHelper = new HospitalConfigHelper();
+        $hospitalConfigHelper = new HospitalConfigHelper;
         $hospitalConfigHelper->set($this->validatedData);
         if ($hospitalConfigHelper->hasErrors()) {
             return ResponseHelper::errorResponse($hospitalConfigHelper->getErrorMessage());
         }
+
         return ResponseHelper::successResponse(['message' => 'Hospital configurations updated successfully']);
     }
 
@@ -37,7 +38,7 @@ class HospitalConfigController extends Controller
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
-        $hospitalConfigHelper = new HospitalConfigHelper();
+        $hospitalConfigHelper = new HospitalConfigHelper;
         $config = $hospitalConfigHelper->get($this->validatedData);
         if ($hospitalConfigHelper->hasErrors()) {
             return ResponseHelper::errorResponse($hospitalConfigHelper->getErrorMessage());
@@ -45,7 +46,7 @@ class HospitalConfigController extends Controller
         if (empty($config)) {
             return ResponseHelper::errorResponse('No configuration found for the given parameters');
         }
-        return ResponseHelper::successResponse(["config" => $config]);
+
+        return ResponseHelper::successResponse(['config' => $config]);
     }
-    public function
 }

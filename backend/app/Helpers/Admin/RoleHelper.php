@@ -16,19 +16,18 @@ use App\Models\User;
 
 class RoleHelper extends BaseHelper
 {
-
     public function assignRoleToUser(User $user, Role $role, array $data)
     {
         $user->assignRole($role);
         $model = match ($role->name) {
-            RoleConstants::DOCTOR => new Doctor(),
-            RoleConstants::LAB_TECHNICIAN => new LabTechnician(),
-            RoleConstants::RECEPTIONIST => new Receptionist(),
-            RoleConstants::PHARMACIST => new Pharmacist(),
-            RoleConstants::STAFF => new Staff(),
+            RoleConstants::DOCTOR => new Doctor,
+            RoleConstants::LAB_TECHNICIAN => new LabTechnician,
+            RoleConstants::RECEPTIONIST => new Receptionist,
+            RoleConstants::PHARMACIST => new Pharmacist,
+            RoleConstants::STAFF => new Staff,
             default => null,
         };
-        if (!$model) {
+        if (! $model) {
             $this->addError('Invalid Role');
         }
         $model->user_id = $user->id;
@@ -59,10 +58,11 @@ class RoleHelper extends BaseHelper
                 'hospital' => [
                     'name' => $hospital->name,
                     'id' => $hospital->id,
-                    'registration_no' => $hospital->registration_no
-                ]
+                    'registration_no' => $hospital->registration_no,
+                ],
             ];
         }
+
         return $userDetails;
 
     }

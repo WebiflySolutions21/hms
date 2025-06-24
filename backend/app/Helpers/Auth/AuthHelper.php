@@ -25,14 +25,17 @@ class AuthHelper extends BaseHelper
     public function handleLoginRequest(array $credentials): ?string
     {
         $user = User::where('username', $credentials['username'])->first();
-        if (!$user) {
+        if (! $user) {
             $this->addError('User not found');
+
             return null;
         }
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             $this->addError('Invalid Password');
+
             return null;
         }
+
         return $this->generateToken($user);
 
     }
@@ -44,8 +47,8 @@ class AuthHelper extends BaseHelper
             'username' => $validatedData['username'],
             'password' => Hash::make($validatedData['password']),
         ]);
+
         return $this->generateToken($user);
 
     }
-
 }

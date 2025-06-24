@@ -17,6 +17,7 @@ class ResponseHelper
     public static function successResponse($data, $statusCode = 200): JsonResponse
     {
         $data['success'] = true;
+
         return response()->json($data, $statusCode);
     }
 }

@@ -11,6 +11,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     /**
@@ -70,7 +71,7 @@ class User extends Authenticatable
 
     public function assignRole(Role $role)
     {
-        $userRole = new UserRole();
+        $userRole = new UserRole;
         $userRole->role_id = $role->id;
         $userRole->user_id = $this->id;
         $userRole->save();

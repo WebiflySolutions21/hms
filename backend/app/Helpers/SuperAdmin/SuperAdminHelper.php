@@ -31,6 +31,7 @@ class SuperAdminHelper extends BaseHelper
             ->get()
             ->map(function ($record) {
                 $record->visibility = json_decode($record->visibility, true);
+
                 return $record;
             });
     }
@@ -38,7 +39,7 @@ class SuperAdminHelper extends BaseHelper
     public function createAdmin(array $data): void
     {
         $user = User::where('username', $data['username'])->first();
-        $admin = new Admin();
+        $admin = new Admin;
         $admin->user_id = $user->id;
         $admin->hospital_id = $data['hospital_id'];
         $admin->details = $data['details'] ?? null;

@@ -4,7 +4,6 @@ namespace App\Constants;
 
 class RolePermissionConstants
 {
-
     public const array RolesPermissions = [
         RoleConstants::SUPER_ADMIN => [
             PermissionConstants::GET_USERNAME_LIST,
@@ -15,7 +14,7 @@ class RolePermissionConstants
         RoleConstants::ADMIN => [
             PermissionConstants::GET_USERNAME_LIST,
             PermissionConstants::ASSIGN_ROLE_TO_USER,
-            PermissionConstants::SET_HOSPITAL_CONFIG
-        ]
+            PermissionConstants::SET_HOSPITAL_CONFIG,
+        ],
     ];
 }

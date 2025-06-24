@@ -13,13 +13,13 @@ class CheckPermissions
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$permissions)
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return ResponseHelper::errorResponse('Unauthorized', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -27,7 +27,7 @@ class CheckPermissions
             return $role->permissions->pluck('name');
         })->unique();
         foreach ($permissions as $permission) {
-            if (!$userPermissions->contains($permission)) {
+            if (! $userPermissions->contains($permission)) {
                 return ResponseHelper::errorResponse('Forbidden: You do not have permission for this resource', Response::HTTP_FORBIDDEN);
             }
         }

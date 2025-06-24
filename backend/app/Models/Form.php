@@ -25,15 +25,12 @@ class Form extends Model
         return $this->hasMany(HospitalFormDetail::class, 'form_id');
     }
 
-
     /**
      * The attributes that should be cast.
      *
      * @var array
      */
-
     protected $casts = [
         'json' => 'array',
     ];
-
 }
