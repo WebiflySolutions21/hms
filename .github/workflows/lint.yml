@@ -1,7 +1,11 @@
 name: Fix Code Style
 run-name: Fix Code Style - ${{ github.ref_name }}
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - master
+      - test
 
 permissions:
   contents: write
