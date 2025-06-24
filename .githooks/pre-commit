@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # Run Laravel Pint before committing
 echo "🪥 Running Laravel Pint..."
 if ! ./backend/vendor/bin/pint; then
