@@ -3,6 +3,9 @@ run-name: Fix Code Style - ${{ github.ref_name }}
 
 on: [push]
 
+permissions:
+  contents: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
