@@ -17,8 +17,8 @@ class RoleController extends Controller
         $validation = $this->validateRequest([
             'username' => 'required|exists:users,username',
             'hospital_id' => 'required|integer|exists:hospitals,id',
-            'role' => 'required|exists:roles,name|string|in:' . RoleConstants::RECEPTIONIST . ',' . RoleConstants::DOCTOR . ',' . RoleConstants::STAFF . ',' . RoleConstants::LAB_TECHNICIAN . ',' . RoleConstants::PHARMACIST,
-            'details' => 'array'
+            'role' => 'required|exists:roles,name|string|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST,
+            'details' => 'array',
         ]);
 
         if ($validation) {
@@ -32,26 +32,30 @@ class RoleController extends Controller
             return ResponseHelper::errorResponse('User already has this role');
         }
 
-        $roleHelper = new RoleHelper();
+        $roleHelper = new RoleHelper;
         try {
             DB::beginTransaction();
             $roleHelper->assignRoleToUser($user, $role, $this->validatedData);
 
         } catch (\Exception $exception) {
             DB::rollBack();
+
             return ResponseHelper::errorResponse($exception->getMessage());
         }
         if ($roleHelper->hasErrors()) {
             return ResponseHelper::errorResponse($roleHelper->getErrorMessage());
         }
         DB::commit();
+
         return ResponseHelper::successResponse(['message' => 'Role assigned successfully']);
     }
 
     public function getUserDetails()
     {
         $user = Auth::user();
-        $details = new RoleHelper()->getUserDetails($user);
+
+        $details = (new RoleHelper)->getUserDetails($user);
+
         return ResponseHelper::successResponse($details);
     }
 }

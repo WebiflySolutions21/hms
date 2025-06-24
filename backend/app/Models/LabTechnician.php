@@ -27,5 +27,3 @@ class LabTechnician extends Model
         return $this->belongsTo(Hospital::class);
     }
 }
-
-

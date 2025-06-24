@@ -18,13 +18,13 @@ class AuthController extends Controller
         if ($IsInvalidRequest) {
             return $IsInvalidRequest;
         }
-        $authHelper = new AuthHelper();
+        $authHelper = new AuthHelper;
         $token = $authHelper->handleLoginRequest($this->validatedData);
         if ($authHelper->hasErrors()) {
             return ResponseHelper::errorResponse($authHelper->getErrorMessage());
         }
-        return ResponseHelper::successResponse(['token' => $token]);
 
+        return ResponseHelper::successResponse(['token' => $token]);
 
     }
 
@@ -38,8 +38,9 @@ class AuthController extends Controller
         if ($IsInvalidRequest) {
             return $IsInvalidRequest;
         }
-        $authHelper = new AuthHelper();
+        $authHelper = new AuthHelper;
         $token = $authHelper->handleSignupRequest($this->validatedData);
+
         return ResponseHelper::successResponse(['token' => $token]);
     }
 

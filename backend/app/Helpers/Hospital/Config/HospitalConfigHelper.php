@@ -15,13 +15,14 @@ class HospitalConfigHelper extends BaseHelper
         foreach ($array as $key => $value) {
             $newKey = $prefix === '' ? $key : "{$prefix}.{$key}";
 
-            if (is_array($value) && !array_is_list($value)) {
+            if (is_array($value) && ! array_is_list($value)) {
                 // Recursively flatten associative arrays
                 $result += $this->flattenWithPaths($value, $newKey);
             } else {
                 $result[$newKey] = $value;
             }
         }
+
         return $result;
     }
 
@@ -29,8 +30,9 @@ class HospitalConfigHelper extends BaseHelper
     {
         $toAutoCreatePaths = $data['auto_create_paths'] ?? false;
         $value = $data['value'];
-        if (!isset($data['path']) && !$toAutoCreatePaths) {
+        if (! isset($data['path']) && ! $toAutoCreatePaths) {
             $this->addError('Path is required when auto_create_paths is false.');
+
             return;
         }
         try {
@@ -61,7 +63,7 @@ class HospitalConfigHelper extends BaseHelper
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->addError('Failed to set hospital configuration: ' . $e->getMessage());
+            $this->addError('Failed to set hospital configuration: '.$e->getMessage());
         }
 
     }
@@ -73,7 +75,7 @@ class HospitalConfigHelper extends BaseHelper
 
         $requestedPath = $data['path'] ?? null;
         if ($requestedPath) {
-            $query->where('path', 'like', $requestedPath . '%');
+            $query->where('path', 'like', $requestedPath.'%');
         }
 
         try {
@@ -83,7 +85,7 @@ class HospitalConfigHelper extends BaseHelper
                 $paths = explode('.', $item->path);
                 $temp = &$nestedArray;
                 foreach ($paths as $path) {
-                    if (!isset($temp[$path])) {
+                    if (! isset($temp[$path])) {
                         $temp[$path] = [];
                     }
                     $temp = &$temp[$path];
@@ -93,9 +95,11 @@ class HospitalConfigHelper extends BaseHelper
             if ($requestedPath) {
                 return $this->getRequestedPath($nestedArray, $requestedPath);
             }
+
             return $nestedArray;
         } catch (\Exception $e) {
-            $this->addError('Failed to retrieve hospital configuration: ' . $e->getMessage());
+            $this->addError('Failed to retrieve hospital configuration: '.$e->getMessage());
+
             return null;
         }
     }
@@ -108,7 +112,7 @@ class HospitalConfigHelper extends BaseHelper
         foreach ($keys as $key) {
             $currentArray = $value = $currentArray[$key];
         }
+
         return $value;
     }
-
 }

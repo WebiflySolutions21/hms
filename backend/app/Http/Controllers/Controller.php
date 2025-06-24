@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class Controller
 {
     private $request;
+
     public $validatedData = [];
 
     public function __construct(Request $request)
@@ -27,6 +28,7 @@ abstract class Controller
         }
 
         $this->validatedData = $validator->validated();
+
         return null;
     }
 }
