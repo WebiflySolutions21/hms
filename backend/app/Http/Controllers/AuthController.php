@@ -18,7 +18,7 @@ class AuthController extends Controller
         if ($IsInvalidRequest) {
             return $IsInvalidRequest;
         }
-        $authHelper = new AuthHelper;
+        $authHelper = new AuthHelper();
         $token = $authHelper->handleLoginRequest($this->validatedData);
         if ($authHelper->hasErrors()) {
             return ResponseHelper::errorResponse($authHelper->getErrorMessage());
