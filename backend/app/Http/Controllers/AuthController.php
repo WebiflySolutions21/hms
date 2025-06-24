@@ -48,4 +48,5 @@ class AuthController extends Controller
     {
         return response()->json(['message' => 'Test done!']);
     }
+    aklsdjf
 }
