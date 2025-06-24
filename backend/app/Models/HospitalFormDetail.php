@@ -49,5 +49,4 @@ class HospitalFormDetail extends Model
     protected $casts = [
         'visibility' => 'array',
     ];
-
 }

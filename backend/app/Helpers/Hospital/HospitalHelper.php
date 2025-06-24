@@ -7,7 +7,6 @@ use App\Models\Hospital;
 
 class HospitalHelper extends BaseHelper
 {
-
     public function createNewHospital(array $data): void
     {
         Hospital::create([
@@ -15,7 +14,7 @@ class HospitalHelper extends BaseHelper
             'address' => $data['address'],
             'mobile' => $data['mobile'],
             'registration_no' => $data['registration_no'],
-            'registration_date' => new \DateTime(),
+            'registration_date' => new \DateTime,
         ]);
     }
 

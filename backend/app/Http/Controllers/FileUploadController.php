@@ -15,6 +15,7 @@ class FileUploadController extends Controller
         ];
 
         $token = JWT::encode($payload, env('UPLOAD_SERVICE_JWT_SECRET'), 'HS256');
+
         return ResponseHelper::successResponse(['token' => $token]);
     }
 }

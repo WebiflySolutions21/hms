@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class HospitalConfigItem extends Model
 {
     protected $table = 'hospital_config_items';
+
     protected $fillable = ['hospital_id', 'config_key', 'path', 'value'];
 
     protected $casts = [
@@ -18,4 +19,3 @@ class HospitalConfigItem extends Model
         return $this->belongsTo(Hospital::class);
     }
 }
-

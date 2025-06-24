@@ -21,12 +21,12 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Test User',
                 'username' => 'testuser',
                 'password' => Hash::make('defaultpassword'), // Provide a hashed password
-            ]
+            ],
         );
 
-        new RolesSeeder()->run();
-        new PermissionsSeeder()->run();
-        new RolesPermissionsSeeder()->run();
+        (new RolesSeeder)->run();
+        (new PermissionsSeeder)->run();
+        (new RolesPermissionsSeeder)->run();
 
     }
 }

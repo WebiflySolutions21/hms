@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Staff extends Model
 {
     protected $table = 'staffs';
+
     protected $fillable = [
         'user_id',
         'hospital_id',
@@ -28,4 +29,3 @@ class Staff extends Model
         return $this->belongsTo(Hospital::class);
     }
 }
-

@@ -27,4 +27,3 @@ class Receptionist extends Model
         return $this->belongsTo(Hospital::class);
     }
 }
-
