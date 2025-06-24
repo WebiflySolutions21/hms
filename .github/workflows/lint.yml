@@ -1,4 +1,5 @@
 name: Fix Code Style
+run-name: Fix Code Style - ${{ github.ref_name }}
 
 on: [push]
 
