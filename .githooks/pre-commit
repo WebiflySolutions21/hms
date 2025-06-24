@@ -1,4 +1,7 @@
+#!/bin/bash
+
 # Run Laravel Pint before committing
+
 echo "🪥 Running Laravel Pint..."
 if ! ./backend/vendor/bin/pint; then
   echo "❌ Laravel Pint found style errors. Fix them before committing."
