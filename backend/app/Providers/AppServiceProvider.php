@@ -2,26 +2,20 @@
 
 namespace App\Providers;
 
-use App\Services\MYEmail;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
-{
+class AppServiceProvider extends ServiceProvider {
+
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        $this->app->singleton('myemail', function ($app) {
-            return new MYEmail();
-        });
+    public function register(): void {
     }
 
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //
+    public function boot(): void {
     }
+
 }
