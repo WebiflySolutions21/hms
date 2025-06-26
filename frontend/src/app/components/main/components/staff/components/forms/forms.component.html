@@ -7,13 +7,15 @@
     <div class="form-button-section">
       <div class="availableFormsHeading">Available Forms</div>
       <div class="d-flex flex-wrap gap-3">
+        <div *ngFor="let form of forms">
         <button
-          *ngFor="let form of forms"
+        *ngIf="shouldShowButton(form)"
           class="btn btn-outline-primary"
           (click)="openForm(form.id)"
         >
-          {{ form.title }}
+          {{ form.name }}
         </button>
+        </div>
       </div>
     </div>
     

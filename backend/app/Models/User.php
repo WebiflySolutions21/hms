@@ -11,6 +11,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+
     use Notifiable;
 
     /**
@@ -20,7 +21,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
+        'username',
         'password',
     ];
 
@@ -61,5 +62,18 @@ class User extends Authenticatable
     public function permissions()
     {
         return $this->hasManyThrough(Permission::class, Role::class, 'users_roles', 'roles_permissions');
+    }
+
+    public function hasRole(Role $role): bool
+    {
+        return $this->roles->contains($role);
+    }
+
+    public function assignRole(Role $role)
+    {
+        $userRole = new UserRole;
+        $userRole->role_id = $role->id;
+        $userRole->user_id = $this->id;
+        $userRole->save();
     }
 }

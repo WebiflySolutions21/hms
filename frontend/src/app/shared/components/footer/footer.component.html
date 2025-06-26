@@ -1,18 +1,83 @@
 <div class="footer text-center">
-    <div class="bottom">
-      <div class="logo">
-        <img src="assets/images/header/doctor.jpeg" alt="Hospital Logo" />
-      </div>
-      <div class="div">
-        <small>Shree Ganeshaay Namah :</small>
-
-        <h2 class="hospital-name">Health Care Hospital</h2>
-        <p class="hospital-address">
-          1234, Medical Lane, Wellness City, State - 411001
-        </p>
-        <p class="hospital-contact">
-          Contact: +91 12345 67890 | Email: info.com
-        </p>
-      </div>
+  <div class="bottom">
+    <div class="logo">
+      <img
+        [ngStyle]="{
+          'border-radius':
+            hospitalDetails.logoShape === 'rounded' ? '50%' : '0%',
+          width: '100px',
+          height: '100px',
+          'object-fit': 'cover'
+        }"
+        [src]="hospitalDetails?.logo"
+        alt="Hospital Logo"
+      />
+    </div>
+    <div class="div">
+      <small
+        [ngStyle]="{
+          color: hospitalDetails.otherTitleColor,
+        }"
+        [ngClass]="
+          hospitalDetails.otherTitleWeight === 'bold'
+            ? 'bold-text-otherTitle'
+            : 'normal-text-otherTitle'
+        "
+        >{{ hospitalDetails?.otherTitle }}</small
+      >
+      <h2
+        class="hospital-name"
+        [ngStyle]="{
+          'color': hospitalDetails.mainTitleColor,
+       
+        }"
+        [ngClass]="
+          hospitalDetails.mainTitleWeight === 'bold'
+            ? 'bold-text-mainTitle'
+            : 'normal-text-mainTitle'
+        "
+      >
+        {{ hospitalDetails?.mainTitle }}
+      </h2>
+      <p
+        class="hospital-address"
+        [ngStyle]="{
+          'color': hospitalDetails.addressColor,
+        }"
+        [ngClass]="
+          hospitalDetails.addressWeight === 'bold'
+            ? 'bold-text-address'
+            : 'normal-text-address'
+        "
+      >
+        {{ hospitalDetails?.address }}
+      </p>
+      <p
+        class="hospital-contact"
+        [ngStyle]="{
+          color: hospitalDetails.phoneColor,
+        }"
+        [ngClass]="
+          hospitalDetails.phoneWeight === 'bold'
+            ? 'bold-text-contact'
+            : 'normal-text-contact'
+        "
+      >
+        Contact: {{ hospitalDetails?.phone }}
+      </p>
+    </div>
+    <div class="logo">
+      <img
+        [ngStyle]="{
+          'border-radius':
+            hospitalDetails.logoShape === 'rounded' ? '50%' : '0%',
+          width: '100px',
+          height: '100px',
+          'object-fit': 'cover'
+        }"
+        [src]="hospitalDetails?.logo"
+        alt="Hospital Logo"
+      />
     </div>
   </div>
+</div>

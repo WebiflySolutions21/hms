@@ -8,4 +8,5 @@ import { PATIENT_DETAILS } from '@assets/constants/doctor.constants';
 })
 export class PatientDetailsComponent {
  patientDetails = PATIENT_DETAILS;
+ 
 }

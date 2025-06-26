@@ -71,3 +71,22 @@
     }
   }
 }
+.template-field {
+  .rendered-template {
+    white-space: pre-wrap;
+    min-height: 50px;
+    
+    &:empty::before {
+      content: "Template will render here...";
+      color: #999;
+      font-style: italic;
+    }
+  }
+}
+
+.referenced-field {
+  .referenced-value {
+    font-weight: bold;
+    color: #0d6efd;
+  }
+}

@@ -4,6 +4,8 @@ import {
   SUPER_ADMIN_TABLE_COLUMNS,
   SUPER_ADMIN_TABLE_DATA,
 } from '@assets/constants/super-admin.constants';
+import { ToastrService } from 'ngx-toastr';
+import { HospitalService, LoaderService } from 'src/app/core/services';
 
 @Component({
   selector: 'app-super-admin-dashboard',
@@ -11,7 +13,10 @@ import {
   styleUrls: ['./super-admin-dashboard.component.scss'],
 })
 export class SuperAdminDashboardComponent implements OnInit {
-  tableData: any = SUPER_ADMIN_TABLE_DATA;
+  tableData: any;
+  editFormData: any = {};
+showEditModal: boolean = false;
+
   actionType: any;
   popUpConfirmData: any;
   filteredTableData: any;
@@ -20,18 +25,44 @@ export class SuperAdminDashboardComponent implements OnInit {
   title: any;
   message: any;
 
-  constructor(private router:Router){}
+  constructor(
+    private router: Router,
+    private hospitalService: HospitalService,
+    private toastrService: ToastrService,
+    public loader:LoaderService
+  ) {}
+
   ngOnInit() {
-    this.filteredTableData = this.tableData;
+    this.getHospitalList();
+    this.loader.show()
+  }
+
+  getHospitalList() {
+    this.hospitalService.getHospitalList().subscribe(
+      (res: any) => {
+        this.tableData = res;
+        this.filteredTableData = this.tableData;
+        this.loader.hide()
+
+      },
+      (err: any) => {
+        this.loader.hide()
+
+        this.toastrService.error(
+          'Error In Hospital Registration',
+          err?.error?.errorMessage
+        );
+      }
+    );
   }
 
   handleAction(event: any) {
     console.log('event', event);
     switch (event.action) {
-      case 'delete':
-        this.title = `Delete ${event.row.name}`;
-        this.message = `Are you sure you want to delete this ${event.row.name}?`;
-        this.openConfirm(event?.action, event.row);
+      case 'edit':
+        this.editFormData = { ...event.row }; // Copy the data for binding to form
+        console.log(this.editFormData)
+        this.showEditModal = true;
         break;
       case 'revoke':
         this.title = `Revoke ${event.row.name}`;
@@ -39,11 +70,40 @@ export class SuperAdminDashboardComponent implements OnInit {
         this.openConfirm(event?.action, event.row);
         break;
       case 'configView':
-        console.log(event.row)
-        this.router.navigate(["/main/super-admin/hospital-config-details"],{queryParams:{id:event.row.id,name:event.row.name}})
+        console.log(event.row);
+        this.router.navigate(['/main/super-admin/hospital-config-details'], {
+          queryParams: { id: event.row.id, name: event.row.name },
+        });
         break;
     }
   }
+
+  
+
+  saveEdit() {
+    const index = this.tableData.findIndex((item: any) => item.id === this.editFormData.id);
+    if (index > -1) {
+      this.tableData[index] = { ...this.editFormData };
+      this.filteredTableData = [...this.tableData]; // trigger change detection
+
+    let payload = { ...this.filteredTableData[index] };
+    this.hospitalService.editHospital(payload).subscribe(
+      (res) => {
+        console.log('Response:', res);
+        this.getHospitalList();
+        this.toastrService.success('Hospital Details Updated Successfully', 'Success');
+      },
+      (err) => {
+        console.error('Error:', err);
+        this.toastrService.error('Error In Updating Hospital Details', err?.error?.errorMessage);
+      }
+    )}
+
+  
+    this.showEditModal = false;
+  }
+
+  
   handleDeleteHospital(data: any) {
     console.log('Delete Hospital', this.title);
   }

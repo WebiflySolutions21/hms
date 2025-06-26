@@ -26,7 +26,7 @@ abstract class BaseHelper
         $this->errors = [];
     }
 
-    public function getFirstError(): string
+    public function getErrorMessage(): string
     {
         return $this->errors[0];
     }
@@ -35,5 +35,4 @@ abstract class BaseHelper
     {
         return $this->errors[count($this->errors) - 1];
     }
-
 }

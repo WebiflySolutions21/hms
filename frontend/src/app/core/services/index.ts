@@ -7,6 +7,14 @@ import {DataService} from "./data.service"
 import {DropdownStateService} from "./dropdown-state.service"
 import {RegistrationService} from "./registration.service"
 import {PatientService} from "./patient.service"
+import {EventEmitterService} from "./event-emitter.service"
+import {ChatService} from "./chat.service"
+import { PrintService } from './print.service';
+import {SignupService} from "./signup.service"
+import { HospitalService } from './hospital.service';
+import {LoaderService} from "./loader.service"
+
+export * from "./event-emitter.service"
 export * from './agent.service';
 export * from "./authentication.service"
 export * from "./user.service"
@@ -16,6 +24,11 @@ export * from "./data.service"
 export * from "./dropdown-state.service"
 export * from "./registration.service"
 export * from "./patient.service"
+export * from "./chat.service"
+export * from "./print.service"
+export * from "./signup.service"
+export * from "./hospital.service"
+export * from "./loader.service"
 
 
 export const services=[
@@ -27,5 +40,11 @@ export const services=[
     DataService,
     DropdownStateService,
     RegistrationService,
-    PatientService
+    PatientService,
+    EventEmitterService,
+    ChatService,
+    PrintService,
+    SignupService,
+    HospitalService,
+    LoaderService
 ]

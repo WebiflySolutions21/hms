@@ -8,4 +8,6 @@ export const FORM_BUILDER_AVAILABLE_TYPES = [
     { value: 'radio', label: 'Radio Buttons' },
     { value: 'multi-checkbox', label: 'Multi Checkboxes' },
     { value: 'file', label: 'File Upload' },
-  ];
+    { value: 'time', label: 'Time' },
+    { value: 'template', label: 'Template' },
+];

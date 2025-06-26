@@ -10,13 +10,14 @@ import {
   PATIENT_DETAILS,
 } from '@assets/constants/doctor.constants';
 import { Modal } from 'bootstrap';
+import { EventEmitterService } from 'src/app/core/services';
 @Component({
   selector: 'app-prescription-view',
   templateUrl: './prescription-view.component.html',
   styleUrls: ['./prescription-view.component.scss'],
 })
 export class PrescriptionViewComponent {
-  patientDetails = PATIENT_DETAILS;
+  
   showFollowup = false;
   isFollowupOpen = false;
   selectedDate: string = '';
@@ -38,6 +39,9 @@ export class PrescriptionViewComponent {
     { id: 5, name: 'Dr. Rao' },
   ];
   selectedPatientId = 1
+  @ViewChild('templateModal', { static: false })
+  templateModalRef!: ElementRef;
+  private templateModal!: Modal;
   @ViewChild('admitPatientModal', { static: false })
   admitPatientModalRef!: ElementRef;
   private admitPatientModal!: Modal;
@@ -49,10 +53,10 @@ export class PrescriptionViewComponent {
   private referUpPatientModal!: Modal;
   filteredDoctors = [...this.doctors];
   payload;
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {}
+  constructor(private cdr: ChangeDetectorRef, private router: Router,private eventEmitterService:EventEmitterService) {}
   @ViewChild('prescriptionSection', { static: false })
   prescriptionSection!: ElementRef;
-
+  titleData:any
   scrollToPrescription() {
     setTimeout(() => {
       this.prescriptionSection.nativeElement.scrollIntoView({
@@ -61,25 +65,26 @@ export class PrescriptionViewComponent {
       });
     }, 100);
   }
-  examinationOptions = [
-    { name: 'Headache', value: 'active' },
-    { name: 'Back Pain', value: 'inactive' },
-    { name: 'Having very much pain in my muscle', value: 'inactive' },
-  ];
-  dropdowns = [
-    { label: 'Examination', options: this.examinationOptions, dropdownId: 1 },
-    { label: 'Past History', options: '', dropdownId: 2 },
-    { label: 'Personal History', options: '', dropdownId: 3 },
-    { label: 'Family/Drug History', options: '', dropdownId: 4 },
-    { label: 'Surgical History', options: '', dropdownId: 5 },
-    { label: 'Medical History', options: '', dropdownId: 6 },
-    { label: 'Examinations', options: '', dropdownId: 7 },
-    { label: 'Investigation Lab', options: '', dropdownId: 8 },
-    { label: 'Investigation Imaging', options: '', dropdownId: 9 },
-    { label: 'Symptoms', options: '', dropdownId: 10 },
-    { label: 'Instructions', options: '', dropdownId: 11 },
-    { label: 'Diagnosis', options: '', dropdownId: 12 },
-  ];
+  dropdowns = [];
+  ngOnInit(){
+    let data = JSON.parse(localStorage.getItem("view"))
+    let templateData = JSON.parse(localStorage.getItem("view_template"))
+    this.dropdowns = data.filter((data)=> data.type === 'Doctor' || data.type === 'Both')
+    console.log(this.dropdowns)
+
+    this.eventEmitterService.on("open-template-modal",(data)=>{
+      this.titleData = templateData.filter((data)=>data.visibility ==='Doctor' || data.visibility==='Both')
+      this.openModal('template')
+    })
+
+  }
+
+  useTemplate(data:any){
+    this.prescriptionData = data.data
+    if(this.templateModal){
+      this.templateModal.hide()
+    }
+  }
 
   ngAfterViewInit() {
     if (this.admitPatientModalRef) {
@@ -98,15 +103,20 @@ export class PrescriptionViewComponent {
         this.referUpPatientModalRef.nativeElement
       );
     }
+    if(this.templateModalRef){
+      this.templateModal = new Modal(this.templateModalRef.nativeElement)
+    }
   }
 
-  openModal(type: 'admit' | 'followup' | 'refer') {
+  openModal(type: 'admit' | 'followup' | 'refer' | 'template') {
     if (type === 'admit' && this.admitPatientModal) {
       this.admitPatientModal.show();
     } else if (type === 'followup' && this.followUpPatientModal) {
       this.followUpPatientModal.show();
     } else if (type === 'refer' && this.referUpPatientModal) {
       this.referUpPatientModal.show();
+    }else if(type ==='template' && this.templateModal){
+      this.templateModal.show()
     }
   }
 
@@ -121,6 +131,9 @@ export class PrescriptionViewComponent {
     }
     if (this.referUpPatientModal) {
       this.referUpPatientModal.hide();
+    }
+    if(this.templateModal){
+      this.templateModal.hide()
     }
   }
 
@@ -201,24 +214,24 @@ export class PrescriptionViewComponent {
       selectedOptions.forEach((option) => {
         // Check if the label already exists in selectedCheckboxes
         let existingLabelIndex = this.selectedCheckboxes.findIndex(
-          (item) => Object.keys(item)[0] === option.label
+          (item) => Object.keys(item)[0] === option.key
         );
         // Prepare a dynamic list of options without duplicates
         const dynamicOptions = option.options.map((opt) => ({
-          id: opt.dropdownId,
+          id: opt.id,
           name: opt.name,
         }));
 
         if (existingLabelIndex !== -1) {
           // Replace existing data with the new data
           this.selectedCheckboxes[existingLabelIndex] = {
-            [option.label]: dynamicOptions,
+            [option.key]: dynamicOptions,
             isPrintable: option.isPrintEnabled,
           };
         } else {
           // Create a new label object with the dynamic options
           let newOption = {
-            [option.label]: dynamicOptions,
+            [option.key]: dynamicOptions,
             isPrintable: option.isPrintEnabled,
           };
           this.selectedCheckboxes.push(newOption);

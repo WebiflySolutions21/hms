@@ -9,8 +9,8 @@
     <!-- Form Header -->
     <div class="forms-data">
       <div class="heading-section text-center mb-4">
-        <h2 class="form-title">{{ form?.title }}</h2>
-        <p class="form-desc">{{ form?.description }}</p>
+        <h2 class="form-title">{{ form?.json.title }}</h2>
+        <p class="form-desc">{{ form?.json.description }}</p>
       </div>
 
       <!-- Dynamic Form -->
@@ -23,13 +23,32 @@
             novalidate
             enctype="multipart/form-data"
           >
-            <div *ngFor="let section of form.sections" class="mb-5">
+            <div *ngFor="let section of form.json.sections" class="mb-5">
               <h5 class="section-title border-bottom pb-2 mb-4">
                 {{ section.title }}
               </h5>
 
               <div class="row g-4" [ngClass]="'row-cols-' + section.columns">
                 <div *ngFor="let field of section.fields" class="col">
+                  <div
+                    *ngIf="field.referencesField"
+                    class="referenced-field alert alert-light p-2 mb-2"
+                  >
+                    <small class="text-muted"
+                      >References:
+                      {{ getFormTitle(field.referencesField.formId) }} >
+                      {{
+                        getFieldLabel(
+                          field.referencesField.formId,
+                          field.referencesField.fieldId
+                        )
+                      }}</small
+                    >
+                    <div class="referenced-value mt-1">
+                      {{ formValues[field.id] || "No value found" }}
+                    </div>
+                  </div>
+
                   <!-- Label -->
                   <label [for]="field.id" class="form-label">
                     {{ field.label }}
@@ -71,6 +90,18 @@
                     [required]="field.required"
                   />
 
+                  <!-- Time Input -->
+                  <div *ngIf="field.type === 'time'">
+                    <input
+                      type="time"
+                      class="form-control"
+                      [id]="field.id"
+                      [(ngModel)]="formValues[field.id]"
+                      [name]="field.id"
+                      [required]="field.required"
+                    />
+                  </div>
+
                   <!-- DateTime Local Input -->
                   <input
                     *ngIf="field.type === 'datetime-local'"
@@ -81,7 +112,19 @@
                     [name]="field.id"
                     [required]="field.required"
                   />
-
+<!-- Add this after the referenced-field div -->
+<div *ngIf="field.type === 'template'" class="template-field mb-3">
+  <div class="rendered-template p-3 border rounded bg-light">
+    {{ resolveTemplate(field) }}
+  </div>
+  
+  <!-- Hidden input to store the resolved value -->
+  <input 
+    type="hidden" 
+    [name]="field.id" 
+    [value]="resolveTemplate(field, true)"
+  >
+</div>
                   <!-- File Upload Input -->
                   <div *ngIf="field.type === 'file'">
                     <input
@@ -94,25 +137,51 @@
                       [required]="field.required"
                     />
                     <small *ngIf="field.maxSize" class="text-muted">
-                      Max file size: {{field.maxSize}}MB
+                      Max file size: {{ field.maxSize }}MB
                     </small>
-                    
+
                     <!-- File Preview -->
                     <div *ngIf="formValues[field.id]" class="mt-2">
-                      <div *ngIf="field.multiple && formValues[field.id].length > 0" class="file-preview">
-                        <div *ngFor="let file of formValues[field.id]" class="file-preview-item">
-                          <span>{{file.name}}</span>
-                          <small class="text-muted ms-2">({{(file.size/1024).toFixed(2)}} KB)</small>
-                          <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeFile(field, file)">
+                      <div
+                        *ngIf="
+                          field.multiple && formValues[field.id].length > 0
+                        "
+                        class="file-preview"
+                      >
+                        <div
+                          *ngFor="let file of formValues[field.id]"
+                          class="file-preview-item"
+                        >
+                          <span>{{ file.name }}</span>
+                          <small class="text-muted ms-2"
+                            >({{ (file.size / 1024).toFixed(2) }} KB)</small
+                          >
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger ms-2"
+                            (click)="removeFile(field, file)"
+                          >
                             <i class="bi bi-x"></i>
                           </button>
                         </div>
                       </div>
-                      <div *ngIf="!field.multiple && formValues[field.id]" class="file-preview">
+                      <div
+                        *ngIf="!field.multiple && formValues[field.id]"
+                        class="file-preview"
+                      >
                         <div class="file-preview-item">
-                          <span>{{formValues[field.id].name}}</span>
-                          <small class="text-muted ms-2">({{(formValues[field.id].size/1024).toFixed(2)}} KB)</small>
-                          <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeFile(field)">
+                          <span>{{ formValues[field.id].name }}</span>
+                          <small class="text-muted ms-2"
+                            >({{
+                              (formValues[field.id].size / 1024).toFixed(2)
+                            }}
+                            KB)</small
+                          >
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger ms-2"
+                            (click)="removeFile(field)"
+                          >
                             <i class="bi bi-x"></i>
                           </button>
                         </div>
@@ -162,7 +231,10 @@
                   </div>
 
                   <!-- Checkbox -->
-                  <div *ngIf="field.type === 'checkbox'" class="form-check mt-2">
+                  <div
+                    *ngIf="field.type === 'checkbox'"
+                    class="form-check mt-2"
+                  >
                     <input
                       type="checkbox"
                       class="form-check-input"
@@ -185,7 +257,10 @@
                     [required]="field.required"
                   >
                     <option value="">Select an option</option>
-                    <option *ngFor="let opt of field.options" [value]="opt.value">
+                    <option
+                      *ngFor="let opt of field.options"
+                      [value]="opt.value"
+                    >
                       {{ opt.label }}
                     </option>
                   </select>

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { SuperAdminDashboardRoutingModule } from './super-admin-dashboard-routing.module';
 import { SuperAdminDashboardComponent } from './super-admin-dashboard.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -13,7 +14,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
   imports: [
     CommonModule,
     SuperAdminDashboardRoutingModule,
-    SharedModule
+    SharedModule,
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class SuperAdminDashboardModule { }

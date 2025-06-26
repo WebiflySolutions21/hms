@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 abstract class Controller
 {
     private $request;
+
     public $validatedData = [];
 
     public function __construct(Request $request)
@@ -23,10 +24,11 @@ abstract class Controller
         $validator = Validator::make($this->request->all(), $rules);
 
         if ($validator->fails()) {
-            return ResponseHelper::errorResponse($validator->messages(), Response::HTTP_BAD_REQUEST);
+            return ResponseHelper::errorResponse($validator->messages()->first(), Response::HTTP_BAD_REQUEST);
         }
 
         $this->validatedData = $validator->validated();
+
         return null;
     }
 }

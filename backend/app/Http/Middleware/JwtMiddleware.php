@@ -16,13 +16,13 @@ class JwtMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next)
     {
         $token = $request->header('Authorization');
 
-        if (!$token) {
+        if (! $token) {
             return ResponseHelper::errorResponse('Token not provided', Response::HTTP_UNAUTHORIZED);
         }
 
@@ -30,15 +30,15 @@ class JwtMiddleware
 
         try {
             $credentials = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-            $user = User::find($credentials->sub);
+            $user = User::where(['username' => $credentials->username])->first();
 
-            if (!$user) {
+            if (! $user) {
                 return ResponseHelper::errorResponse('User not found', Response::HTTP_UNAUTHORIZED);
             }
 
             Auth::login($user);
         } catch (\Exception $e) {
-            return ResponseHelper::errorResponse('Invalid token', Response::HTTP_UNAUTHORIZED);
+            return ResponseHelper::errorResponse('Error Validating Token', Response::HTTP_UNAUTHORIZED);
         }
 
         return $next($request);

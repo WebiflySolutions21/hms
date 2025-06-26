@@ -6,6 +6,25 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <div class="tool-panel mb-2">
+            <select [(ngModel)]="selectedTool" class="form-select form-select-sm w-auto d-inline">
+              <option value="pencil">Pencil</option>
+              <option value="eraser">Eraser</option>
+              <option value="rectangle">Rectangle</option>
+              <option value="circle">Circle</option>
+              <option value="text">Text</option>
+              <option value="table">Table</option>
+              <option value="fill">Fill</option>
+            </select>
+          
+            <input type="color" [(ngModel)]="selectedColor" class="form-control form-control-color d-inline mx-2" />
+            <input type="range" min="1" max="20" [(ngModel)]="lineWidth" class="form-range w-auto d-inline" />
+          
+            <button class="btn btn-sm btn-outline-dark mx-1" (click)="undo()">Undo</button>
+            <button class="btn btn-sm btn-outline-dark mx-1" (click)="redo()">Redo</button>
+            <button class="btn btn-sm btn-outline-dark mx-1" (click)="toggleBold()">{{ isBold ? 'Unbold' : 'Bold' }}</button>
+          </div>
+          
           <canvas id="drawingCanvas" width="800" height="400" class="border canvas"></canvas>
         </div>
         <div class="modal-footer">

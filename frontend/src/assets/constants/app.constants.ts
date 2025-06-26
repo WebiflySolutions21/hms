@@ -1,4 +1,10 @@
 export const LOGIN_ROUTES = [
+  {
+    id:20,
+    title:"Signup",
+    path:"/signup",
+    identification:"signup"
+  },
     {
         id:9,
         title:"Super Admin",
@@ -104,3 +110,153 @@ export interface DynamicFormConfig {
     options?: string[]; // for dropdowns
   }
   
+  export const DOCTOR_CONFIG_DASHBOARD_CONFIGURATION = [
+    {
+      name: 'View Config',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+      actions: [
+        {
+          label: 'Create Config',
+          class: 'btn btn-primary',
+          action: 'create-config',
+        },
+      ],
+    },
+    {
+      name: 'Type of Medicine',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+      data_bs_target: '#addTypeOfMedicineModal',
+
+      actions: [
+        {
+          label: 'Add Medicine Type',
+          class: 'btn btn-primary',
+          action: 'add-medicine-type',
+        },
+      ],
+    },
+    {
+      name: 'Medicine Taking Period(When to take)',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+      data_bs_target: '#addMedicinePeriodModal',
+      actions: [
+        {
+          label: 'Add Medicine Period',
+          class: 'btn btn-primary',
+          action: 'add-medicine-period',
+        },
+      ],
+    },
+
+    {
+      name: 'Prescription Template Creation',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+      actions: [
+        {
+          label: 'Create Template',
+          class: 'btn btn-primary',
+          action: 'create-template',
+        },
+      ],
+    },
+
+    {
+      name: 'Show LMP,GA,EDT ',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show OT',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show OPD',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show IPD',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Opthal',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show All Data',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Respective Type Data',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show View Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Reports',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Global Search',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show FollowUp Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Admit Patient Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Refer Patient Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Canvas Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Image Gallery Button',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Prescription Heading',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Heading in  Footer',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Prescription',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+    {
+      name: 'Show Patient Details Section',
+      isEnabledForDoctor: true,
+      isEnabledForOpthal:false,
+    },
+  ];
