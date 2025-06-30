@@ -12,10 +12,6 @@ use App\Http\Middleware\CheckPermissions;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test', function () {
-    return response()->json(['message' => 'Hello From Himanshu Sangwan!']);
-});
-
 Route::middleware([JwtMiddleware::class])->group(function () {
     // Upload File
     Route::get('upload/get_token', [FileUploadController::class, 'get_token']);
