@@ -59,6 +59,7 @@ class FormHelper extends BaseHelper
     {
         $latestVersion = FormVersion::where('form_id', $formId)->max('version');
         $newVersion = $latestVersion ? $latestVersion + 1 : 1;
+
         return FormVersion::create([
             'form_id' => $formId,
             'version' => $newVersion,
@@ -69,7 +70,10 @@ class FormHelper extends BaseHelper
     public function cloneVersion(int $formVersionId): ?FormVersion
     {
         $version = FormVersion::find($formVersionId);
-        if (!$version) return null;
+        if (! $version) {
+            return null;
+        }
+
         return $this->createNewVersion($version->form_id, $version->json);
     }
 }

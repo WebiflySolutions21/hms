@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FormVersion extends Model
 {
     public mixed $version;
+
     protected $table = 'form_versions';
 
     protected $fillable = [
@@ -25,4 +26,3 @@ class FormVersion extends Model
         return $this->belongsTo(Form::class);
     }
 }
-

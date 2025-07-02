@@ -8,7 +8,6 @@ use App\Models\Admin;
 use App\Models\Form;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SuperAdminHelper extends BaseHelper
@@ -51,6 +50,7 @@ class SuperAdminHelper extends BaseHelper
                 'versions' => $versions,
             ];
         }
+
         return $result;
     }
 

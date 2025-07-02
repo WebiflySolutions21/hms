@@ -40,6 +40,7 @@ class FormController extends Controller
         if ($formHelper->hasErrors()) {
             return ResponseHelper::errorResponse($formHelper->getErrorMessage());
         }
+
         return ResponseHelper::successResponse([
             'message' => 'Form version updated successfully!'],
         );
@@ -68,7 +69,7 @@ class FormController extends Controller
                 'form_version_id' => 'required|exists:form_versions,id',
                 'status' => 'required|in:active,inactive',
                 'hospital_id' => 'required|exists:hospitals,id',
-                'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical', //TODO: update these with new roles
+                'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical', // TODO: update these with new roles
             ],
         );
         if ($isInvalidRequest) {
@@ -92,6 +93,7 @@ class FormController extends Controller
         }
         $formHelper = new FormHelper;
         $version = $formHelper->createNewVersion($this->validatedData['form_id'], $this->validatedData['json']);
+
         return ResponseHelper::successResponse([
             'message' => 'Form version created successfully!',
             'version' => $version->version,
@@ -108,9 +110,10 @@ class FormController extends Controller
         }
         $formHelper = new FormHelper;
         $newVersion = $formHelper->cloneVersion($this->validatedData['form_version_id']);
-        if (!$newVersion) {
+        if (! $newVersion) {
             return ResponseHelper::errorResponse('Form version not found.');
         }
+
         return ResponseHelper::successResponse([
             'message' => 'Form version cloned successfully!',
             'version' => $newVersion->version,
