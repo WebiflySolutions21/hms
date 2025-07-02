@@ -21,7 +21,7 @@ class Form extends Model
      */
     protected $fillable = ['name'];
 
-    public function hospitalFormVersionDetails():HasMany
+    public function hospitalFormVersionDetails(): HasMany
     {
         return $this->hasMany(HospitalFormVersionDetail::class, 'form_version_id');
     }
