@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class HospitalFormDetail extends Model
+class HospitalFormVersionDetail extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'hospitals_forms_details';
+    protected $table = 'hospitals_form_versions_details';
 
     /**
      * The attributes that are mass assignable.
@@ -20,7 +21,7 @@ class HospitalFormDetail extends Model
      */
     protected $fillable = [
         'hospital_id',
-        'form_id',
+        'form_version_id',
         'status',
         'visibility',
     ];
@@ -28,17 +29,17 @@ class HospitalFormDetail extends Model
     /**
      * Get the hospital associated with the record.
      */
-    public function hospital()
+    public function hospital(): BelongsTo
     {
         return $this->belongsTo(Hospital::class);
     }
 
     /**
-     * Get the form associated with the record.
+     * Get the form version associated with the record.
      */
-    public function form()
+    public function formVersion(): BelongsTo
     {
-        return $this->belongsTo(Form::class);
+        return $this->belongsTo(FormVersion::class, 'form_version_id');
     }
 
     /**

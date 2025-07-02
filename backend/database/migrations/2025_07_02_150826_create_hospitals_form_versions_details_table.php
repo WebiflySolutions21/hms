@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hospitals_forms_details', function (Blueprint $table) {
+        Schema::create('hospitals_form_versions_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('hospital_id')->constrained('hospitals')->onDelete('cascade');
-            $table->foreignId('form_id')->constrained('forms')->onDelete('cascade');
+            $table->foreignId('form_version_id')->constrained('form_versions')->onDelete('cascade');
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->json('visibility')->nullable()->default(null);
             $table->timestamps();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hospitals_forms_details');
+        Schema::dropIfExists('hospitals_form_versions_details');
     }
 };

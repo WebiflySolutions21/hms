@@ -35,10 +35,13 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 // Forms
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/form/create', [FormController::class, 'create'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
-    Route::put('/form/update', [FormController::class, 'update'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
     Route::delete('/form/delete', [FormController::class, 'delete'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
-    Route::put('form/update/status', [FormController::class, 'updateStatus'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
+    Route::put('/form/update/status', [FormController::class, 'updateStatus'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
     Route::get('/form/list', [SuperAdminController::class, 'getFormListForHospital'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
+    // Versioned form routes
+    Route::post('/form/version/create', [FormController::class, 'createVersion'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
+    Route::put('/form/version/update', [FormController::class, 'updateVersion'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
+    Route::post('/form/version/clone', [FormController::class, 'cloneVersion'])->middleware([CheckPermissions::class.':'.PermissionConstants::MANAGE_FORMS]);
 });
 
 // Create Admin
