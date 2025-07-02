@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('forms', function (Blueprint $table) {
+        Schema::create('form_versions', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->boolean('is_deleted')->default(false);
+            $table->unsignedBigInteger('form_id');
+            $table->integer('version');
+            $table->json('json');
             $table->timestamps();
-        });
 
+            $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
+            $table->unique(['form_id', 'version']);
+        });
     }
 
     /**
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('forms');
+        Schema::dropIfExists('form_versions');
     }
 };

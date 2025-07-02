@@ -8,32 +8,50 @@ use App\Models\Admin;
 use App\Models\Form;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SuperAdminHelper extends BaseHelper
 {
-    public function getFormListByHospitalId($hospital_id): Collection
+    public function getFormListByHospitalId($hospital_id): array
     {
-        return Form::query()
-            ->select(
-                'forms.id',
-                'forms.name',
-                'forms.json',
-                'hospital_form_details.visibility',
-                DB::raw('COALESCE(hospital_form_details.status, "inactive") as status')
-            )
-            ->leftJoin('hospitals_forms_details as hospital_form_details', function ($join) use ($hospital_id) {
-                $join->on('forms.id', '=', 'hospital_form_details.form_id')
-                    ->where('hospital_form_details.hospital_id', $hospital_id);
-            })
-            ->where('forms.is_deleted', 0)
-            ->get()
-            ->map(function ($record) {
-                $record->visibility = json_decode($record->visibility, true);
+        // Get all forms (not deleted)
+        $forms = DB::table('forms')
+            ->where('is_deleted', 0)
+            ->get();
 
-                return $record;
-            });
+        // Get all hospital form version details for this hospital
+        $hospitalFormVersions = DB::table('hospitals_form_versions_details')
+            ->where('hospital_id', $hospital_id)
+            ->get()
+            ->keyBy('form_version_id');
+
+        // Get all versions for all forms
+        $formVersions = DB::table('form_versions')
+            ->whereIn('form_id', $forms->pluck('id'))
+            ->get()
+            ->groupBy('form_id');
+
+        $result = [];
+        foreach ($forms as $form) {
+            $versions = [];
+            foreach ($formVersions[$form->id] ?? [] as $version) {
+                $hfd = $hospitalFormVersions[$version->id] ?? null;
+                $versions[] = [
+                    'form_version_id' => $version->id,
+                    'version' => $version->version,
+                    'json' => $version->json,
+                    'status' => $hfd->status ?? 'inactive',
+                    'visibility' => isset($hfd->visibility) ? json_decode($hfd->visibility, true) : null,
+                ];
+            }
+            $result[] = [
+                'form_id' => $form->id,
+                'form_name' => $form->name,
+                'versions' => $versions,
+            ];
+        }
+
+        return $result;
     }
 
     public function createAdmin(array $data): void

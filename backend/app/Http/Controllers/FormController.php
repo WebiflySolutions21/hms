@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Form\FormHelper;
 use App\Helpers\ResponseHelper;
+use Illuminate\Http\JsonResponse;
 
 class FormController extends Controller
 {
-    public function create()
+    public function create(): JsonResponse
     {
         $isInvalidRequest = $this->validateRequest(
             [
@@ -25,31 +26,27 @@ class FormController extends Controller
         );
     }
 
-    public function update()
+    public function updateVersion(): JsonResponse
     {
-        $isInvalidRequest = $this->validateRequest(
-            [
-                'id' => 'required|exists:forms,id',
-                'name' => 'required|min:3',
-                'json' => 'required|array',
-            ],
-        );
+        $isInvalidRequest = $this->validateRequest([
+            'id' => 'required|exists:form_versions,id',
+            'json' => 'required|array',
+        ]);
         if ($isInvalidRequest) {
             return $isInvalidRequest;
         }
         $formHelper = new FormHelper;
-        $formHelper->updateForm($this->validatedData);
+        $formHelper->updateFormVersion($this->validatedData);
         if ($formHelper->hasErrors()) {
             return ResponseHelper::errorResponse($formHelper->getErrorMessage());
         }
 
-        return ResponseHelper::successResponse(
-            ['message' => 'Form updated successfully!'],
+        return ResponseHelper::successResponse([
+            'message' => 'Form version updated successfully!'],
         );
-
     }
 
-    public function delete()
+    public function delete(): JsonResponse
     {
         $isInvalidRequest = $this->validateRequest(
             ['id' => 'required|exists:forms,id'],
@@ -65,14 +62,14 @@ class FormController extends Controller
 
     }
 
-    public function updateStatus()
+    public function updateStatus(): JsonResponse
     {
         $isInvalidRequest = $this->validateRequest(
             [
-                'form_id' => 'required|exists:forms,id',
+                'form_version_id' => 'required|exists:form_versions,id',
                 'status' => 'required|in:active,inactive',
                 'hospital_id' => 'required|exists:hospitals,id',
-                'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical',
+                'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical', // TODO: update these with new roles
             ],
         );
         if ($isInvalidRequest) {
@@ -83,5 +80,43 @@ class FormController extends Controller
         return ResponseHelper::successResponse(
             ['message' => 'Form status updated successfully!'],
         );
+    }
+
+    public function createVersion(): JsonResponse
+    {
+        $isInvalidRequest = $this->validateRequest([
+            'form_id' => 'required|exists:forms,id',
+            'json' => 'required|array',
+        ]);
+        if ($isInvalidRequest) {
+            return $isInvalidRequest;
+        }
+        $formHelper = new FormHelper;
+        $version = $formHelper->createNewVersion($this->validatedData['form_id'], $this->validatedData['json']);
+
+        return ResponseHelper::successResponse([
+            'message' => 'Form version created successfully!',
+            'version' => $version->version,
+        ]);
+    }
+
+    public function cloneVersion(): JsonResponse
+    {
+        $isInvalidRequest = $this->validateRequest([
+            'form_version_id' => 'required|exists:form_versions,id',
+        ]);
+        if ($isInvalidRequest) {
+            return $isInvalidRequest;
+        }
+        $formHelper = new FormHelper;
+        $newVersion = $formHelper->cloneVersion($this->validatedData['form_version_id']);
+        if (! $newVersion) {
+            return ResponseHelper::errorResponse('Form version not found.');
+        }
+
+        return ResponseHelper::successResponse([
+            'message' => 'Form version cloned successfully!',
+            'version' => $newVersion->version,
+        ]);
     }
 }
