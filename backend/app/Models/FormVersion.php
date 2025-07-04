@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FormVersion extends Model
 {
-
     protected $table = 'form_versions';
 
     protected $fillable = [

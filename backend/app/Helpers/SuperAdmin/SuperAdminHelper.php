@@ -10,24 +10,23 @@ use App\Models\FormVersion;
 use App\Models\HospitalFormVersionDetail;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class SuperAdminHelper extends BaseHelper
 {
     public function getFormListByHospitalId($hospital_id): array
     {
         // Get all forms (not deleted)
-            $forms = Form::where('is_deleted', 0)->get();
+        $forms = Form::where('is_deleted', 0)->get();
 
-            // Get all hospital form version details for this hospital
-            $hospitalFormVersions = HospitalFormVersionDetail::where('hospital_id', $hospital_id)
-                ->get()
-                ->keyBy('form_version_id');
+        // Get all hospital form version details for this hospital
+        $hospitalFormVersions = HospitalFormVersionDetail::where('hospital_id', $hospital_id)
+            ->get()
+            ->keyBy('form_version_id');
 
-            // Get all versions for all forms
-            $formVersions = FormVersion::whereIn('form_id', $forms->pluck('id'))
-                ->get()
-                ->groupBy('form_id');
+        // Get all versions for all forms
+        $formVersions = FormVersion::whereIn('form_id', $forms->pluck('id'))
+            ->get()
+            ->groupBy('form_id');
 
         $result = [];
         foreach ($forms as $form) {
