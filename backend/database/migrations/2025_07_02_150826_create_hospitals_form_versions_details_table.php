@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('hospital_id')->constrained('hospitals')->onDelete('cascade');
             $table->foreignId('form_version_id')->constrained('form_versions')->onDelete('cascade');
-            $table->enum('status', ['active', 'inactive'])->default('inactive');
+            $table->enum('status', ['active', 'inactive'])->default('inactive')->nullable(false);
             $table->json('visibility')->nullable()->default(null);
             $table->timestamps();
         });

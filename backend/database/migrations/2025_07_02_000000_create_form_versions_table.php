@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('form_versions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('form_id');
-            $table->integer('version');
-            $table->json('json');
+            $table->integer('version')->nullable(false);
+            $table->json('details')->nullable(false);
             $table->timestamps();
 
             $table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');

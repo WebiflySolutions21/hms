@@ -93,7 +93,6 @@ class FormController extends Controller
         }
         $formHelper = new FormHelper;
         $version = $formHelper->createNewVersion($this->validatedData['form_id'], $this->validatedData['json']);
-
         return ResponseHelper::successResponse([
             'message' => 'Form version created successfully!',
             'version' => $version->version,

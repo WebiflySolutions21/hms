@@ -27,18 +27,6 @@ This document describes the API endpoints and data structures for managing forms
 
 ---
 
-### 2. Update Form Name
-- **URL:** `PUT /form/update`
-- **Body:**
-  - `id` (int, required, exists:forms,id)
-  - `name` (string, required, min:3)
-- **Response:** `{ message: string }`
-- **Validation:**
-  - `id` must exist in forms table
-  - `name` must be at least 3 characters
-- **Effect:** Updates the form's name only.
-
----
 
 ### 3. Delete Form
 - **URL:** `DELETE /form/delete`
