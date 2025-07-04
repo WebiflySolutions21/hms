@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Form extends Model
 {
@@ -18,19 +19,15 @@ class Form extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'json'];
+    protected $fillable = ['name'];
 
-    public function hospitalFormDetails()
+    public function hospitalFormVersionDetails(): HasMany
     {
-        return $this->hasMany(HospitalFormDetail::class, 'form_id');
+        return $this->hasMany(HospitalFormVersionDetail::class, 'form_version_id');
     }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'json' => 'array',
-    ];
+    public function versions(): HasMany
+    {
+        return $this->hasMany(FormVersion::class, 'form_id');
+    }
 }
