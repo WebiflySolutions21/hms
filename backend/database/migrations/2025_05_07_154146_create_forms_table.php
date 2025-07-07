@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('forms', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->json('json');
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
         });
