@@ -14,6 +14,8 @@ class RoleConstants
 
     public const string STAFF = 'staff';
 
+    public const string OPHTHALMOLOGIST = 'ophthalmologist';
+
     public const string RECEPTIONIST = 'receptionist';
 
     public const string LAB_TECHNICIAN = 'lab-technician';
@@ -29,5 +31,6 @@ class RoleConstants
         self::RECEPTIONIST,
         self::LAB_TECHNICIAN,
         self::PHARMACIST,
+        self::OPHTHALMOLOGIST,
     ];
 }

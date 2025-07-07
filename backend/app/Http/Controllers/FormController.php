@@ -70,7 +70,7 @@ class FormController extends Controller
                 'form_version_id' => 'required|exists:form_versions,id',
                 'status' => 'required|in:active,inactive',
                 'hospital_id' => 'required|exists:hospitals,id',
-                'visibility' => 'array|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST,
+                'visibility' => 'array|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST.','.RoleConstants::OPHTHALMOLOGIST,
             ],
         );
         if ($isInvalidRequest) {

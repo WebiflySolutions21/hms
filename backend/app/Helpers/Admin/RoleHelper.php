@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\Doctor;
 use App\Models\Hospital;
 use App\Models\LabTechnician;
+use App\Models\Ophthalmologist;
 use App\Models\Pharmacist;
 use App\Models\Receptionist;
 use App\Models\Role;
@@ -25,6 +26,7 @@ class RoleHelper extends BaseHelper
             RoleConstants::RECEPTIONIST => new Receptionist,
             RoleConstants::PHARMACIST => new Pharmacist,
             RoleConstants::STAFF => new Staff,
+            RoleConstants::OPHTHALMOLOGIST => new Ophthalmologist,
             default => null,
         };
         if (! $model) {
