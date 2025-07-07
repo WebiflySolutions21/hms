@@ -72,7 +72,7 @@ This document describes the API endpoints and data structures for managing forms
   - `form_version_id` (int, required, exists:form_versions,id)
   - `hospital_id` (int, required, exists:hospitals,id)
   - `status` (string, required, one of: active, inactive)
-  - `visibility` (array, optional, values: doctor, staff, reception, opthal, lab, medical)
+  - `visibility` (array, optional, values: doctor, staff, receptionist, lab-technician, pharmacist)
 - **Response:** `{ message: string }`
 - **Effect:** Sets the status/visibility for a form version for a hospital.
 

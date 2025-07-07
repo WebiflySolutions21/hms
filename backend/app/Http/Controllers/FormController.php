@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\RoleConstants;
 use App\Helpers\Form\FormHelper;
 use App\Helpers\ResponseHelper;
 use Illuminate\Http\JsonResponse;
@@ -69,7 +70,7 @@ class FormController extends Controller
                 'form_version_id' => 'required|exists:form_versions,id',
                 'status' => 'required|in:active,inactive',
                 'hospital_id' => 'required|exists:hospitals,id',
-                'visibility' => 'array|in:doctor,staff,reception,opthal,lab,medical', // TODO: update these with new roles
+                'visibility' => 'array|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST,
             ],
         );
         if ($isInvalidRequest) {
