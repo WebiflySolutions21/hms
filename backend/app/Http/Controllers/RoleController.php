@@ -17,7 +17,7 @@ class RoleController extends Controller
         $validation = $this->validateRequest([
             'username' => 'required|exists:users,username',
             'hospital_id' => 'required|integer|exists:hospitals,id',
-            'role' => 'required|exists:roles,name|string|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST,
+            'role' => 'required|exists:roles,name|string|in:'.RoleConstants::RECEPTIONIST.','.RoleConstants::DOCTOR.','.RoleConstants::STAFF.','.RoleConstants::LAB_TECHNICIAN.','.RoleConstants::PHARMACIST.','.RoleConstants::OPHTHALMOLOGIST,
             'details' => 'array',
         ]);
 
