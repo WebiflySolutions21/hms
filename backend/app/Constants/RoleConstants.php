@@ -2,8 +2,8 @@
 
 namespace App\Constants;
 
-class RoleConstants {
-
+class RoleConstants
+{
     public const string TESTER = 'tester';
 
     public const string SUPER_ADMIN = 'super-admin';
@@ -33,5 +33,4 @@ class RoleConstants {
         self::PHARMACIST,
         self::OPHTHALMOLOGIST,
     ];
-
 }
