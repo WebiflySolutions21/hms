@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Route;
 Route::get(
     '/',
     function () {
-        return ResponseHelper::successResponse(
-            ['message' => 'Welcome to the Hospital Management System API'],
-        );
+        return ResponseHelper::successResponse('Welcome to the API!');
     },
 );
